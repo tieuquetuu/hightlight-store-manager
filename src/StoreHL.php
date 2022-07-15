@@ -191,6 +191,7 @@ class StoreHL
 
     public static function check_end_day_send_mail(){
         $day_before = 3;
+        $time_zone_7=7*60*60;
         $query_args = array(
             'post_type'   => 're',
             'post_status' =>'publish',
@@ -210,7 +211,7 @@ class StoreHL
                     //php mailer variables
                     $to = $user_email;
                     $subject = "Thông báo gia hạn dịch vụ";
-                    $message = "Dịch vụ cần được gia hạn: ".get_permalink($the_query->post->ID);
+                    $message = "Sản phẩm của bạn còn 3 ngày nữa sẽ hết hạn, bạn cần gia hạn: ".get_permalink($the_query->post->ID);
 
                     //Here put your Validation and send mail
                     $sent = wp_mail( $to, $subject, $message);
