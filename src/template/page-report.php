@@ -5,6 +5,8 @@
  * @package willgroup
  */
 
+use HightLightStore\StoreHLGA4;
+
 if( ! is_user_logged_in() ) {
 	wp_redirect( home_url() );
 	exit;
@@ -32,6 +34,7 @@ $sizes = array(
 "100"=>"100",
 "200"=>"200" 
 );
+
 ?>
 
 <div class="select_report_filter" style="float:right">
@@ -99,7 +102,13 @@ $sizes = array(
             </tr>
         </thead>
         <tbody>
-            <?php while( $query->have_posts() ) : $query->the_post(); ?>
+            <?php
+
+            while( $query->have_posts() ) : $query->the_post();
+                global $post;
+                    $report = HightLightStore\StoreHLGA4::instance()->reportByProductSlug(array("slug" => $post->post_name));
+                    $report_data = $report['data']; ?>
+
             <tr>
                 <td class=" d-sm-table-cell"><?php echo ((int)$query->current_post) + 1; ?></td>
                 <td class="d-none d-sm-table-cell">
@@ -115,16 +124,20 @@ $sizes = array(
                     <a href="<?php the_permalink(); ?>"><strong><?php the_title(); //echo $post->ID; ?></strong></a>
                 </td>
                 <td class=" d-lg-table-cell">
-                    1000
+
+                    <?php echo $report_data->click_buy_product ?>
+<!--                    1000-->
                 </td>
                 <td class=" d-lg-table-cell">
-                    1000
+                    <?php echo $report_data->click_view_shop ?>
+<!--                    1000-->
                 </td>
                 <td class=" d-lg-table-cell">
                     1000
                 </td>
                 <td class=" d-sm-table-cell">
-                    1000
+                    <?php echo $report_data->page_view ?>
+<!--                    1000-->
                 </td>
             </tr>
             <?php endwhile; wp_reset_postdata(); ?>
