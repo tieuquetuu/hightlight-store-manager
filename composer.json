@@ -1,0 +1,25 @@
+{
+    "type": "package",
+    "package" : {
+        "name" : "tieuquetuu/store-hightlight",
+        "type" : "wordpress-plugin",
+        "version" : "0.1"
+    },
+    "require": {
+        "google/cloud": "^0.185.0",
+        "google/analytics-data": "^0.8.4",
+        "johnpbloch/wordpress": "^6.0",
+        "composer/installers": "^2.1"
+    },
+    "config": {
+        "optimize-autoloader": true
+    },
+    "autoload": {
+        "psr-4": {
+            "StoreHightLight\\": "src/"
+        },
+        "classmap": [
+            "src/"
+        ]
+    }
+}
