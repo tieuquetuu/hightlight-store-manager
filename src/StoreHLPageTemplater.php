@@ -71,7 +71,7 @@ class StoreHLPageTemplater {
         // Add your templates to this array.
         $this->templates = array(
             'template/page-report.php' => 'Thống kê số liệu',
-            'template/page-test.php' => 'Test class HightLightStore',
+            'template/page-report-v2.php' => 'Thống kê số liệu version 2',
             'template/page-management-data.php' => 'Quản lý dữ liệu sản phẩm',
         );
 
