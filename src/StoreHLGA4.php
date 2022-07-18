@@ -455,18 +455,24 @@ class StoreHLGA4 {
         $args = is_array($args) ? $args : null;
         $dimensions = isset($args['dimensions']) && is_array($args['dimensions']) ? $args['dimensions'] : array();
         $metrics = isset($args['metrics']) && is_array($args['metrics']) ? $args['metrics'] : array();
+        $has_date_ranges = isset($args['date_ranges']) && is_array($args['date_ranges']) ? TRUE : FALSE;
 //        $dimension_filters = isset($args['dimension_filters']) && is_array($args['dimension_filters']) && count($args['dimension_filters']) > 0 ? $args['dimension_filters'] : array();
 //
 //        $and_group = isset($dimension_filters['and_group']) && is_array($dimension_filters['and_group']) && count($dimension_filters['and_group']) > 0 ? $dimension_filters['and_group'] : null;
 //        $and_group_expressions = isset($and_group['expressions']) && is_array($and_group['expressions']) && count($and_group['expressions']) ? $and_group['expressions'] : array();
 
-        // Map the date ranges key
-        $date_ranges = array(
-            new DateRange([
-                'start_date' => '2022-07-01', // Bắt đầu từ trước
-                'end_date' => 'today', // Tới hôm nay
-            ]),
+        $default_date_range = array(
+            'start_date' => '2022-07-01', // Bắt đầu từ trước
+            'end_date' => 'today', // Tới hôm nay
         );
+        $raw_date_ranges = $has_date_ranges ? $args['date_ranges'] : $default_date_range;
+
+        // Map the date ranges key
+        $date_ranges = array_map(function($date_item_name) {
+            return new DateRange([
+                $date_item_name
+            ]);
+        }, $raw_date_ranges);
         // Map the dimensions key
         $dimensions = array_map(function($d_item_name) {
             return new Dimension([
