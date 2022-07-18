@@ -145,13 +145,23 @@ class StoreHL
             'user_ip'               =>  $user_ip,
             'user_cookie'           =>  $user_cookie,
             'referer'               =>  $referer,
-            'product_id'            =>  $product->ID,
-            'product_slug'          =>  $product->post_name,
-            'product_title'         =>  $product->post_title,
-            // 'product_url'           =>  $productUrl,
-            'author_id'             =>  $product->post_author,
         );
 
+        if (isset($product)) {
+            $translation_array = array_merge($translation_array, array(
+                'product_id'            =>  $product->ID,
+                'product_slug'          =>  $product->post_name,
+                'product_title'         =>  $product->post_title,
+                // 'product_url'           =>  $productUrl,
+                'author_id'             =>  $product->post_author,
+            ));
+        }
+
+        // Store Hight Light Extension Library
+        wp_enqueue_style( 'hightlight-data-table-css',"//cdn.datatables.net/v/dt/dt-1.12.1/datatables.min.css");
+        wp_enqueue_script( 'hightlight-data-table-js','//cdn.datatables.net/v/dt/dt-1.12.1/datatables.min.js', array( 'jquery' ), '', true );
+
+        // Store Hight Light Script Tracking
         wp_enqueue_style( 'hightlight-store-css',  STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . "assets/css/main.css");
         wp_enqueue_script( 'hightlight-store-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/main.js', array( 'jquery' ), '', true );
         // Localize the script with new data

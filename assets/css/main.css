@@ -53,3 +53,8 @@
   display:inline-block;
   margin: 0 15px 5px 0;
 }
+
+
+.store-hightlight-dataTable tbody tr {
+    cursor: pointer;
+}

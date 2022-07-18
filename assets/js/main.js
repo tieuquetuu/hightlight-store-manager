@@ -78,12 +78,57 @@ function TrackingClickBuyProduct() {
 }
 
 
+function SetupTracking() {
+	TrackingClickGoToStore()
+	TrackingClickBuyProduct()
+	TrackingViewProduct()
+	TrackingPageView()
+}
 
+function SetupDataTable() {
+ 	let $tables = $(".store-hightlight-dataTable");
+	let dataTableOptions = {
+		// rowGroup: true,
+		responsive: true,
+		// dom: 'Bfrtip',
+		/*buttons: [
+			'excel'
+		]*/
+	}
+	if ($tables.length) {
+		$tables.each(function (tableIndex,tableDom) {
+			let $table = $(tableDom);
+			let $dataTable = $table.DataTable(dataTableOptions);
+			$table.find("tbody").on("click", "tr", function(e) {
+				$(this).toggleClass('selected')
+			});
+
+			/*if ($table.attr("id") === "system-analystic-table") {
+				$dataTable.column(1).data().unique();
+			}*/
+		})
+	}
+
+	// if ($(".store-hightlight-dataTable").length) {
+	// 	let dataTableOptions = {
+	// 		// rowGroup: true,
+	// 		responsive: true,
+	// 		// dom: 'Bfrtip',
+	// 		buttons: [
+	// 			'copy', 'excel', 'pdf'
+	// 		]
+	// 	}
+	// 	$(".store-hightlight-dataTable").DataTable(dataTableOptions);
+	// }
+}
+
+// Setup tracking if gtag isset
 if (typeof gtag !== 'undefined') {
 	$(document).ready(function() {
-		TrackingClickGoToStore()
-		TrackingClickBuyProduct()
-		TrackingViewProduct()
-		TrackingPageView()
+		SetupTracking()
+		SetupDataTable();
 	})
 }
+
+
+// Setup Data Table

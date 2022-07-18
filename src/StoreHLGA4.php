@@ -382,4 +382,237 @@ class StoreHLGA4 {
 
         return $result;
     }
+
+    public static function DimensionExplain($dimensionSlug) {
+        $slug = is_string($dimensionSlug) && strlen($dimensionSlug) > 0 ? $dimensionSlug : NULL;
+
+        $name = NULL;
+
+        switch ($slug) {
+            case "hostName":
+                $name = "Tên miền";
+            break;
+            case "pageTitle":
+                $name = "Tiêu đề trang";
+                break;
+            case "pageLocation":
+                $name = "Đường dẫn chi tiết";
+                break;
+            case "pagePath":
+                $name = "Đường dẫn";
+                break;
+            case "sessions":
+                $name = "Số phiên ( traffic )";
+                break;
+            case "eventName":
+                $name = "Tên sự kiện";
+                break;
+            default:
+                $name = $slug;
+        }
+
+        return $name;
+    }
+
+    public static function MetricExplain($metricSlug) {
+        $slug = is_string($metricSlug) && strlen($metricSlug) > 0 ? $metricSlug : NULL;
+
+        $name = NULL;
+
+        switch ($slug) {
+            case "eventCount":
+                $name = "Tổng số sự kiện";
+                break;
+            case "activeUsers":
+                $name = "Người dùng";
+                break;
+            case "sessions":
+                $name = "Tổng số phiên";
+                break;
+            case "screenPageViews":
+                $name = "Lượt xem";
+                break;
+            case "userEngagementDuration":
+                $name = "Tổng thời gian xem (s)";
+                break;
+            case "averageSessionDuration":
+                $name = "Thời lượng trung bình (s)";
+                break;
+            case "engagedSessions":
+                $name = "Số phiên kéo dài trên 10s";
+                break;
+            case "engagementRate":
+                $name = "Tỉ lệ tương tác";
+                break;
+            default:
+                $name = $slug;
+        }
+
+        return $name;
+    }
+
+    public static function ThongKeSoLieuHeThong($args) {
+        $args = is_array($args) ? $args : null;
+        $dimensions = isset($args['dimensions']) && is_array($args['dimensions']) ? $args['dimensions'] : array();
+        $metrics = isset($args['metrics']) && is_array($args['metrics']) ? $args['metrics'] : array();
+//        $dimension_filters = isset($args['dimension_filters']) && is_array($args['dimension_filters']) && count($args['dimension_filters']) > 0 ? $args['dimension_filters'] : array();
+//
+//        $and_group = isset($dimension_filters['and_group']) && is_array($dimension_filters['and_group']) && count($dimension_filters['and_group']) > 0 ? $dimension_filters['and_group'] : null;
+//        $and_group_expressions = isset($and_group['expressions']) && is_array($and_group['expressions']) && count($and_group['expressions']) ? $and_group['expressions'] : array();
+
+        // Map the date ranges key
+        $date_ranges = array(
+            new DateRange([
+                'start_date' => '2022-07-01', // Bắt đầu từ trước
+                'end_date' => 'today', // Tới hôm nay
+            ]),
+        );
+        // Map the dimensions key
+        $dimensions = array_map(function($d_item_name) {
+            return new Dimension([
+                'name' => $d_item_name
+            ]);
+        }, $dimensions);
+        // Map the metrics key
+        $metrics = array_map(function($m_item_name) {
+            return new Metric([
+                'name' => $m_item_name
+            ]);
+        }, $metrics);
+
+//        // Map the and group dimension array
+//        $and_group_expressions = array_map(function($and_group_item){
+//            $and_group_item['filter'] = new Filter($and_group_item['filter']);
+//            return new FilterExpression($and_group_item);
+//        },  $and_group);
+//
+//        // Map the dimension_filter
+//        $dimension_filter_options = new FilterExpression(
+//            array(
+//                'and_group' => new FilterExpressionList(
+//                     array(
+//                         'expressions' => $and_group_expressions
+//                     )
+//                )
+//            )
+//        );
+
+        $options = array(
+            'property' => 'properties/' . self::properties(),
+            'dateRanges' => $date_ranges,
+            'dimensions' => $dimensions,
+            'metrics' => $metrics,
+            'dimensionFilter' => new FilterExpression(array(
+                'and_group' => new FilterExpressionList(
+                    array(
+                        'expressions' => array(
+                            new FilterExpression(
+                                array(
+                                    'filter' => new Filter(
+                                        [
+                                            'field_name' => "pagePath",
+                                            'string_filter' => new StringFilter(
+                                                [
+                                                    'value' => '/product',
+                                                    'match_type' => MatchType::BEGINS_WITH,
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                )
+                            ),
+                            new FilterExpression(
+                                array(
+                                    'filter' => new Filter(
+                                        array(
+                                            'field_name' => "eventName",
+                                            'in_list_filter' => new InListFilter(
+                                                array(
+                                                    'values' => array(
+                                                        "page_view",
+                                                        "user_engagement",
+                                                        "userEngagementDuration",
+                                                        "click_buy_product",
+                                                        "click_view_shop",
+                                                        "view_product_item"
+                                                    ),
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                        )
+                    )
+                ),
+                /*'or_group' => new FilterExpressionList(
+                    array(
+                        'expressions' => array(
+                            new FilterExpression(
+                                array(
+                                    'filter' => new Filter(
+                                        [
+                                            'field_name' => "pagePath",
+                                            'string_filter' => new StringFilter(
+                                                [
+                                                    'value' => '/product',
+                                                    'match_type' => MatchType::CONTAINS,
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                )
+                            ),
+                            new FilterExpression(
+                                array(
+                                    'filter' => new Filter(
+                                        [
+                                            'field_name' => "pagePath",
+                                            'string_filter' => new StringFilter(
+                                                [
+                                                    'value' => '/nha-dat',
+                                                    'match_type' => MatchType::CONTAINS,
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )*/
+            )),
+            'limit' => 10000,
+            'offset' => 0
+        );
+
+        $response = self::client()->runReport($options);
+
+        /*$response = self::client()->runReport([
+            'property' => 'properties/' . self::properties(),
+            'dateRanges' => [
+                new DateRange([
+                    'start_date' => '2022-07-01', // Bắt đầu từ trước
+                    'end_date' => 'today', // Tới hôm nay
+                ]),
+            ],
+            'dimensions' => $dimensions,
+            'metrics' => $metrics,
+            'dimensions' => [
+                new Dimension([
+                    'name' => "hostName", // Danh sách tên miền
+                ])
+            ],
+            'metrics' => [
+                new Metric([
+                    'name' => "sessions", // Đếm các sự kiện
+                ]),
+                new Metric([
+                    'name' => "eventCount", // Đếm các sự kiện
+                ]),
+            ],
+        ]);*/
+
+        return $response;
+    }
 }
