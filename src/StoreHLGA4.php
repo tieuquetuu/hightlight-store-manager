@@ -465,7 +465,7 @@ class StoreHLGA4 {
             'start_date' => '2022-07-01', // Bắt đầu từ trước
             'end_date' => 'today', // Tới hôm nay
         );
-        $raw_date_ranges = $has_date_ranges ? $args['date_ranges'] : $default_date_range;
+        $raw_date_ranges = $has_date_ranges ? $args['date_ranges'] : array($default_date_range);
 
         // Map the date ranges key
         $date_ranges = array_map(function($date_item_name) {
