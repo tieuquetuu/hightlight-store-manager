@@ -68,29 +68,3 @@ store_hightlight_init();
 if (defined('WP_CLI') && WP_CLI) {
     require_once 'cli/wp-cli.php';
 }
-
-//use HightLightStore\StoreHLGA4;
-
-if ($_GET['debug'] == 'vip') {
-
-//    var_dump(HightLightStore\StoreHLGa4::instance()->ThongKeSoLieuHeThong());
-//    var_dump(class_exists(''));
-    echo "<pre>";
-
-    $report_str = HightLightStore\StoreHLGa4::instance()->ThongKeSoLieuHeThong(
-        array(
-            "date_ranges" => array(
-                'start_date' => '2022-07-01', // Bắt đầu từ trước
-                'end_date' => 'today', // Tới hôm nay
-            )
-        )
-    );
-
-//    $report_json = json_decode($report_str);
-
-    print_r($report_str);
-
-    echo "</pre>";
-    die();
-
-}
