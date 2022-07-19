@@ -1,6 +1,6 @@
 <?php
 
-namespace HightLightStore;
+namespace StoreHightLight;
 
 use Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
 use Google\Analytics\Data\V1beta\DateRange;
@@ -436,7 +436,7 @@ class StoreHLGA4 {
                 $name = "Tổng thời gian xem (s)";
                 break;
             case "averageSessionDuration":
-                $name = "Thời lượng trung bình (s)";
+                $name = "Thời lượng trung bình ( giây )";
                 break;
             case "engagedSessions":
                 $name = "Số phiên kéo dài trên 10s";
@@ -497,6 +497,46 @@ class StoreHLGA4 {
 //            )
 //        );
 
+        // Lọc dữ liệu theo danh sách event
+        $filterByEventName = new FilterExpression(
+            array(
+                'filter' => new Filter(
+                    array(
+                        'field_name' => "eventName",
+                        'in_list_filter' => new InListFilter(
+                            array(
+                                'values' => array(
+                                    "page_view",
+//                                    "user_engagement",
+                                    "userEngagementDuration",
+                                    "click_buy_product",
+                                    "click_view_shop",
+                                    "view_product_item"
+                                ),
+                            )
+                        )
+                    )
+                )
+            )
+        );
+
+        // Lọc dữ liệu theo đường dẫn
+        $filterByPathName = new FilterExpression(
+            array(
+                'filter' => new Filter(
+                    [
+                        'field_name' => "pagePath",
+                        'string_filter' => new StringFilter(
+                            [
+                                'value' => '/product',
+                                'match_type' => MatchType::BEGINS_WITH,
+                            ]
+                        )
+                    ]
+                )
+            )
+        );
+
         $options = array(
             'property' => 'properties/' . self::properties(),
             'dateRanges' => $date_ranges,
@@ -506,42 +546,8 @@ class StoreHLGA4 {
                 'and_group' => new FilterExpressionList(
                     array(
                         'expressions' => array(
-                            new FilterExpression(
-                                array(
-                                    'filter' => new Filter(
-                                        [
-                                            'field_name' => "pagePath",
-                                            'string_filter' => new StringFilter(
-                                                [
-                                                    'value' => '/product',
-                                                    'match_type' => MatchType::BEGINS_WITH,
-                                                ]
-                                            )
-                                        ]
-                                    )
-                                )
-                            ),
-                            new FilterExpression(
-                                array(
-                                    'filter' => new Filter(
-                                        array(
-                                            'field_name' => "eventName",
-                                            'in_list_filter' => new InListFilter(
-                                                array(
-                                                    'values' => array(
-                                                        "page_view",
-                                                        "user_engagement",
-                                                        "userEngagementDuration",
-                                                        "click_buy_product",
-                                                        "click_view_shop",
-                                                        "view_product_item"
-                                                    ),
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            ),
+                            $filterByPathName,
+                            $filterByEventName,
                         )
                     )
                 ),
@@ -614,5 +620,220 @@ class StoreHLGA4 {
         ]);*/
 
         return $response;
+    }
+
+    public static function AnalyticsGoogleBatchReport($args) {
+        $args = is_array($args) ? $args : null;
+        $limit = 1000;
+        $offset = 0;
+        $default_date_ranges = [
+            new DateRange([
+                'start_date' => '2022-01-01',
+                'end_date' => 'today',
+            ])
+        ];
+
+        /**
+         * Setup index report
+         */
+        $domain_report_index = 0;
+        $screen_pageview_report_index = 1;
+        $click_buy_product_report_index = 2;
+        $clivk_view_shop_report_index = 3;
+        $average_session_duration_report_index = 4;
+
+        /**
+         *
+         */
+
+        /**
+         * định nghĩa các request báo cáo
+         */
+        // Lấy danh sách tên miền,
+        $domain_report_options = [
+            'property' => 'properties/' . self::properties(),
+            'dimensions' => array(
+                new Dimension([
+                    'name' => 'hostName'
+                ])
+            ),
+            'metrics' => array(
+                new Metric([
+                    'name' => 'activeUsers'
+                ]),
+                new Metric([
+                    'name' => 'screenPageViews'
+                ])
+            ),
+            'date_ranges' => $default_date_ranges,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+        // Lấy danh sách lượt xem theo đường dẫn
+        $screen_pageview_report_options = array(
+            'property' => 'properties/' . self::properties(),
+            'dimensions' => array(
+                new Dimension([
+                    'name' => 'pagePath'
+                ])
+            ),
+            'metrics' => array(
+                new Metric([
+                    'name' => 'screenPageViews'
+                ])
+            ),
+            /*'dimension_filter' => new FilterExpression(
+                [
+                    'filter' => new Filter(
+                        [
+                            'field_name' => "eventName",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => 'page_view',
+                                    'match_type' => MatchType::EXACT,
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            ),*/
+            'date_ranges' => $default_date_ranges,
+            'limit' => $limit,
+            'offset' => $offset
+        );
+        // Lấy danh sách lượt click mua hàng
+        $click_buy_product_report_options = array(
+            'property' => 'properties/' . self::properties(),
+            'dimensions' => array(
+                new Dimension([
+                    'name' => 'pagePath'
+                ])
+            ),
+            'metrics' => array(
+                new Metric([
+                    'name' => 'eventCount'
+                ])
+            ),
+            'date_ranges' => $default_date_ranges,
+            'dimension_filter' => new FilterExpression(
+                [
+                    'filter' => new Filter(
+                        [
+                            'field_name' => "eventName",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => 'click_buy_product',
+                                    'match_type' => MatchType::EXACT,
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            ),
+            'limit' => $limit,
+            'offset' => $offset
+        );
+        // Lấy danh sách lượt click xem cửa hàng
+        $click_view_shop_report_options = array(
+            'property' => 'properties/' . self::properties(),
+            'dimensions' => array(
+                new Dimension([
+                    'name' => 'pagePath'
+                ])
+            ),
+            'metrics' => array(
+                new Metric([
+                    'name' => 'eventCount'
+                ])
+            ),
+            'date_ranges' => $default_date_ranges,
+            'dimension_filter' => new FilterExpression(
+                [
+                    'filter' => new Filter(
+                        [
+                            'field_name' => "eventName",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => 'click_view_shop',
+                                    'match_type' => MatchType::EXACT,
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            ),
+            'limit' => $limit,
+            'offset' => $offset
+        );
+        // Lấy danh sách thời gian xem trung bình
+        $average_session_duration_report_options = array(
+            'property' => 'properties/' . self::properties(),
+            'dimensions' => array(
+                new Dimension([
+                    'name' => 'pagePath'
+                ])
+            ),
+            'metrics' => array(
+                new Metric([
+                    'name' => 'averageSessionDuration'
+                ])
+            ),
+            'date_ranges' => $default_date_ranges,
+            'limit' => $limit,
+            'offset' => $offset
+        );
+        $batchReports = self::client()->batchRunReports([
+            'property' => 'properties/' . self::properties(),
+            'requests' => [
+                new RunReportRequest($domain_report_options),
+                new RunReportRequest($screen_pageview_report_options),
+                new RunReportRequest($click_buy_product_report_options),
+                new RunReportRequest($click_view_shop_report_options),
+                new RunReportRequest($average_session_duration_report_options),
+            ]
+        ]);
+
+        $reports = $batchReports->getReports();
+
+        /**
+         *
+         */
+        $domain_report = $reports[$domain_report_index];
+        $screen_pageview_report = $reports[$screen_pageview_report_index];
+        $click_buy_product_report = $reports[$click_buy_product_report_index];
+        $click_view_shop_report = $reports[$clivk_view_shop_report_index];
+        $average_session_duration_report = $reports[$average_session_duration_report_index];
+
+        $reports_json_array = array();
+        /*$reports_json_array = array_map(function($reportItem){
+            return $reportItem->serializeToJsonString();
+        }, $reports);*/
+
+        foreach ($reports as $reportKey => $report) {
+            if ($reportKey == $domain_report_index) {
+                $reports_json_array["domain_data"] = json_decode($report->serializeToJsonString());
+            }
+            if ($reportKey == $domain_report_index) {
+                $reports_json_array["domain_data"] = json_decode($report->serializeToJsonString());
+            }
+            if ($reportKey == $domain_report_index) {
+                $reports_json_array["domain_data"] = json_decode($report->serializeToJsonString());
+            }
+            if ($reportKey == $domain_report_index) {
+                $reports_json_array["domain_data"] = json_decode($report->serializeToJsonString());
+            }
+//            array_push($reports_json_array, json_decode($report->serializeToJsonString()));
+        }
+
+        return array(
+            "keys_index" => array(
+                "domain_report_index" => $domain_report_index,
+                "screen_pageview_report_index" => $screen_pageview_report_index,
+                "click_buy_product_report_index" => $click_buy_product_report_index,
+                "clivk_view_shop_report_index" => $clivk_view_shop_report_index,
+                "average_session_duration_report_index" => $average_session_duration_report_index,
+            ),
+            "reports" => $reports_json_array
+        );
     }
 }

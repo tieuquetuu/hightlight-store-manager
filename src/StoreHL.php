@@ -2,7 +2,9 @@
 
 namespace StoreHightLight;
 
-use HightLightStore\StoreHLPageTemplater;
+use StoreHightLight\StoreHLPageTemplater;
+use StoreHightLight\StoreHLRestAPI;
+use StoreHightLight\StoreHLGA4;
 
 class StoreHL
 {
@@ -87,9 +89,11 @@ class StoreHL
         add_action( 'wp_enqueue_scripts', array( __CLASS__ , 'load_front_end_scripts' ) );
         add_action( 'plugin_loaded', function() { StoreHLPageTemplater::get_instance(); } );
 
+//        //The Following registers an api route with multiple parameters.
+        add_action( 'rest_api_init', array(__CLASS__, 'handle_rest_api_init') );
+
         add_action( 'cron_check_end_day', array(__CLASS__, 'check_end_day') );
         add_action( 'cron_send_mail', array(__CLASS__, 'check_end_day_send_mail') );
-
         add_action( 'init', array(__CLASS__, 'schedule_cron_check_end_day') );
     }
 
@@ -244,5 +248,59 @@ class StoreHL
             //condition to makes sure that the task is not re-created if it already exists
             wp_schedule_event( strtotime(date("Ymd"))+24*60*60+1, 'daily', 'cron_send_mail' );
         }
+    }
+
+    public static function queryStoreProducts(Array $args = array()) {
+        $result = null;
+        $default_args = array(
+            'post_type' 	 => 're',
+            'posts_per_page' => 10,
+            'post_status'	 => 'any',
+        );
+        $query_args = array_merge($default_args, $args);
+        $data = new \WP_Query($query_args);
+        return $data;
+    }
+
+    public static function handleHightLightQueryProducts($request) {
+        return new \WP_REST_Response(
+            array(
+                'message' => ''
+            ),
+            200
+        );
+    }
+
+    public static function handleHightLightAnalytics($request) {
+        $method = $request->get_method();
+
+        $storeHightLightGA4 = new StoreHLGA4();
+        $reports = $storeHightLightGA4::instance()->AnalyticsGoogleBatchReport(array());
+
+        print_r($reports);
+
+        die();
+
+        return new \WP_REST_Response(
+            array(
+                'message' => 'Analytics Setup OK',
+                'method' => $method
+            ),
+            200
+        );
+    }
+
+    public static function handle_rest_api_init() {
+        // Google Analytics API
+        register_rest_route('hightlight/v1', '/analytics', array(
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => array(__CLASS__, 'handleHightLightAnalytics')
+        ));
+
+        // Product hightlight store API
+        register_rest_route('hightlight/v1', '/products', array(
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => array(__CLASS__, 'handleHightLightQueryProducts')
+        ));
     }
 }

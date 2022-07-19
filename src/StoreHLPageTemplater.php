@@ -1,6 +1,6 @@
 <?php
 
-namespace HightLightStore;
+namespace StoreHightLight;
 
 class StoreHLPageTemplater {
 
