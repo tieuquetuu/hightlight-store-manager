@@ -161,11 +161,11 @@ get_header(); ?>
                     <!--                        <th>Hình ảnh</th>-->
                     <th style="width: 15%;">Tiêu đề</th>
                     <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
-                    <th style="width: 15%;">Đường dẫn</th>
-                    <th style="width: 5%;">Lượt click mua hàng</th>
-                    <th style="width: 5%;">Lượt click cửa hàng</th>
-                    <th style="width: 5%;">Lượt hiển thị</th>
-                    <th style="width: 5%;">Thời gian xem trung bình</th>
+                    <th>Đường dẫn</th>
+                    <th>Lượt click mua hàng</th>
+                    <th>Lượt click cửa hàng</th>
+                    <th>Lượt hiển thị</th>
+                    <th>Thời gian xem trung bình</th>
                     <!--                        <th>Dữ liệu</th>-->
                 </tr>
                 </thead>
