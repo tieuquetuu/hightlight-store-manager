@@ -77,20 +77,23 @@ if ($_GET['debug'] == 'vip') {
 //    var_dump(class_exists(''));
     echo "<pre>";
 
-    $report_str = HightLightStore\StoreHLGa4::instance()->ThongKeSoLieuHeThong(
+    /*$report_str = HightLightStore\StoreHLGa4::instance()->ThongKeSoLieuHeThong(
         array(
             "date_ranges" => array(
                 'start_date' => '2022-07-01', // Bắt đầu từ trước
                 'end_date' => 'today', // Tới hôm nay
             )
         )
-    );
-
+    );*/
 //    $report_json = json_decode($report_str);
+//    print_r($report_str);
 
-    print_r($report_str);
+//    var_dump(StoreHightLight\StoreHL::instance()->check_end_day()) ;
+//    var_dump(StoreHightLight\StoreHL::instance()->check_end_day_send_mail()) ;
 
     echo "</pre>";
+
+//    echo "done";
     die();
 
 }
