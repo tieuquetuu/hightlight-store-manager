@@ -5,6 +5,8 @@ namespace StoreHightLight;
 use StoreHightLight\StoreHLPageTemplater;
 use StoreHightLight\StoreHLRestAPI;
 use StoreHightLight\StoreHLGA4;
+use WP_Query;
+use WP_User;
 
 class StoreHL
 {
@@ -82,6 +84,7 @@ class StoreHL
         require_once STORE_HIGHT_LIGHT_PLUGIN_DIR_PATH . 'src/StoreHLPageTemplater.php';
         require_once STORE_HIGHT_LIGHT_PLUGIN_DIR_PATH . 'src/StoreHLRestAPI.php';
         require_once STORE_HIGHT_LIGHT_PLUGIN_DIR_PATH . 'src/StoreHLGA4.php';
+        require_once ABSPATH . 'wp-includes/pluggable.php';
 
         return true;
     }
@@ -182,11 +185,27 @@ class StoreHL
             'sort_order' => 'desc',
             'posts_per_page' => -1
         );
-        $the_query = new WP_Query( $query_args );
-        if ( $the_query->have_posts() ) :
-            while ( $the_query->have_posts() ) : $the_query->the_post();
-                global $post;
+        $the_query = new \WP_Query( $query_args );
 
+        if ( $the_query->have_posts() ) :
+            foreach ($the_query->posts as $post) {
+                $post_id = $post->ID;
+
+                $flag = !empty(get_post_meta($post_id)["end_day"][0]) && strtotime(date("Ymd"))>strtotime(get_post_meta($post_id)["end_day"][0]);
+
+                if (!$flag) {
+                    continue;
+                } else {
+                    $my_post = array(
+                        'ID'           => $post_id,
+                        'post_status'   => 'pending'
+                    );
+                    wp_update_post( $my_post );
+                }
+            }
+
+            /*while ( $the_query->have_posts() ) : $the_query->the_post();
+                global $post;
                 if(!empty(get_post_meta($the_query->post->ID)["end_day"][0]) && strtotime(date("Ymd"))>strtotime(get_post_meta($the_query->post->ID)["end_day"][0]))
                 {
                     $my_post = array(
@@ -195,15 +214,11 @@ class StoreHL
                     );
                     wp_update_post( $my_post );
                 }
-
-
-            endwhile;
-
-
+            endwhile;*/
         endif;
 
         // Reset Post Data
-        wp_reset_postdata();
+//        wp_reset_postdata();
     }
 
     public static function check_end_day_send_mail(){
@@ -216,8 +231,36 @@ class StoreHL
             'posts_per_page' => -1
         );
         $the_query = new WP_Query( $query_args );
+        $send_mails_log = array();
         if ( $the_query->have_posts() ) :
-            while ( $the_query->have_posts() ) : $the_query->the_post();
+
+            foreach ($the_query->posts as $post) {
+
+                $flag = !empty(get_post_meta($post->ID)["end_day"][0]) && strtotime(date("Ymd")) + $day_before*86400==strtotime(get_post_meta($post->ID)["end_day"][0]);
+
+                if($flag)
+                {
+                    $author_id = get_post_field('post_author', $post->ID);
+                    $author = \WP_User::get_data_by('id', $author_id);
+
+                    $user_email = $author->user_email;
+
+//                    $user_email = get_the_author_meta( 'user_email' , $author_id );
+
+                    //php mailer variables
+                    $to = $user_email;
+                    $subject = "Thông báo gia hạn dịch vụ";
+                    $message = "Sản phẩm của bạn còn 3 ngày nữa sẽ hết hạn, bạn cần gia hạn: ".get_permalink($post->ID);
+
+                    //Here put your Validation and send mail
+                    $sent = wp_mail( $to, $subject, $message);
+                    array_push($send_mails_log, array(
+                        $to, $subject, $message, $sent
+                    ));
+                }
+            }
+
+            /*while ( $the_query->have_posts() ) : $the_query->the_post();
                 global $post;
 
                 if(!empty(get_post_meta($the_query->post->ID)["end_day"][0]) && strtotime(date("Ymd")) + $day_before*86400==strtotime(get_post_meta($the_query->post->ID)["end_day"][0]))
@@ -233,13 +276,15 @@ class StoreHL
                     //Here put your Validation and send mail
                     $sent = wp_mail( $to, $subject, $message);
                 }
-            endwhile;
+            endwhile;*/
 
 
         endif;
 
+        return $send_mails_log;
+
         // Reset Post Data
-        wp_reset_postdata();
+//        wp_reset_postdata();
     }
 
     public static function schedule_cron_check_end_day() {
