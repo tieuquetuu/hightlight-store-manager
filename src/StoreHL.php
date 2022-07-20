@@ -170,6 +170,7 @@ class StoreHL
         // Store Hight Light Script Tracking
         wp_enqueue_style( 'hightlight-store-css',  STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . "assets/css/main.css");
         wp_enqueue_script( 'hightlight-store-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/main.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-store-tracking-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/tracking.js', array( 'jquery' ), '', true );
         // Localize the script with new data
         wp_localize_script( 'hightlight-store-js', 'hightlight_client_object', $translation_array );
     }
@@ -257,9 +258,14 @@ class StoreHL
         $default_args = array(
             'post_type' 	 => 're',
             'posts_per_page' => 10,
-            'post_status'	 => 'any',
+            'post_status'	 => "any",
         );
-        $query_args = array_merge($default_args, $args);
+
+        foreach ($args as $key => $value) {
+            $default_args[$key] = $value;
+        }
+
+        $query_args = array_merge($default_args);
         $data = new \WP_Query($query_args);
         return $data;
     }

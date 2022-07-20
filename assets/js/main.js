@@ -1,7 +1,6 @@
 let $, 
 	HightLightStoreClient;
 
-
 if (typeof jQuery !== 'undefined') {
 	$ = jQuery;
 }
@@ -10,11 +9,9 @@ if (typeof hightlight_client_object !== 'undefined') {
 	HightLightStoreClient = hightlight_client_object;
 }
 
-
 function is_hl_product_page() {
 	return HightLightStoreClient?.is_hightlight_product === '1';
 }
-
 
 /**
  * @name: 
@@ -22,7 +19,7 @@ function is_hl_product_page() {
  * 
  */
 
-function TrackingPageView() {
+/*function TrackingPageView() {
 	gtag('event', 'page_view', {
 	  	// 'event_category': "",
 	  	'event_label': "Xem trang",
@@ -46,7 +43,7 @@ function TrackingViewProduct() {
 
 	};
 
-	/**/
+	/!**!/
 }
 
 
@@ -83,7 +80,7 @@ function SetupTracking() {
 	TrackingClickBuyProduct()
 	TrackingViewProduct()
 	TrackingPageView()
-}
+}*/
 
 function SetupDataTable() {
  	let $tables = $(".store-hightlight-dataTable");
@@ -122,13 +119,7 @@ function SetupDataTable() {
 	// }
 }
 
-// Setup tracking if gtag isset
-if (typeof gtag !== 'undefined') {
-	$(document).ready(function() {
-		SetupTracking()
-		SetupDataTable();
-	})
-}
-
-
 // Setup Data Table
+$(document).ready(function() {
+	SetupDataTable();
+})
