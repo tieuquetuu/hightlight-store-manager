@@ -187,9 +187,7 @@ get_header(); ?>
                                 <a href="<?php the_permalink(); ?>" style="display: flex;margin-right: 10px">
                                     <img class="rounded" style="width: 3.125rem;" src="<?php the_post_thumbnail_url('thumbnail'); ?>" alt="<?php the_title(); ?>"/>
                                 </a>
-                                <div>
-                                    <?php echo $postTitle ?>
-                                </div>
+                                <a href="<?php the_permalink(); ?>" style="display: flex;"><?php echo $postTitle ?></a>
                             </div>
                         </td>
                         <td class="text-center">
