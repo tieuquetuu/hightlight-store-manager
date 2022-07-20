@@ -89,7 +89,7 @@ if ($_GET['debug'] == 'vip') {
 //    print_r($report_str);
 
 //    var_dump(StoreHightLight\StoreHL::instance()->check_end_day()) ;
-//    var_dump(StoreHightLight\StoreHL::instance()->check_end_day_send_mail()) ;
+    var_dump(StoreHightLight\StoreHL::instance()->check_end_day_send_mail()) ;
 
     echo "</pre>";
 

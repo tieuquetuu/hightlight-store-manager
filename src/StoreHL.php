@@ -318,7 +318,29 @@ class StoreHL
         );
         $the_query = new WP_Query( $query_args );
         $send_mails_log = array();
-        if ( $the_query->have_posts() ) :
+
+        $expireSoonItems = self::listProductsExpiredSoon();
+
+        foreach ($expireSoonItems as $expireSoonItem) {
+            $flag = !self::productIsExpired($expireSoonItem) && self::productIsExpireSoon($expireSoonItem);
+            if($flag)
+            {
+                $author_id = get_post_field('post_author', $expireSoonItem->ID);
+                $author = \WP_User::get_data_by('id', $author_id);
+                $user_email = $author->user_email;
+                //php mailer variables
+                $to = $user_email;
+                $subject = "Thông báo gia hạn dịch vụ";
+                $message = "Sản phẩm của bạn còn 3 ngày nữa sẽ hết hạn, bạn cần gia hạn: ".get_permalink($post->ID);
+                //Here put your Validation and send mail
+                $sent = wp_mail( $to, $subject, $message);
+                array_push($send_mails_log, array(
+                    $to, $subject, $message, $sent
+                ));
+            }
+        }
+
+        /*if ( $the_query->have_posts() ) :
 
             foreach ($the_query->posts as $post) {
 
@@ -345,27 +367,7 @@ class StoreHL
                     ));
                 }
             }
-
-            /*while ( $the_query->have_posts() ) : $the_query->the_post();
-                global $post;
-
-                if(!empty(get_post_meta($the_query->post->ID)["end_day"][0]) && strtotime(date("Ymd")) + $day_before*86400==strtotime(get_post_meta($the_query->post->ID)["end_day"][0]))
-                {
-                    $author_id = get_post_field('post_author', $the_query->post->ID);
-                    $user_email = get_the_author_meta( 'user_email' , $author_id );
-
-                    //php mailer variables
-                    $to = $user_email;
-                    $subject = "Thông báo gia hạn dịch vụ";
-                    $message = "Sản phẩm của bạn còn 3 ngày nữa sẽ hết hạn, bạn cần gia hạn: ".get_permalink($the_query->post->ID);
-
-                    //Here put your Validation and send mail
-                    $sent = wp_mail( $to, $subject, $message);
-                }
-            endwhile;*/
-
-
-        endif;
+        endif;*/
 
         return $send_mails_log;
 
