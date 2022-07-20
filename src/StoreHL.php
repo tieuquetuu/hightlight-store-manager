@@ -331,7 +331,7 @@ class StoreHL
                 //php mailer variables
                 $to = $user_email;
                 $subject = "Thông báo gia hạn dịch vụ";
-                $message = "Sản phẩm của bạn còn 3 ngày nữa sẽ hết hạn, bạn cần gia hạn: ".get_permalink($post->ID);
+                $message = "Sản phẩm của bạn còn 3 ngày nữa sẽ hết hạn, bạn cần gia hạn: ".get_permalink($expireSoonItem->ID);
                 //Here put your Validation and send mail
                 $sent = wp_mail( $to, $subject, $message);
                 array_push($send_mails_log, array(
