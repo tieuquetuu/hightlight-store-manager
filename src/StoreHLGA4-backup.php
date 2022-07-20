@@ -16,7 +16,7 @@ use Google\Analytics\Data\V1beta\Filter\InListFilter;
 use Google\Analytics\Data\V1beta\RunReportResponse;
 use Google\Analytics\Data\V1beta\Row;
 
-class StoreHLGA4 {
+class StoreHLGA4BackUP {
     private static $instance = NULL;
 
     protected static $credentials = NULL;
