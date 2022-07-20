@@ -391,7 +391,7 @@ class StoreHLGA4 {
         switch ($slug) {
             case "hostName":
                 $name = "Tên miền";
-                break;
+            break;
             case "pageTitle":
                 $name = "Tiêu đề trang";
                 break;
@@ -465,13 +465,14 @@ class StoreHLGA4 {
             'start_date' => '2022-07-01', // Bắt đầu từ trước
             'end_date' => 'today', // Tới hôm nay
         );
-        $raw_date_ranges = $has_date_ranges ? $args['date_ranges'] : array($default_date_range);
+        /*$raw_date_ranges = $has_date_ranges ? $args['date_ranges'] : array($default_date_range);
 
         // Map the date ranges key
         $date_ranges = array_map(function($date_item_name) {
-            return new DateRange($date_item_name);
-        }, $raw_date_ranges);
-
+            return new DateRange([
+                $date_item_name
+            ]);
+        }, $raw_date_ranges);*/
         // Map the dimensions key
         $dimensions = array_map(function($d_item_name) {
             return new Dimension([
@@ -542,16 +543,23 @@ class StoreHLGA4 {
             )
         );
 
+
+
         $options = array(
             'property' => 'properties/' . self::properties(),
-            'dateRanges' => $date_ranges,
+            'dateRanges' => [
+                new DateRange([
+                    'start_date' => '2022-07-01', // Bắt đầu từ trước
+                    'end_date' => 'today', // Tới hôm nay
+                ])
+            ],
             'dimensions' => $dimensions,
             'metrics' => $metrics,
             'dimensionFilter' => new FilterExpression(array(
                 'and_group' => new FilterExpressionList(
                     array(
                         'expressions' => array(
-//                            $filterByPathName,
+                            $filterByPathName,
                             $filterByEventName,
                         )
                     )

@@ -8,6 +8,13 @@
 $storeHL = new StoreHightLight\StoreHL();
 $storeHLGA4 = new StoreHightLight\StoreHLGA4();
 
+if( ! is_user_logged_in() ) {
+    wp_redirect( home_url() );
+    exit;
+}
+$current_user = wp_get_current_user();
+$current_link = get_the_permalink();
+
 const HOSTNAME_DIMENSION_INDEX = 0;
 const PAGE_TITLE_DIMENSION_INDEX = 1;
 const PAGE_PATH_DIMENSION_INDEX = 2;
@@ -18,29 +25,39 @@ const EVENT_COUNT_METRIC_INDEX = 1;
 const SCREEN_PAGE_VIEWS_METRIC_INDEX = 2;
 const AVERAGE_SESSION_DURATION_METRIC_INDEX = 3;
 
-$options = array(
-    'dimensions' => array(
-        "hostName",
+// SET UP HEADER TO QUERY
+$dimension_header_args = array(
+    "hostName",
 //        "pageTitle",
 //        "pageLocation",
-        "pagePath",
-        "eventName",
-    ),
-    'metrics' => array(
-        "activeUsers", // Số lượng người dùng riêng biệt đã truy cập vào trang web hoặc ứng dụng của bạn.
-        "eventCount", // Đếm số sự kiện
+    "pagePath",
+    "eventName",
+);
+$metric_header_args = array(
+    "activeUsers", // Số lượng người dùng riêng biệt đã truy cập vào trang web hoặc ứng dụng của bạn.
+    "eventCount", // Đếm số sự kiện
 //        "eventValue", // Tổng của tham số sự kiện có tên 'giá trị'.
-        'screenPageViews', // Số lượng màn hình ứng dụng hoặc trang web mà người dùng của bạn đã xem. Lượt xem lặp lại của một trang hoặc màn hình được tính. (sự kiện screen_view + page_view).
+    'screenPageViews', // Số lượng màn hình ứng dụng hoặc trang web mà người dùng của bạn đã xem. Lượt xem lặp lại của một trang hoặc màn hình được tính. (sự kiện screen_view + page_view).
 //        'userEngagementDuration', // Tổng lượng thời gian (tính bằng giây) trang web hoặc ứng dụng của bạn ở nền trước thiết bị của người dùng.
-        "averageSessionDuration", // Thời lượng trung bình (tính bằng giây) trong các phiên của người dùng.
+    "averageSessionDuration", // Thời lượng trung bình (tính bằng giây) trong các phiên của người dùng.
 //        "engagedSessions", // Số phiên kéo dài hơn 10 giây hoặc có sự kiện chuyển đổi hoặc có 2 lượt xem màn hình trở lên.
 //        "engagementRate", // Phần trăm phiên tương tác (Phiên tương tác chia cho Số phiên). Số liệu này được trả về dưới dạng phân số; ví dụ: 0,7239 có nghĩa là 72,39% phiên là phiên tương tác.
-    ),
+);
+
+// GET SOME PRIMARY HEADER KEY INDEX vnb
+
+
+$options = array(
+    'dimensions' => $dimension_header_args,
+    'metrics' => $metric_header_args,
 );
 $report = $storeHLGA4::instance()->ThongKeSoLieuHeThong($options);
 $report_str = $report->serializeToJsonString();
 $report_json = json_decode($report_str);
 $rowsCount = $report_json->rowCount;
+$rowsData = $report_json->rows;
+$dimensionHeader = $report_json->dimensionHeaders;
+$metricHeader = $report_json->metricHeaders;
 $hostNames = array();
 
 $fetch_store_products = $storeHL::instance()->queryStoreProducts(array(
@@ -49,58 +66,117 @@ $fetch_store_products = $storeHL::instance()->queryStoreProducts(array(
 ));
 $system_store_products = $fetch_store_products->posts;
 
-//$user_store_products = $storeHL::instance()->queryStoreProducts(array(
-//
-//));
+//echo "<pre>";
+//print_r();
+//echo "</pre>";
+//die();
 
-//echo "<pre>";
-//print_r($report_str);
-//echo "</pre>";
-//die();
-//
-//echo "<pre>";
-//print_r($report_json->rows[0]->dimensionValues[PAGE_PATH_DIMENSION_INDEX]->value);
-//echo "</pre>";
-//die();
+//$product_slug = "ban-nha-pho-go-vap-duong-pham-van-chieu-phuong-9";
+
+$product_analytics_by_slug = function(
+    $product_slug
+) use (
+    &$rowsData,
+    &$dimension_header_args,
+    &$metric_header_args
+) {
+    $data = array(
+        "luot_xem" => 0, // screenPageViews eventCount
+        "luot_click_mua_hang" => 0, // click_buy_product eventCount
+        "luot_click_cua_hang" => 0, // clivk_view_shop eventCount
+        "thoi_gian_xem_trung_binh" => 0 // averageSessionDuration eventCount
+    );
+
+    if (!$product_slug) {
+        return $data;
+    }
+
+    $hostName_dimension_keyword = "hostName";
+    $eventName_dimension_keyword = "eventName";
+    $pagePath_dimension_keyword = "pagePath";
+
+    $eventCount_metric_keyword = "eventCount";
+    $screenPageViews_metric_keyword = "screenPageViews";
+    $averageSessionDuration_metric_keyword = "averageSessionDuration";
+
+    // Get Index Of dimension
+    $dimension_hostName_index = array_search($hostName_dimension_keyword, $dimension_header_args);
+    $dimension_eventName_index = array_search($eventName_dimension_keyword,$dimension_header_args);
+    $dimension_pagePath_index = array_search($pagePath_dimension_keyword,$dimension_header_args);
+
+    // Get Index Of metric
+    $metric_eventCount_index = array_search($eventCount_metric_keyword,$metric_header_args);
+    $metric_screenPageViews_index = array_search($screenPageViews_metric_keyword,$metric_header_args);
+    $metric_averageSessionDuration_index = array_search($averageSessionDuration_metric_keyword,$metric_header_args);
+
+    $product_analytics_rows = array_filter($rowsData, function($row) use (&$product_slug, &$dimension_pagePath_index) {
+        $flag = str_contains($row->dimensionValues[$dimension_pagePath_index]->value, $product_slug);
+        return $flag;
+    });
+
+    $tong_luot_xem = 0;
+    $tong_luot_click_mua_hang = 0;
+    $tong_luot_click_cua_hang = 0;
+    $tong_thoi_gian_trung_binh = 0;
+
+    if(count($product_analytics_rows) > 0) {
+        foreach ($product_analytics_rows as $product_analytics_row) {
+            // Cộng tổng tất cả lượt xem
+            $tong_luot_xem += (int) $product_analytics_row->metricValues[$metric_screenPageViews_index]->value;
+
+            // cộng tổng lượt click button mua hàng
+            if ($product_analytics_row->dimensionValues[$dimension_eventName_index]->value == "click_buy_product") {
+                $tong_luot_click_cua_hang += (int) $product_analytics_row->metricValues[$metric_eventCount_index]->value;
+            }
+
+            // cộng tổng lượt click button cửa hàng
+            if ($product_analytics_row->dimensionValues[$dimension_eventName_index]->value == "click_view_shop") {
+                $tong_luot_click_mua_hang += (int) $product_analytics_row->metricValues[$metric_eventCount_index]->value;
+            }
+
+            // cộng tổng thời gian xem trang trung bình
+
+            $tong_thoi_gian_trung_binh += floatval($product_analytics_row->metricValues[$metric_averageSessionDuration_index]->value);
+        }
+
+        $tong_thoi_gian_trung_binh = $tong_thoi_gian_trung_binh / count(array_keys($product_analytics_rows));
+    }
+
+    $data['luot_xem'] = $tong_luot_xem;
+    $data['luot_click_cua_hang'] = $tong_luot_click_cua_hang;
+    $data['luot_click_mua_hang'] = $tong_luot_click_mua_hang;
+    $data['thoi_gian_xem_trung_binh'] = $tong_thoi_gian_trung_binh;
+
+    return (object) $data;
+};
 
 get_header(); ?>
 
 <main id="main" class="col-12 site-main" role="main">
 
-<?php if(FALSE) : ?>
-    <div class="container-fluid">
-        <table id="products-table" class="store-hightlight-dataTable display" style="width: 100%">
-            <thead>
+    <?php if(count($system_store_products) > 0) : ?>
+        <div class="container-fluid">
+            <table id="products-table" class="store-hightlight-dataTable display" style="width: 100%">
+                <thead>
                 <tr>
                     <th>STT</th>
-<!--                    <th>Hình ảnh</th>-->
+                    <!--                        <th>Hình ảnh</th>-->
                     <th>Tiêu đề</th>
                     <th>Đường dẫn</th>
                     <th>Lượt click mua hàng</th>
                     <th>Lượt click cửa hàng</th>
-                    <th>Thời gian xem trung bình</th>
                     <th>Lượt hiển thị</th>
-<!--                    <th>Dữ liệu</th>-->
+                    <th>Thời gian xem trung bình</th>
+                    <!--                        <th>Dữ liệu</th>-->
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 <?php foreach ($system_store_products as $system_product_key => $system_product) {
                     $stt = (int) $system_product_key + 1;
                     $postTitle = $system_product->post_title;
                     $postSlug = $system_product->post_name;
-
-                    $luotXem = $luotClickCuaHang = $luotClickMuaHang = $thoiGianTrungBinh = null;
-
-                    $analysticProductDataObj = array_filter($report_json->rows, function($var) use (&$postSlug) {
-//                        $flag = in_array($postSlug, $var->dimensionValues[PAGE_PATH_DIMENSION_INDEX]->value);
-                        $flag = $var->dimensionValues[PAGE_PATH_DIMENSION_INDEX]->value == '/product/' . $postSlug . '/';
-                        return $flag;
-                    });
-
-                    $analysticProductData = is_array($analysticProductDataObj) || is_object($analysticProductDataObj) ? array_values($analysticProductDataObj) : null;
-
-                    ?>
-                    <tr data-analystic="<?php echo json_encode($analysticProductData) ?>">
+                    $product_analytics_data = $product_analytics_by_slug($postSlug); ?>
+                    <tr>
                         <td>
                             <?php echo $stt ?>
                         </td>
@@ -111,31 +187,36 @@ get_header(); ?>
                             <?php echo $postSlug ?>
                         </td>
                         <td>
-                            <?php echo 0 ?>
+                            <?php echo $product_analytics_data->luot_click_mua_hang ?> click
                         </td>
                         <td>
-                            <?php echo 0 ?>
+                            <?php echo $product_analytics_data->luot_click_cua_hang ?> click
                         </td>
                         <td>
-                            <?php echo 0 ?>
+                            <?php echo $product_analytics_data->luot_xem ?> lượt
                         </td>
                         <td>
-                            <?php echo 0 ?>
+                            <?php echo $product_analytics_data->thoi_gian_xem_trung_binh ?> giây
                         </td>
                         <!--<td>
                             <pre>
-                                <?php /*print_r() */?>
+                                <?php /*print_r($product_analytics_by_slug($postSlug)) */?>
                             </pre>
                         </td>-->
                     </tr>
                 <?php } ?>
-            </tbody>
-        </table>
-    </div>
-<?php endif; ?>
+                </tbody>
+            </table>
+            <!--<pre>
+            <?php /*print_r($report_str) */?>
+        </pre>-->
+        </div>
+    <?php else: ?>
+        <div class="alert alert-danger"><?php _e( 'Bạn chưa có tin đăng nào.', 'willgroup' ); ?></div>
+    <?php endif; ?>
 
-<?php if(TRUE) : ?>
 
+<?php if(false) : ?>
     <div class="container-fluid">
         <table id="system-analystic-table" class="store-hightlight-dataTable display" style="width: 100%">
             <thead>
@@ -191,10 +272,11 @@ get_header(); ?>
             endif; ?>
             </tbody>
         </table>
+        <pre>
+            <?php // print_r(json_encode($system_store_products)) ?>
+        </pre>
     </div>
-
 <?php endif; ?>
-
 </main>
 
 

@@ -80,6 +80,7 @@ class StoreHL
         }
 
         require_once STORE_HIGHT_LIGHT_PLUGIN_DIR_PATH . 'src/StoreHLPageTemplater.php';
+        require_once STORE_HIGHT_LIGHT_PLUGIN_DIR_PATH . 'src/StoreHLRestAPI.php';
         require_once STORE_HIGHT_LIGHT_PLUGIN_DIR_PATH . 'src/StoreHLGA4.php';
 
         return true;
@@ -91,6 +92,7 @@ class StoreHL
 
 //        //The Following registers an api route with multiple parameters.
         add_action( 'rest_api_init', array(__CLASS__, 'handle_rest_api_init') );
+//        add_action( 'rest_api_init', array( 'StoreHLRestAPI', 'init_actions') );
 
         add_action( 'cron_check_end_day', array(__CLASS__, 'check_end_day') );
         add_action( 'cron_send_mail', array(__CLASS__, 'check_end_day_send_mail') );
