@@ -178,6 +178,90 @@ class StoreHL
         wp_localize_script( 'hightlight-store-js', 'hightlight_client_object', $translation_array );
     }
 
+    public static function productIsExpireSoon($post) {
+        $today = date_create("now");
+        $post_id = $post->ID;
+        $end_day_meta = get_post_meta($post_id)["end_day"][0];
+        $end_day = isset($end_day_meta) && !empty($end_day_meta) && !is_null($end_day_meta) ? date_create($end_day_meta) : null;
+        if (!$end_day) {
+            return false;
+        }
+        $interval = date_diff($today, $end_day);
+        $flag = $today->getTimestamp() < $end_day->getTimestamp() && $interval->d <= 3;
+        return $flag;
+    }
+
+    public static function productIsExpired($product) {
+        $today = date_create("now");
+        $post_id = $product->ID;
+        $end_day_meta = get_post_meta($post_id)["end_day"][0];
+        $end_day = isset($end_day_meta) && !empty($end_day_meta) && !is_null($end_day_meta) ? date_create($end_day_meta) : null;
+
+        if (!$end_day) {
+            return false;
+        }
+
+        $interval = date_diff($today, $end_day);
+        $flag = $today->getTimestamp() > $end_day->getTimestamp();
+        return $flag;
+    }
+
+    public static function countDownDateProductExpired($product) {
+        $today = date_create("now");
+        $end_day_meta = get_post_meta($product->ID)["end_day"][0];
+        $end_day = isset($end_day_meta) && !empty($end_day_meta) && !is_null($end_day_meta) ? date_create($end_day_meta) : null;
+        if (!$end_day) {
+            return null;
+        }
+        $interval = date_diff($today, $end_day);
+        return $interval;
+    }
+
+    public static function listProductsExpiredSoon(Array $args = array()) {
+
+        $user_id = isset($args["user_id"]) && !is_null($args["user_id"]) ? $args["user_id"] : null;
+        $today = date_create("now");
+        $results = array();
+        $query_args = array(
+            'post_type'   => 're',
+            'post_status' =>'publish',
+            'sort_order' => 'desc',
+            'posts_per_page' => -1
+        );
+
+        if ($user_id) {
+            $query_args['author'] = $user_id;
+        }
+
+        $the_query = new \WP_Query( $query_args );
+
+        if ( $the_query->have_posts() ) :
+            foreach ($the_query->posts as $post) {
+                /*$post_id = $post->ID;
+
+                $end_day_meta = get_post_meta($post_id)["end_day"][0];
+                $end_day = isset($end_day_meta) && !empty($end_day_meta) && !is_null($end_day_meta) ? date_create($end_day_meta) : null;
+
+                if (!$end_day) {
+                    continue;
+                }
+
+                $interval = date_diff($today, $end_day);
+                $flag = $today->getTimestamp() < $end_day->getTimestamp() && $interval->d <= 3;
+                if (!$flag) {
+                    continue;
+                } else {
+                    array_push($results, $post);
+                }*/
+                if (self::productIsExpireSoon($post)) {
+                    array_push($results, $post);
+                }
+            }
+        endif;
+
+        return $results;
+    }
+
     public static function check_end_day(){
         $query_args = array(
             'post_type'   => 're',
@@ -192,6 +276,8 @@ class StoreHL
                 $post_id = $post->ID;
 
                 $flag = !empty(get_post_meta($post_id)["end_day"][0]) && strtotime(date("Ymd"))>strtotime(get_post_meta($post_id)["end_day"][0]);
+
+                $flag = self::productIsExpired($post);
 
                 if (!$flag) {
                     continue;
