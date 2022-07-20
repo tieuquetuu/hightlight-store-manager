@@ -96,13 +96,19 @@ function SetupDataTable() {
 		$tables.each(function (tableIndex,tableDom) {
 			let $table = $(tableDom);
 			let $dataTable = $table.DataTable(dataTableOptions);
-			$table.find("tbody").on("click", "tr", function(e) {
-				$(this).toggleClass('selected')
-			});
 
-			/*if ($table.attr("id") === "system-analystic-table") {
-				$dataTable.column(1).data().unique();
-			}*/
+			if ($table.hasClass("admin-view")) {
+				$table.find("tbody").on("click", "tr", function(e) {
+					// $(this).toggleClass('selected')
+					let tr = this;
+					let $tr = $(tr);
+					let rowData = $dataTable.row(tr).data();
+
+					$("#detail-analytics-modal").addClass("show");
+
+					console.log($tr.data())
+				});
+			}
 		})
 	}
 
@@ -119,7 +125,34 @@ function SetupDataTable() {
 	// }
 }
 
+
+/**
+ * SET UP MODAL JAVASCRIPT
+ */
+
+function setupModal() {
+	let openModalBtn = $("#myBtn");
+	let detailAnalyticsModal = $("#detail-analytics-modal");
+	let closeBtn = detailAnalyticsModal.find(".close");
+
+	openModalBtn.on("click", function(e) {
+		detailAnalyticsModal.toggleClass("show");
+	})
+
+	closeBtn.on("click", function (e) {
+		detailAnalyticsModal.removeClass("show");
+	})
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+		if (event.target == detailAnalyticsModal[0]) {
+			detailAnalyticsModal.removeClass("show");
+		}
+	}
+}
+
 // Setup Data Table
 $(document).ready(function() {
 	SetupDataTable();
+	setupModal();
 })

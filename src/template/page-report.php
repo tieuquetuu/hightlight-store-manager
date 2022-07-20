@@ -14,6 +14,7 @@ if( ! is_user_logged_in() ) {
 }
 $current_user = wp_get_current_user();
 $current_link = get_the_permalink();
+$is_admin = in_array("administrator", $current_user->roles);
 
 const HOSTNAME_DIMENSION_INDEX = 0;
 const PAGE_TITLE_DIMENSION_INDEX = 1;
@@ -64,12 +65,27 @@ $store_products_args = array(
     'post_status'	 => 'publish',
     'posts_per_page' => -1
 );
-if (!in_array("administrator", $current_user->roles)) :
+if (!$is_admin) :
     $store_products_args['author'] = $current_user->ID;
 endif;
 
 $fetch_store_products = $storeHL::instance()->queryStoreProducts($store_products_args);
 $system_store_products = $fetch_store_products->posts;
+
+$product_analytics_data_by_slug = function (
+    $product_slug
+) use (
+    &$rowsData,
+    &$dimension_header_args,
+    &$metric_header_args
+) {
+    $dimension_pagePath_index  = array_search("pagePath", $dimension_header_args);
+    $result = array_filter($rowsData, function($row) use (&$product_slug, &$dimension_pagePath_index) {
+        $flag = str_contains($row->dimensionValues[$dimension_pagePath_index]->value, $product_slug);
+        return $flag;
+    });
+    return array_values($result);
+};
 
 $product_analytics_by_slug = function(
     $product_slug
@@ -151,10 +167,9 @@ $product_analytics_by_slug = function(
 get_header(); ?>
 
 <main id="main" class="col-12 site-main" role="main">
-
     <?php if($fetch_store_products->have_posts()) : ?>
         <div class="container-fluid">
-            <table id="products-table" class="store-hightlight-dataTable table table-striped display" style="width: 100%">
+            <table id="products-table-analytics" class="store-hightlight-dataTable <?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display" style="width: 100%">
                 <thead>
                 <tr>
                     <th>STT</th>
@@ -166,7 +181,9 @@ get_header(); ?>
                     <th>Lượt click cửa hàng</th>
                     <th>Lượt hiển thị</th>
                     <th>Thời gian xem trung bình</th>
-                    <!--                        <th>Dữ liệu</th>-->
+                    <?php if($is_admin) : ?>
+                        <th>Chi tiết</th>
+                    <?php endif; ?>
                 </tr>
                 </thead>
                 <tbody>
@@ -177,8 +194,9 @@ get_header(); ?>
                     $postPermaLink = get_permalink();
                     $postSlug = $post->post_name;
                     $postStatus = get_post_status();
-                    $product_analytics_data = $product_analytics_by_slug($postSlug); ?>
-                    <tr>
+                    $product_analytics_data = $product_analytics_by_slug($postSlug);
+                    $all_product_analytics_data = $product_analytics_data_by_slug($postSlug); ?>
+                    <tr data-user-roles="<?php echo htmlspecialchars(json_encode($current_user->roles)) ?>" data-product-analytics="<?php if($is_admin) : echo htmlspecialchars(json_encode($all_product_analytics_data)); endif; ?>">
                         <td>
                             <?php echo $stt ?>
                         </td>
@@ -212,51 +230,44 @@ get_header(); ?>
                         <td class="text-center">
                             <?php echo $product_analytics_data->thoi_gian_xem_trung_binh ?> giây
                         </td>
+                        <?php if($is_admin) : ?>
+                            <td>Chi tiết</td>
+                        <?php endif; ?>
                     </tr>
                 <?php endwhile;wp_reset_postdata(); ?>
 
-                <?php /* foreach ($system_store_products as $system_product_key => $system_product) {
-                    $stt = (int) $system_product_key + 1;
-                    $postTitle = $system_product->post_title;
-                    $postSlug = $system_product->post_name;
-                    $product_analytics_data = $product_analytics_by_slug($postSlug); ?>
-                    <tr>
-                        <td>
-                            <?php echo $stt ?>
-                        </td>
-                        <td>
-                            <?php echo $postTitle ?>
-                        </td>
-                        <td>
-                            <?php echo "Đã duyệt" ?>
-                        </td>
-                        <td>
-                            <?php echo $postSlug ?>
-                        </td>
-                        <td>
-                            <?php echo $product_analytics_data->luot_click_mua_hang ?> click
-                        </td>
-                        <td>
-                            <?php echo $product_analytics_data->luot_click_cua_hang ?> click
-                        </td>
-                        <td>
-                            <?php echo $product_analytics_data->luot_xem ?> lượt
-                        </td>
-                        <td>
-                            <?php echo $product_analytics_data->thoi_gian_xem_trung_binh ?> giây
-                        </td>
-                    </tr>
-                <?php } */ ?>
                 </tbody>
             </table>
-            <!--<pre>
-            <?php /*print_r($report_str) */?>
-        </pre>-->
         </div>
     <?php else: ?>
         <div class="alert alert-danger"><?php _e( 'Bạn chưa có tin đăng nào.', 'willgroup' ); ?></div>
     <?php endif; ?>
 
+    <!-- The Modal -->
+    <div id="detail-analytics-modal" class="detail-analytics-modal">
+
+        <!-- Modal content -->
+        <div class="detail-analytics-modal-content">
+            <span class="close">&times;</span>
+            <p>Some text in the Modal..</p>
+            <table class="detail-analyti cs-product-table display store-hightlight-dataTable" style="100%">
+                <thead>
+                    <tr>
+                        <th>Tên miền</th>
+                        <th>Đường dẫn</th>
+                        <th>Lượt click mua hàng</th>
+                        <th>Lượt click cửa hàng</th>
+                        <th>Thời gian xem trung bình</th>
+                        <th>Lượt hiển thị</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 
 <?php if(false) : ?>
     <div class="container-fluid">
