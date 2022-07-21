@@ -54,6 +54,11 @@ $options = array(
 );
 $report = $storeHLGA4::instance()->ThongKeSoLieuHeThong($options);
 $report_str = $report->serializeToJsonString();
+
+//$view_all_domains = get_post_meta($current_user->ID, "view_all_domains")[0];
+var_dump($current_user);
+die();
+
 $report_json = json_decode($report_str);
 $rowsCount = $report_json->rowCount;
 $rowsData = $report_json->rows;
