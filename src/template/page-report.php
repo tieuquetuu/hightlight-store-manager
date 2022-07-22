@@ -56,8 +56,8 @@ $report = $storeHLGA4::instance()->ThongKeSoLieuHeThong($options);
 $report_str = $report->serializeToJsonString();
 
 //$view_all_domains = get_post_meta($current_user->ID, "view_all_domains")[0];
-var_dump($current_user);
-die();
+//var_dump($current_user);
+//die();
 
 $report_json = json_decode($report_str);
 $rowsCount = $report_json->rowCount;
@@ -180,15 +180,12 @@ get_header(); ?>
                     <th>STT</th>
                     <!--                        <th>Hình ảnh</th>-->
                     <th style="width: 15%;">Tiêu đề</th>
+<!--                    <th>Đường dẫn</th>-->
+                    <th class="text-center">Lượt click mua hàng</th>
+                    <th class="text-center">Lượt click cửa hàng</th>
+                    <th class="text-center">Lượt hiển thị</th>
+                    <th class="text-center">Thời gian xem trung bình</th>
                     <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
-                    <th>Đường dẫn</th>
-                    <th>Lượt click mua hàng</th>
-                    <th>Lượt click cửa hàng</th>
-                    <th>Lượt hiển thị</th>
-                    <th>Thời gian xem trung bình</th>
-                    <?php if($is_admin) : ?>
-                        <th>Chi tiết</th>
-                    <?php endif; ?>
                 </tr>
                 </thead>
                 <tbody>
@@ -213,16 +210,9 @@ get_header(); ?>
                                 <a href="<?php the_permalink(); ?>" style="display: flex;"><?php echo $postTitle ?></a>
                             </div>
                         </td>
-                        <td class="text-center">
-                            <?php if( get_post_status( get_the_ID() ) == 'publish' ) : ?>
-                                <i class="fas fa-check-circle h5 text-success mb-0" title="<?php _e( 'Đã duyệt', 'willgroup' ); ?>"></i>
-                            <?php else : ?>
-                                <i class="fas fa-ellipsis-h text-info border border-info rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 1.25rem; height: 1.25rem;" title="<?php _e( 'Chờ xét duyệt', 'willgroup' ); ?>"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php echo $postSlug ?>
-                        </td>
+                        <!--<td>
+                            <?php /*echo $postSlug */?>
+                        </td>-->
                         <td class="text-center">
                             <?php echo $product_analytics_data->luot_click_mua_hang ?> click
                         </td>
@@ -235,9 +225,13 @@ get_header(); ?>
                         <td class="text-center">
                             <?php echo $product_analytics_data->thoi_gian_xem_trung_binh ?> giây
                         </td>
-                        <?php if($is_admin) : ?>
-                            <td>Chi tiết</td>
-                        <?php endif; ?>
+                        <td class="text-center">
+                            <?php if( get_post_status( get_the_ID() ) == 'publish' ) : ?>
+                                <i class="fas fa-check-circle h5 text-success mb-0" title="<?php _e( 'Đã duyệt', 'willgroup' ); ?>"></i>
+                            <?php else : ?>
+                                <i class="fas fa-ellipsis-h text-info border border-info rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 1.25rem; height: 1.25rem;" title="<?php _e( 'Chờ xét duyệt', 'willgroup' ); ?>"></i>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endwhile;wp_reset_postdata(); ?>
 
