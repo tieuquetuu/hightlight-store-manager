@@ -104,7 +104,7 @@ class StoreHLRestAPI
         );
         $data = array();
 
-        $pageIndex = isset($params["sEcho"]) ? (int)$params["sEcho"] : 1;
+        $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
         $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
         $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
 
