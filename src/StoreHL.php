@@ -95,7 +95,7 @@ class StoreHL
 
 //        //The Following registers an api route with multiple parameters.
         add_action( 'rest_api_init', array(__CLASS__, 'handle_rest_api_init') );
-//        add_action( 'rest_api_init', array( 'StoreHLRestAPI', 'init_actions') );
+        add_action( 'rest_api_init', array( 'StoreHightLight\StoreHLRestAPI', 'init_actions') );
 
         add_action( 'cron_check_end_day', array(__CLASS__, 'check_end_day') );
         add_action( 'cron_send_mail', array(__CLASS__, 'check_end_day_send_mail') );
@@ -391,7 +391,11 @@ class StoreHL
         $default_args = array(
             'post_type' 	 => 're',
             'posts_per_page' => 10,
-            'post_status'	 => "any",
+            'post_status'	 => array(
+                "publish",
+                "pending",
+                "private"
+            ),
         );
 
         foreach ($args as $key => $value) {

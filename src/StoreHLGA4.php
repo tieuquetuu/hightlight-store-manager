@@ -15,6 +15,7 @@ use Google\Analytics\Data\V1beta\Filter\StringFilter\MatchType;
 use Google\Analytics\Data\V1beta\Filter\InListFilter;
 use Google\Analytics\Data\V1beta\RunReportResponse;
 use Google\Analytics\Data\V1beta\Row;
+use Google\Type\Date;
 
 class StoreHLGA4 {
     private static $instance = NULL;
@@ -840,5 +841,49 @@ class StoreHLGA4 {
             ),
             "reports" => $reports_json_array
         );
+    }
+
+    public static function GArunReport(Array $args = array()) {
+        $param_dimensions = isset($args['dimensions']) && is_array($args['dimensions']) && count($args['dimensions']) > 0 ? $args['dimensions'] : null;
+        $param_metrics = isset($args['metrics']) && is_array($args['metrics']) && count($args['metrics']) > 0 ? $args['metrics'] : null;
+        $param_date_ranges = isset($args['dateRanges']) && is_array($args['dateRanges']) && count($args['dateRanges']) > 0 ? $args['dateRanges'] : [array(
+            'start_date' => '2022-01-01',
+            'end_date' => 'today',
+        )];
+
+        if (!$param_dimensions) {
+            return "Missing dimension";
+        } elseif(!$param_metrics) {
+            return "Missing metric";
+        }
+
+        $date_ranges = array_map(function ($dateRange){
+            return new DateRange($dateRange);
+        }, $param_date_ranges);
+
+        $dimensions = array_map(function($dimension_name){
+            return new Dimension(
+                array(
+                    "name" => $dimension_name
+                )
+            );
+        }, $param_dimensions);
+
+        $metrics = array_map(function($metric_name){
+            return new Metric(
+                array(
+                    "name" => $metric_name
+                )
+            );
+        }, $param_metrics);
+
+        $report = self::client()->runReport([
+            'property' => 'properties/' . self::properties(),
+            'dateRanges' => $date_ranges,
+            'dimensions' => $dimensions,
+            'metrics' => $metrics
+        ]);
+
+        return $report;
     }
 }

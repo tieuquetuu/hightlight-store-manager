@@ -67,13 +67,13 @@ class StoreHLPageTemplater {
             array( $this, 'view_project_template')
         );
 
-
         // Add your templates to this array.
         $this->templates = array(
             'template/page-report.php' => 'Thống kê số liệu',
 //            'template/page-report-v2.php' => 'Thống kê số liệu version 2',
             'template/page-management-data.php' => 'Quản lý dữ liệu sản phẩm',
             'template/page-store-manager.php' => 'Quản lý dữ liệu hệ thống',
+            'template/page-management.php' => 'Tổng Quan Số Liệu',
         );
 
     }

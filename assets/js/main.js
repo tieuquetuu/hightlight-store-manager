@@ -125,6 +125,97 @@ function SetupDataTable() {
 	// }
 }
 
+function setupManagementDataTable() {
+	let $tables = $(".store-hightlight-management-dataTable");
+	let dataTableOptions = {
+		responsive: true,
+		processing: true,
+		serverSide: true,
+	}
+
+	if ($tables.length) {
+		$tables.each(function (tableIndex,tableDom) {
+			let $table = $(tableDom);
+			let { ajaxSource } = $table.data();
+			if (ajaxSource) {
+				dataTableOptions.ajax = ajaxSource;
+			}
+			let $dataTable = $table.DataTable(dataTableOptions);
+		})
+	}
+}
+
+function systemManagementTable() {
+	let $table = $("#system-management-dataTable");
+	let { ajaxSource } = $table.data();
+
+	$table.DataTable({
+		processing: true,
+		serverSide: true,
+		ajax: ajaxSource,
+		columns: [
+			{
+				data: "id",
+			},
+			{
+				data: "title",
+			},
+			{
+				data: "author.display_name",
+			},
+			{
+				render: (index, text, row) => {
+					let tongLuotXem = 0
+					for (let i = 0; i < row.analytics_data.length;i++) {
+						tongLuotXem += parseInt(row.analytics_data[i].screenPageViews);
+					}
+					return tongLuotXem
+				}
+			},
+			{
+				render: (index, text, row) => {
+					let tongClickCuaHang = 0
+					for (let i = 0; i < row.analytics_data.length;i++) {
+						if (row.analytics_data[i].eventName === "click_buy_product") {
+							tongClickCuaHang += parseInt(row.analytics_data[i].eventCount);
+						}
+					}
+					return tongClickCuaHang
+				}
+			},
+			{
+				render: (index, text, row) => {
+					let tongClickMuaHang = 0
+					for (let i = 0; i < row.analytics_data.length;i++) {
+						if (row.analytics_data[i].eventName === "click_view_shop") {
+							tongClickMuaHang += parseInt(row.analytics_data[i].eventCount);
+						}
+					}
+					return tongClickMuaHang
+				}
+			},
+			{
+				render: (index, text, row) => {
+					let tongThoiGianTrungBinh = 0
+					for (let i = 0; i < row.analytics_data.length;i++) {
+						let count = parseFloat(row.analytics_data[i].averageSessionDuration);
+
+						tongThoiGianTrungBinh += count;
+					}
+
+					if (row.analytics_data.length > 0) {
+						tongThoiGianTrungBinh = tongThoiGianTrungBinh / row.analytics_data.length;
+					}
+
+					return tongThoiGianTrungBinh
+				}
+			},
+			{
+				data: "status",
+			}
+		]
+	});
+}
 
 /**
  * SET UP MODAL JAVASCRIPT
@@ -154,5 +245,7 @@ function setupModal() {
 // Setup Data Table
 $(document).ready(function() {
 	SetupDataTable();
+	setupManagementDataTable();
+	systemManagementTable();
 	setupModal();
 })
