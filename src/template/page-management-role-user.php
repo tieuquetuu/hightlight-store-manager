@@ -176,11 +176,24 @@ $roles = array(
 $uris = explode("/", $_SERVER['REQUEST_URI'][strlen($_SERVER['REQUEST_URI'])-1]=="/"?substr($_SERVER['REQUEST_URI'], 0, -1):$_SERVER['REQUEST_URI']);
 $role ="";
 if(count($uris)> 1) $role = $roles[$uris[count($uris)-1]];
-
+$url = "/quan-ly-du-lieu-san-pham";
 $is_exist_role = (str_contains($get_user_meta["level_manager_data"][0], $role) && $role!="") ? true: false;
+if(!$is_exist_role){
+    foreach($roles as $value){
+        if(str_contains($get_user_meta["level_manager_data"][0], $value)) {
+            wp_redirect( $url."/".array_search($value, $roles) );
+			exit;
+        }
+    }
+}
+
 
 get_header(); ?>
-
+<nav class="user-nav" style="width:100%"><ul id="menu-dieu-huong-nguoi-dung" class="menu">
+<li class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item <?php if (!str_contains($get_user_meta["level_manager_data"][0], $roles["user"])) echo "management-data-menu-disabled"; if($role==$roles["user"]) echo " current_page_item";?>"><a href="<?php echo $url; ?>/user"><i class="fas fa-user-alt"></i>User</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], $roles["domain"])) echo "management-data-menu-disabled";if($role==$roles["domain"]) echo " current_page_item";?>"><a href="<?php echo $url; ?>/domain"><i class="fas fa-user-plus"></i>Website</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], $roles["admin"])) echo "management-data-menu-disabled";if($role==$roles["admin"]) echo " current_page_item";?>"><a href="<?php echo $url; ?>/admin"><i class="fa fa-user-friends"></i>Toàn hệ thống</a></li>
+</ul></nav>
 <main id="main" class="col-12 site-main" role="main">
     <?php 
     if(!$is_exist_role): echo "<p>Bạn không có quyền để truy cập</p>";
