@@ -73,24 +73,57 @@ if (defined('WP_CLI') && WP_CLI) {
 
 if ($_GET['debug'] == 'vip') {
 
-//    var_dump(HightLightStore\StoreHLGa4::instance()->ThongKeSoLieuHeThong());
-//    var_dump(class_exists(''));
-    echo "<pre>";
+    $StoreHLGa4 = new StoreHightLight\StoreHLGa4();
 
-    /*$report_str = HightLightStore\StoreHLGa4::instance()->ThongKeSoLieuHeThong(
-        array(
-            "date_ranges" => array(
-                'start_date' => '2022-07-01', // Bắt đầu từ trước
-                'end_date' => 'today', // Tới hôm nay
-            )
+    $dimension_filters = array(
+        "andGroup" => array(
+            [
+                "filter" => array(
+                    "field_name" => "eventName",
+                    "in_list_filter" => ["page_view", "click_buy_product", "click_view_shop"]
+                )
+            ]
         )
-    );*/
-//    $report_json = json_decode($report_str);
-//    print_r($report_str);
+    );
 
-//    var_dump(StoreHightLight\StoreHL::instance()->check_end_day()) ;
-    var_dump(StoreHightLight\StoreHL::instance()->check_end_day_send_mail()) ;
+    $request_report_domain = $StoreHLGa4::instance()->RequestReportDataWithDomain();
 
+    $response_domain_report = $StoreHLGa4::instance()->makeRunReport($request_report_domain);
+
+    $json_report = json_decode($response_domain_report->serializeToJsonString());
+
+    $data = $StoreHLGa4::instance()->makeReportPretty($response_domain_report);
+
+    /*$dimensionHeaders = $json_report->dimensionHeaders;
+    $metricHeaders = $json_report->metricHeaders;
+
+    $rows = $json_report->rows;
+
+    $data = array();
+
+    foreach ($rows as $row) {
+        $item = array();
+        $dimensionValues = $row->dimensionValues;
+        foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
+            $itemName = $dimensionHeaders[$dimensionValueIndex]->name;
+            $item[$itemName] = $dimensionValue->value;
+        }
+
+        array_push($data, (object) $item);
+    }*/
+
+    /*foreach ($response_domain_report->getRows() as $row) {
+        $obj = array();
+        $dimensionValues = $row->getDimensionValues();
+        $metricValues = $row->metricValues();
+
+        foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
+
+        }
+    }*/
+
+    echo "<pre>";
+    var_dump($data);
     echo "</pre>";
 
 //    echo "done";
