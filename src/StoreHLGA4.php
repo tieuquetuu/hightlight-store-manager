@@ -886,4 +886,150 @@ class StoreHLGA4 {
 
         return $report;
     }
+
+
+    /**
+     * @description Chuyển đổi dữ liệu báo cáo về dạng mảng xem được
+     * @param $report
+     * @return array
+     */
+    public static function makeReportPretty($report) {
+        $json_report = json_decode($report->serializeToJsonString());
+
+        $dimensionHeaders = $json_report->dimensionHeaders;
+        $metricHeaders = $json_report->metricHeaders;
+
+        $rows = $json_report->rows;
+
+        $data = array();
+
+        foreach ($rows as $row) {
+            $item = array();
+            $dimensionValues = $row->dimensionValues;
+            $metricValues = $row->metricValues;
+
+            foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
+                $dimensionItemName = $dimensionHeaders[$dimensionValueIndex]->name;
+                $item[$dimensionItemName] = $dimensionValue->value;
+            }
+
+            foreach ($metricValues as $metricValueIndex => $metricValue) {
+                $metricItemName = $metricHeaders[$metricValueIndex]->name;
+                $item[$metricItemName] = $metricValue->value;
+            }
+
+            array_push($data, (object) $item);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $request
+     * @return RunReportResponse
+     * @throws \Google\ApiCore\ApiException
+     */
+    public static function makeRunReport($request) {
+        return self::client()->runReport([
+            'property' => $request->getProperty(),
+            'dateRanges' => $request->getDateRanges(),
+            'dimensions' => $request->getDimensions(),
+            'metrics' => $request->getMetrics(),
+            'dimensionFilter' => $request->getDimensionFilter(),
+            'metricFilter' => $request->getMetricFilter(),
+            'limit' => $request->getLimit(),
+            'offset' => $request->getOffset()
+        ]);
+    }
+
+    /**
+     * @description Báo cáo số liệu theo tên miền
+     * @return RunReportRequest
+     */
+    public static function RequestReportDataWithDomain(Array $args = []) {
+
+        $dimension_filter = isset($args["dimension_filter"]) && !is_null($args["dimension_filter"]) && is_array($args["dimension_filter"]) && count($args["dimension_filter"]) > 0 ? $args["dimension_filter"] : null;
+
+        $request = new RunReportRequest([
+            "property" => 'properties/' . self::properties(),
+            "date_ranges" => array(
+                new DateRange([
+                    'start_date' => '2022-01-01', // Từ trước
+                    'end_date' => 'today', // Đến hôm nay
+                ])
+            ),
+            "dimensions" => array(
+                new Dimension([
+                    "name" => "hostName" // Tên miền
+                ]),
+                new Dimension([
+                    "name" => "pagePath" // Đường dẫn
+                ]),
+                new Dimension([
+                    "name" => "pageTitle" // Tiêu đề trang
+                ]),
+                new Dimension([
+                    "name" => "eventName" // Tên sự kiện
+                ])
+            ),
+            "metrics" => array(
+                new Metric([
+                    "name" => "activeUsers" // Đếm Số Người Dùng
+                ]),
+                new Metric([
+                    "name" => "eventCount" // Đếm Số Sự Kiện
+                ]),
+                new Metric([
+                    "name" => "sessions" // Đếm session
+                ]),
+                new Metric([
+                    "name" => "screenPageViewsPerSession" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "screenPageViews" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "averageSessionDuration" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "bounceRate" // Thời gian xem trung bình
+                ])
+            ),
+            "dimension_filter" => new FilterExpression([
+                "and_group" => new FilterExpressionList([
+                    "expressions" => array(
+                        new FilterExpression([
+                            "filter" => new Filter([
+                                "field_name" => "eventName",
+                                "in_list_filter" => new InListFilter([
+                                    "values" => ["page_view","click_buy_product", "click_view_shop"]
+                                ])
+                            ])
+                        ]),
+                        new FilterExpression([
+                            "not_expression" => new FilterExpression([
+                                "filter" => new Filter([
+                                    "field_name" => "hostName",
+                                    "in_list_filter" => new InListFilter([
+                                        "values" => ["localhost", "127.0.0.1"]
+                                    ])
+                                ])
+                            ])
+                        ])
+                    )
+                ]),
+                /*"not_expression" => new FilterExpression([
+                    "filter" => new Filter([
+                        "field_name" => "hostName",
+                        "in_list_filter" => new InListFilter([
+                            "values" => ["localhost", "127.0.0.1"]
+                        ])
+                    ])
+                ])*/
+            ]),
+            "limit" => 100000,
+            "offset" => 0
+        ]);
+        return $request;
+    }
 }
