@@ -105,13 +105,17 @@ class StoreHLRestAPI
         $data = array();
 
         $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
+        $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
         $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
         $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
+        $search = isset($params['sSearch']) ? $params['sSearch'] : "";
 
         $queryArgs = array(
             "posts_per_page" => $limit,
             "paged" => $pageIndex,
-            "page" => $pageIndex
+            "page" => $pageIndex,
+            "offset" => $offset,
+            "s" => $search
         );
         $queryProducts = StoreHL::instance()->queryStoreProducts($queryArgs);
 
