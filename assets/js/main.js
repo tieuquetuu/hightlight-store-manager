@@ -354,9 +354,7 @@ function setupMultiCheckBox() {
 			if( data.status == true ) {
 				$form.append('<div class="alert alert-success">' + data.message + '</div>');
 				$form.find('.form-control').val('');
-				if( $form.hasClass('form-login') ) {
-					window.location.href = '/quan-ly-du-lieu-san-pham/admin';
-				}
+					window.location.href = '/quan-ly-du-lieu-san-pham/du-lieu-he-thong';
 			} else {
 				$form.append('<div class="alert alert-danger">' + data.message + '</div>');
 			}

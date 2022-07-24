@@ -169,9 +169,9 @@ $product_analytics_by_slug = function(
 };
 $get_user_meta = get_user_meta($current_user->ID);
 $roles = array(
-"user"=>"level_1",
-"domain"=>"level_2",
-"admin"=>"level_3"
+"du-lieu-user"=>"level_1",
+"du-lieu-website"=>"level_2",
+"du-lieu-he-thong"=>"level_3"
 );
 $uris = explode("/", $_SERVER['REQUEST_URI'][strlen($_SERVER['REQUEST_URI'])-1]=="/"?substr($_SERVER['REQUEST_URI'], 0, -1):$_SERVER['REQUEST_URI']);
 $role ="";
@@ -190,9 +190,9 @@ if(!$is_exist_role){
 
 get_header(); ?>
 <nav class="user-nav" style="width:100%"><ul id="menu-dieu-huong-nguoi-dung" class="menu">
-<li class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item <?php if (!str_contains($get_user_meta["level_manager_data"][0], $roles["user"])) echo "management-data-menu-disabled"; if($role==$roles["user"]) echo " current_page_item";?>"><a href="<?php echo $url; ?>/user"><i class="fas fa-user-alt"></i>User</a></li>
-<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], $roles["domain"])) echo "management-data-menu-disabled";if($role==$roles["domain"]) echo " current_page_item";?>"><a href="<?php echo $url; ?>/domain"><i class="fas fa-user-plus"></i>Website</a></li>
-<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], $roles["admin"])) echo "management-data-menu-disabled";if($role==$roles["admin"]) echo " current_page_item";?>"><a href="<?php echo $url; ?>/admin"><i class="fa fa-user-friends"></i>Toàn hệ thống</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], array_values($roles)[0])) echo "management-data-menu-disabled"; if($role==array_values($roles)[0]) echo " current_page_item";?>"><a href="<?php echo $url."/".array_keys($roles)[0]; ?>"><i class="fas fa-user-alt"></i>User</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], array_values($roles)[1])) echo "management-data-menu-disabled";if($role==array_values($roles)[1]) echo " current_page_item";?>"><a href="<?php echo $url."/".array_keys($roles)[1]; ?>"><i class="fas fa-user-plus"></i>Website</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page <?php if (!str_contains($get_user_meta["level_manager_data"][0], array_values($roles)[2])) echo "management-data-menu-disabled";if($role==array_values($roles)[2]) echo " current_page_item";?>"><a href="<?php echo $url."/".array_keys($roles)[2]; ?>"><i class="fa fa-user-friends"></i>Toàn hệ thống</a></li>
 </ul></nav>
 <main id="main" class="col-12 site-main" role="main">
     <?php 

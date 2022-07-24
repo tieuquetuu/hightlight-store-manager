@@ -77,6 +77,7 @@ class StoreHLPageTemplater {
             'template/page-management-role-user.php' => 'Quản lý dữ liệu sản phẩm (user)',
             'template/page-management-role-domain.php' => 'Quản lý dữ liệu sản phẩm (domain)',
             'template/page-management-role-admin.php' => 'Quản lý dữ liệu sản phẩm (admin)',
+            'template/page-login.php' => 'Quản lý dữ liệu sản phẩm (login)',
         );
 
     }

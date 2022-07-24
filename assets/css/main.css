@@ -175,3 +175,18 @@
         left: 24px;
         color:#fff;
     }
+.login-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.login-body{
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 0.3rem;
+    padding: 15px 10px;
+}

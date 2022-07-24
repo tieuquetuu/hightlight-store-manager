@@ -5,7 +5,7 @@
  * @package willgroup
  */
 if(is_user_logged_in()) {
-	wp_redirect( "/quan-ly-du-lieu-san-pham/admin");
+	wp_redirect( "/quan-ly-du-lieu-san-pham/du-lieu-he-thong");
 	exit;
 }
 get_header();
