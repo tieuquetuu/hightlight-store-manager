@@ -94,36 +94,8 @@ if ($_GET['debug'] == 'vip') {
 
     $data = $StoreHLGa4::instance()->makeReportPretty($response_domain_report);
 
-    /*$dimensionHeaders = $json_report->dimensionHeaders;
-    $metricHeaders = $json_report->metricHeaders;
-
-    $rows = $json_report->rows;
-
-    $data = array();
-
-    foreach ($rows as $row) {
-        $item = array();
-        $dimensionValues = $row->dimensionValues;
-        foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
-            $itemName = $dimensionHeaders[$dimensionValueIndex]->name;
-            $item[$itemName] = $dimensionValue->value;
-        }
-
-        array_push($data, (object) $item);
-    }*/
-
-    /*foreach ($response_domain_report->getRows() as $row) {
-        $obj = array();
-        $dimensionValues = $row->getDimensionValues();
-        $metricValues = $row->metricValues();
-
-        foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
-
-        }
-    }*/
-
     echo "<pre>";
-    var_dump($data);
+    print_r(json_encode($data));
     echo "</pre>";
 
 //    echo "done";

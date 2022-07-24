@@ -16,6 +16,7 @@ use Google\Analytics\Data\V1beta\Filter\InListFilter;
 use Google\Analytics\Data\V1beta\RunReportResponse;
 use Google\Analytics\Data\V1beta\Row;
 use Google\Type\Date;
+use Illuminate\Support\Str;
 
 class StoreHLGA4 {
     private static $instance = NULL;
@@ -946,9 +947,40 @@ class StoreHLGA4 {
      * @description Báo cáo số liệu theo tên miền
      * @return RunReportRequest
      */
-    public static function RequestReportDataWithDomain(Array $args = []) {
+    public static function RequestReportSummaryData(Array $args = []) {
 
-        $dimension_filter = isset($args["dimension_filter"]) && !is_null($args["dimension_filter"]) && is_array($args["dimension_filter"]) && count($args["dimension_filter"]) > 0 ? $args["dimension_filter"] : null;
+        $defaultFilterNotByHostNames = new FilterExpression([
+            "not_expression" => new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "hostName",
+                    "in_list_filter" => new InListFilter([
+                        "values" => ["localhost", "127.0.0.1"]
+                    ])
+                ])
+            ])
+        ]);
+        $defaultFilterByEventNames = new FilterExpression([
+            "filter" => new Filter([
+                "field_name" => "eventName",
+                "in_list_filter" => new InListFilter([
+                    "values" => ["page_view","click_buy_product", "click_view_shop"]
+                ])
+            ])
+        ]);
+
+        $dimension_filter_and_groups = array(
+            $defaultFilterNotByHostNames,
+            $defaultFilterByEventNames,
+            /*new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pageTitle",
+                    "string_filter" => new StringFilter([
+                        "value" => $args["pageTitle"],
+                        "match_type" =>
+                    ])
+                ])
+            ])*/
+        );
 
         $request = new RunReportRequest([
             "property" => 'properties/' . self::properties(),
@@ -997,35 +1029,8 @@ class StoreHLGA4 {
             ),
             "dimension_filter" => new FilterExpression([
                 "and_group" => new FilterExpressionList([
-                    "expressions" => array(
-                        new FilterExpression([
-                            "filter" => new Filter([
-                                "field_name" => "eventName",
-                                "in_list_filter" => new InListFilter([
-                                    "values" => ["page_view","click_buy_product", "click_view_shop"]
-                                ])
-                            ])
-                        ]),
-                        new FilterExpression([
-                            "not_expression" => new FilterExpression([
-                                "filter" => new Filter([
-                                    "field_name" => "hostName",
-                                    "in_list_filter" => new InListFilter([
-                                        "values" => ["localhost", "127.0.0.1"]
-                                    ])
-                                ])
-                            ])
-                        ])
-                    )
+                    "expressions" => $dimension_filter_and_groups
                 ]),
-                /*"not_expression" => new FilterExpression([
-                    "filter" => new Filter([
-                        "field_name" => "hostName",
-                        "in_list_filter" => new InListFilter([
-                            "values" => ["localhost", "127.0.0.1"]
-                        ])
-                    ])
-                ])*/
             ]),
             "limit" => 100000,
             "offset" => 0

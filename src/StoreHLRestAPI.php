@@ -124,43 +124,9 @@ class StoreHLRestAPI
             return $result;
         }
 
-        $dimension_hostName_key = "hostName";
-        $dimension_pagePath_key = "pagePath";
-        $dimension_pageTitle_key = "pageTitle";
-        $dimension_eventName_key = "eventName";
-
-        $metric_eventCount_key = "eventCount";
-        $metric_activeUsers_key = "activeUsers";
-        $metric_screenPageViews_key = "screenPageViews";
-        $metric_averageSessionDuration_key = "averageSessionDuration";
-
-        $dimension_query_args = array(
-            $dimension_hostName_key,
-            $dimension_pagePath_key,
-            $dimension_pageTitle_key,
-            $dimension_eventName_key
-        );
-        $metric_query_args = array(
-            $metric_eventCount_key,
-            $metric_activeUsers_key,
-            $metric_screenPageViews_key,
-            $metric_averageSessionDuration_key
-        );
-
-        $dimension_eventName_key_index  = array_search($dimension_eventName_key, $dimension_query_args);
-        $dimension_pagePath_key_index  = array_search($dimension_pagePath_key, $dimension_query_args);
-        $dimension_pageTitle_key_index  = array_search($dimension_pageTitle_key, $dimension_query_args);
-        $dimension_hostName_key_index = array_search($dimension_hostName_key, $dimension_query_args);
-
-        $metric_activeUsers_key_index = array_search($metric_activeUsers_key, $metric_query_args);
-        $metric_eventCount_key_index = array_search($metric_eventCount_key, $metric_query_args);
-        $metric_screenPageViews_key_index = array_search($metric_screenPageViews_key, $metric_query_args);
-        $metric_averageSessionDuration_key_index = array_search($metric_averageSessionDuration_key, $metric_query_args);
-
-        $report = StoreHLGA4::instance()->GArunReport([
-            'dimensions' => $dimension_query_args,
-            'metrics' => $metric_query_args
-        ]);
+        $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData();
+        $report = StoreHLGA4::instance()->makeRunReport($request_report_domain);
+        $pretty_report = StoreHLGA4::makeReportPretty($report);
 
         $report_str = $report->serializeToJsonString();
         $report_json = json_decode($report_str);
@@ -169,82 +135,29 @@ class StoreHLRestAPI
 
         $result["recordsFiltered"] = (int) $queryProducts->found_posts;
         $result["recordsTotal"] = (int) $queryProducts->found_posts;
+
         foreach ($queryProducts->posts as $product) {
             $author = get_user_by("id", $product->post_author);
             $productTitle = $product->post_title;
             $productSlug = $product->post_name;
             $productId = $product->ID;
+            $productCategory = get_the_terms($productId, "re_cat");
+
             $status = "Chờ duyệt";
             if ($product->post_status == "publish") : $status = "Đang hoạt động"; endif;
 
             $analytics = null;
 
-            // Lọc dữ liệu google analytics bằng tiêu đề
-            $analytics_filter = array_filter(
-                $rowsData,
-                function (
-                    $row
-                ) use (
-                    &$dimension_query_args,
-                    &$metric_query_args,
-                    &$dimension_pagePath_key,
-                    &$dimension_pageTitle_key,
-                    &$dimension_pageTitle_key_index,
-                    &$productTitle
-                ) {
-                    return str_contains($row->dimensionValues[$dimension_pageTitle_key_index]->value, $productTitle);
+            $analytics_filter = array_filter($pretty_report, function($reportItem) use (&$productTitle){
+                return str_contains($reportItem->pageTitle, $productTitle);
             });
 
             $analytics = array_values($analytics_filter);
-            $analytics_data = array();
-
-            foreach ($analytics as $item) {
-                $rowItem = array();
-                $dimensionValues = $item->dimensionValues;
-                $metricValues = $item->metricValues;
-
-                $rowItem[$dimension_hostName_key] = $dimensionValues[$dimension_hostName_key_index]->value;
-                $rowItem[$dimension_pagePath_key] = $dimensionValues[$dimension_pagePath_key_index]->value;
-                $rowItem[$dimension_eventName_key] = $dimensionValues[$dimension_eventName_key_index]->value;
-                $rowItem[$dimension_pageTitle_key] = $dimensionValues[$dimension_pageTitle_key_index]->value;
-
-                $rowItem[$metric_activeUsers_key] = $metricValues[$metric_activeUsers_key_index]->value;
-                $rowItem[$metric_eventCount_key] = $metricValues[$metric_eventCount_key_index]->value;
-                $rowItem[$metric_screenPageViews_key] = $metricValues[$metric_screenPageViews_key_index]->value;
-                $rowItem[$metric_averageSessionDuration_key] = $metricValues[$metric_averageSessionDuration_key_index]->value;
-
-                array_push($analytics_data,$rowItem);
-            }
-
-            /*foreach ($analytics as $analytic_item) {
-                $domainKeyName = $analytic_item->dimensionValues[$dimension_hostName_key_index]->value;
-                if (!key_exists($domainKeyName, $analytics_data)) {
-                    $analytics_data[$domainKeyName] = array(
-                        "luotXem" => 0,
-                        "luotClickCuaHang" => 0,
-                        "luotClickMuaHang" => 0,
-                        "thoiGianXemTrungBinh" => 0
-                    );
-                }
-
-                $analytics_data[$domainKeyName]["luotXem"] += $analytic_item->metricValues[$metric_screenPageViews_key_index];
-
-                if ($analytic_item->dimensionValues[$dimension_eventName_index]->value == "click_view_shop") {
-                    $analytics_data[$domainKeyName]["luotClickCuaHang"] += $analytic_item->metricValues[$metric_eventCount_key_index];
-                }
-
-                if ($analytic_item->dimensionValues[$dimension_eventName_index]->value == "click_buy_product") {
-                    $analytics_data[$domainKeyName]["luotClickMuaHang"] += $analytic_item->metricValues[$metric_eventCount_key_index];
-                }
-
-                $analytics_data[$domainKeyName]["luotClickMuaHang"] += $analytic_item->metricValues[$metric_screenPageViews_key_index];
-
-            }*/
 
             $row = array(
                 "id" => $productId,
                 "title" => $productTitle,
-                "category" => "",
+                "category" => $productCategory,
                 "author" => array(
                     "id" => $author->ID,
                     "display_name" => $author->display_name
@@ -252,37 +165,9 @@ class StoreHLRestAPI
                 "status" => $status,
                 "product" => $product,
                 "analytics" => $analytics,
-                "analytics_data" => $analytics_data
             );
             array_push($result['data'], $row);
         }
-
-        /*$result["data"] = array_map(function($product) {
-            $author = get_user_by("id", $product->post_author);
-            $productTitle = $product->post_title;
-            $productId = $product->ID;
-            $status = "Chờ duyệt";
-            if ($product->post_status == "publish") : $status = "Đang hoạt động"; endif;
-
-            $result = array(
-                "id" => $productId,
-                "title" => $productTitle,
-                "category" => "",
-                "author" => array(
-                    "id" => $author->ID,
-                    "display_name" => $author->display_name
-                ),
-                "analystic_report" => array(
-                    "total_screenPageViews" => 1000,
-                    "total_click_buy_product" => 100,
-                    "total_click_view_shop" => 80,
-                    "total_averageSessionDuration" => "30 giây"
-                ),
-                "status" => $status,
-                "product" => $product
-            );
-            return $result;
-        },$queryProducts->posts);*/
 
         return wp_send_json($result, 200);
     }
