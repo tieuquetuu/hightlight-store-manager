@@ -206,7 +206,7 @@ else:
                         $users = get_users(); 
                         foreach ( $users as $value ) : ?>
                             <option value="<?php echo $value->ID; ?>">
-                                <?php echo $value->user_nicename; ?>		
+                                <?php echo $value->user_email; ?>		
                             </option>
                         <?php endforeach; ?>
                         
@@ -252,7 +252,8 @@ else:
                         <th>STT</th>
                         <!--                        <th>Hình ảnh</th>-->
                         <th style="width: 15%;">Tiêu đề</th>
-    <!--                    <th>Đường dẫn</th>-->
+                        <th class="text-center">Danh mục</th> 
+                        <th class="text-center">Tài khoản</th> 
                         <th class="text-center">Lượt click mua hàng</th>
                         <th class="text-center">Lượt click cửa hàng</th>
                         <th class="text-center">Lượt hiển thị</th>
@@ -263,6 +264,7 @@ else:
                     <tbody>
                     <?php while( $fetch_store_products->have_posts() ) : $fetch_store_products->the_post();
                         $post = get_post();
+
                         $stt = (int) $fetch_store_products->current_post + 1;
                         $postTitle = get_the_title();
                         $postPermaLink = get_permalink();
@@ -282,9 +284,12 @@ else:
                                     <a href="<?php the_permalink(); ?>" style="display: flex;"><?php echo $postTitle ?></a>
                                 </div>
                             </td>
-                            <!--<td>
-                                <?php /*echo $postSlug */?>
-                            </td>-->
+                            <td class="text-center">
+                                <?php echo get_term_by('id', get_post_meta( $post->ID)["re_cat"][0], 're_cat')->name; ?>
+                            </td>
+                            <td class="text-center">
+                                <?php echo get_user_by('id',$post->post_author)->user_email; ?>
+                            </td>
                             <td class="text-center">
                                 <?php echo $product_analytics_data->luot_click_mua_hang ?> click
                             </td>
@@ -325,6 +330,9 @@ else:
                     <thead>
                         <tr>
                             <th>Tiêu đề</th>
+                            <th>Tên miền</th>  
+                            <th>Danh mục</th> 
+                            <th>Tài khoản</th>
                             <th>Lượt click mua hàng</th>
                             <th>Lượt click cửa hàng</th>
                             <th>Lượt hiển thị</th>
@@ -345,9 +353,17 @@ else:
                                         <a href="nha-dat/moc-khoa-hinh-trai-chuoi-ngo-nghinh-tran-hung-dao/" style="display: flex;">Móc Khóa Hình Trái Chuối Ngộ Nghĩnh Trần Hưng Đạo</a>
                                     </div>
                                 </td>
-                                <!--<td>
-                                    <?php /*echo $postSlug */?>
-                                </td>-->
+                                <td>
+                                    <?php echo "Tên miền"; ?>
+                                </td>
+                                <td class="text-center">
+                                    Mỹ phẩm
+                                    <!-- <?php echo get_term_by('id', get_post_meta( $post->ID)["re_cat"][0], 're_cat')->name; ?>  -->
+                                </td>
+                                <td class="text-center">
+                                    user@gmail.com
+                                    <!-- <?php echo get_user_by('id',$post->post_author)->user_email; ?> -->
+                                </td>
                                 <td class="text-center">
                                     1000 click
                                 </td>
