@@ -337,7 +337,35 @@ function setupMultiCheckBox() {
 	$(".MultiCheckBox.MultiCheckBox-LoaiSanPham").CreateMultiCheckBox({ width: '230px', defaultText : 'Loại Sản Phẩm', height:'250px' });
 	$(".MultiCheckBox.MultiCheckBox-LoaiDichVu").CreateMultiCheckBox({ width: '230px', defaultText : 'Loại Dịch Vụ', height:'250px' });
 }
-
+/**
+	 * Login
+	 */
+ $('.form-login-store-hightlight-manager').on('submit', function(e) {
+	e.preventDefault();
+	$form = $(this);
+	$form.find('[type="submit"]').append('<i class="ion-loop spin icon icon-right"></i>');
+	$form.find('.alert').remove();
+	$.ajax({
+		type: 'POST',
+		url: ajax.ajax_url,
+		data: $form.serialize(),
+		success: function( data, textStatus, jqXHR ) {
+			$form.find('[type="submit"]').find('.icon').remove();
+			if( data.status == true ) {
+				$form.append('<div class="alert alert-success">' + data.message + '</div>');
+				$form.find('.form-control').val('');
+				if( $form.hasClass('form-login') ) {
+					window.location.href = '/quan-ly-du-lieu-san-pham/admin';
+				}
+			} else {
+				$form.append('<div class="alert alert-danger">' + data.message + '</div>');
+			}
+		},
+		error: function( jqXHR, textStatus, errorThrown ) {
+			alert( errorThrown );
+		}
+	});
+});
 // Setup Data Table
 $(document).ready(function() {
 	SetupDataTable();
