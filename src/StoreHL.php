@@ -97,8 +97,15 @@ class StoreHL
         add_action( 'rest_api_init', array(__CLASS__, 'handle_rest_api_init') );
         add_action( 'rest_api_init', array( 'StoreHightLight\StoreHLRestAPI', 'init_actions') );
 
+        add_filter('manage_re_posts_columns', array(__CLASS__, 'extra_re_columns_head'));
+        add_action('manage_re_posts_custom_column', array(__CLASS__, 'extra_re_columns_content'), 10, 2);
+
         add_action( 'cron_check_end_day', array(__CLASS__, 'check_end_day') );
         add_action( 'cron_send_mail', array(__CLASS__, 'check_end_day_send_mail') );
+
+//        add_action( 'init', array(__CLASS__, 'my_custom_status_creation') );
+//        add_action( 'post_submitbox_misc_actions', array(__CLASS__, 'add_to_post_status_dropdown'));
+//        add_action( 'restrict_manage_posts', [ __CLASS__, 'render_hidden_input' ] );
         add_action( 'init', array(__CLASS__, 'schedule_cron_check_end_day') );
     }
 
@@ -193,22 +200,41 @@ class StoreHL
         wp_localize_script( 'hightlight-store-js', 'hightlight_client_object', $translation_array );
     }
 
-    public static function add_admin_column($column_title, $post_type, $cb){
+    public static function extra_re_columns_head($cols) {
 
-        // Column Header
-        add_filter( 'manage_' . $post_type . '_posts_columns', function($columns) use ($column_title) {
-            $columns[ sanitize_title($column_title) ] = $column_title;
-            return $columns;
-        } );
+        $cols['re_status'] = __( 'Tình trạng', 'store-hightlight-manager' );
+        $cols['re_author'] = __( 'Tác giả', 'store-hightlight-manager' );
+        $cols['re_date_end'] = __( 'Ngày kết thúc', 'store-hightlight-manager' );
 
-        // Column Content
-        add_action( 'manage_' . $post_type . '_posts_custom_column' , function( $column, $post_id ) use ($column_title, $cb) {
+        return $cols;
+    }
 
-            if(sanitize_title($column_title) === $column){
-                $cb($post_id);
+    public static function extra_re_columns_content($col_name, $post_ID) {
+        global $post;
+
+        $today = date_create("now");
+        $end_day = get_post_meta($post_ID)["end_day"][0];
+        $interval = date_diff($today, date_create($end_day));
+
+        if ($col_name == 're_date_end') {
+            if ( $end_day ) {
+                echo "Còn " . $interval->d . " ngày, " . $interval->h . " giờ";
+            } else {
+                echo "Chưa thiết lập";
             }
+        }
 
-        }, 10, 2 );
+        if ($col_name == 're_author') {
+            echo get_user_by("id", $post->post_author)->display_name;
+        }
+
+        if ($col_name == 're_status') {
+            if ($interval->d < 7) {
+                echo "Sắp hết hạn";
+            } else {
+                echo get_post_status_object($post->post_status)->label;
+            }
+        }
     }
 
     public static function ManagerDataNavigation() {
