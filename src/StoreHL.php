@@ -178,6 +178,8 @@ class StoreHL
         wp_enqueue_style( 'hightlight-store-css',  STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . "assets/css/main.css");
         wp_enqueue_script( 'hightlight-store-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/main.js', array( 'jquery' ), '', true );
         wp_enqueue_script( 'hightlight-store-statistical-report-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/statistical-report.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-store-domain-manager-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/domain-manager.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-store-users-manager-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/users-manager.js', array( 'jquery' ), '', true );
         wp_enqueue_script( 'hightlight-store-system-manager-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/system-manager.js', array( 'jquery' ), '', true );
         wp_enqueue_script( 'hightlight-store-tracking-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/tracking.js', array( 'jquery' ), '', true );
         // Localize the script with new data
@@ -409,8 +411,19 @@ class StoreHL
         }
 
         $query_args = array_merge($default_args);
+
         $data = new \WP_Query($query_args);
+
         return $data;
+    }
+
+    public static function getHostNames() {
+        $result = null;
+
+        $request = StoreHLGA4::instance()->RequestListHostName();
+        $report = StoreHLGA4::makeRunReport($request);
+        $pretty_report = StoreHLGA4::makeReportPretty($report);
+        return $pretty_report;
     }
 
     public static function handleHightLightQueryProducts($request) {

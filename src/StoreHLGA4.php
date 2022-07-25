@@ -909,14 +909,18 @@ class StoreHLGA4 {
             $dimensionValues = $row->dimensionValues;
             $metricValues = $row->metricValues;
 
-            foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
-                $dimensionItemName = $dimensionHeaders[$dimensionValueIndex]->name;
-                $item[$dimensionItemName] = $dimensionValue->value;
+            if ($dimensionValues && count($dimensionValues) > 0) {
+                foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
+                    $dimensionItemName = $dimensionHeaders[$dimensionValueIndex]->name;
+                    $item[$dimensionItemName] = $dimensionValue->value;
+                }
             }
 
-            foreach ($metricValues as $metricValueIndex => $metricValue) {
-                $metricItemName = $metricHeaders[$metricValueIndex]->name;
-                $item[$metricItemName] = $metricValue->value;
+            if ($metricValues && count($metricValues) > 0) {
+                foreach ($metricValues as $metricValueIndex => $metricValue) {
+                    $metricItemName = $metricHeaders[$metricValueIndex]->name;
+                    $item[$metricItemName] = $metricValue->value;
+                }
             }
 
             array_push($data, (object) $item);
@@ -943,11 +947,50 @@ class StoreHLGA4 {
         ]);
     }
 
+
+    public static function RequestListHostName() {
+        $request = new RunReportRequest([
+            "property" => 'properties/' . self::properties(),
+            "date_ranges" => array(
+                new DateRange([
+                    'start_date' => '2022-01-01', // Từ trước
+                    'end_date' => 'today', // Đến hôm nay
+                ])
+            ),
+            "dimensions" => array(
+                new Dimension([
+                    "name" => "hostName" // Tên miền
+                ])
+            ),
+            "dimension_filter" => new FilterExpression([
+                "and_group" => new FilterExpressionList([
+                    "expressions" => array(
+                        new FilterExpression([
+                            "not_expression" => new FilterExpression([
+                                "filter" => new Filter([
+                                    "field_name" => "hostName",
+                                    "in_list_filter" => new InListFilter([
+                                        "values" => ["localhost", "127.0.0.1"]
+                                    ])
+                                ])
+                            ])
+                        ])
+                    )
+                ]),
+            ]),
+            "limit" => 100000,
+            "offset" => 0
+        ]);
+        return $request;
+    }
+
     /**
      * @description Báo cáo số liệu theo tên miền
      * @return RunReportRequest
      */
     public static function RequestReportSummaryData(Array $args = []) {
+
+        $hostNames = isset($args["hostNames"]) && is_array($args["hostNames"]) && count($args["hostNames"]) > 0 ? $args["hostNames"] : false;
 
         $defaultFilterNotByHostNames = new FilterExpression([
             "not_expression" => new FilterExpression([
@@ -971,16 +1014,25 @@ class StoreHLGA4 {
         $dimension_filter_and_groups = array(
             $defaultFilterNotByHostNames,
             $defaultFilterByEventNames,
-            /*new FilterExpression([
-                "filter" => new Filter([
-                    "field_name" => "pageTitle",
-                    "string_filter" => new StringFilter([
-                        "value" => $args["pageTitle"],
-                        "match_type" =>
-                    ])
-                ])
-            ])*/
         );
+
+        $dimension_filter_args = [
+            "and_group" => new FilterExpressionList([
+                "expressions" => $dimension_filter_and_groups,
+            ]),
+        ];
+
+        if ($hostNames) {
+            $filterByHostNames = new Filter([
+                "field_name" => "hostName",
+                "in_list_filter" => new InListFilter([
+                    "values" => $hostNames
+                ])
+            ]);
+            $dimension_filter_args["filter"] = $filterByHostNames;
+        }
+
+        $dimension_filter = new FilterExpression($dimension_filter_args);
 
         $request = new RunReportRequest([
             "property" => 'properties/' . self::properties(),
@@ -1027,11 +1079,7 @@ class StoreHLGA4 {
                     "name" => "bounceRate" // Thời gian xem trung bình
                 ])
             ),
-            "dimension_filter" => new FilterExpression([
-                "and_group" => new FilterExpressionList([
-                    "expressions" => $dimension_filter_and_groups
-                ]),
-            ]),
+            "dimension_filter" => $dimension_filter,
             "limit" => 100000,
             "offset" => 0
         ]);

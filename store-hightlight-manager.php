@@ -86,7 +86,9 @@ if ($_GET['debug'] == 'vip') {
         )
     );
 
-    $request_report_domain = $StoreHLGa4::instance()->RequestReportDataWithDomain();
+    $request_report_domain = $StoreHLGa4::instance()->RequestReportSummaryData(array(
+        "hostNames" => ["store.hightlight.net"]
+    ));
 
     $response_domain_report = $StoreHLGa4::instance()->makeRunReport($request_report_domain);
 
@@ -95,7 +97,7 @@ if ($_GET['debug'] == 'vip') {
     $data = $StoreHLGa4::instance()->makeReportPretty($response_domain_report);
 
     echo "<pre>";
-    print_r(json_encode($data));
+    print_r($data);
     echo "</pre>";
 
 //    echo "done";

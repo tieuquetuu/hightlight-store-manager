@@ -1,5 +1,5 @@
-function SystemManagerInit() {
-    let $table = $("#system-report-table");
+function UsersManagerInit() {
+    let $table = $("#users-report-table");
 
     if (!$table.length) {
         return false;
@@ -14,15 +14,6 @@ function SystemManagerInit() {
         processing: true,
         serverSide: true,
         ajax: ajaxSource,
-        // ajax: {
-        //     url: ajaxSource,
-        //     contentType: "application/json",
-        //     type: "POST",
-        //     data: function(data, settings){
-        //         console.log(data)
-        //         // return JSON.stringify( data );
-        //     }
-        // },
         columns: [
             {
                 className:      'dt-control',
@@ -59,15 +50,6 @@ function SystemManagerInit() {
                     categoryName = categoryName.join(",");
 
                     return categoryName
-                }
-            },
-            {
-                className:      'details-control-author',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.author?.display_name
                 }
             },
             {
@@ -191,7 +173,7 @@ function SystemManagerInit() {
             $tr.removeClass('shown');
         } else {
             // Open this row
-            row.child(analyticsFormat(analytics)).show();
+            // row.child(analyticsFormat(analytics)).show();
             // console.log(analyticsFormat(analytics))
             $tr.addClass('shown');
         }
@@ -244,7 +226,7 @@ function SystemManagerInit() {
 
                 let totalItems = dataAnalytics.filter(obj => obj.hostName === d.hostName).length;
 
-                 rows += `
+                rows += `
                     <tr>
                         <td>${d.hostName}</td>
                         <td class="text-center">${d.screenPageViews} lượt xem</td>
@@ -273,43 +255,10 @@ function SystemManagerInit() {
             </table>`
         );
     }
-
-    if ($("#filter-user").length) {
-        $("#filter-user").on("change", function (e) {
-            let value = e.currentTarget.value;
-            Object.assign({ author: value },$dataTable.ajax.params());
-            // $dataTable.ajax.params(newParams);
-
-            let initialUrl = $dataTable.ajax.url();
-            let newUrl = new URL(initialUrl);
-            newUrl.searchParams.set("author", value);
-            $dataTable.ajax.url(newUrl.href).ajax.reload();
-        })
-    }
-
-    if ($("#filter-category").length) {
-        $("#filter-category").on("change", function (e) {
-            let categoryId = e.currentTarget.value;
-            let initialUrl = $dataTable.ajax.url();
-            let newUrl = new URL(initialUrl);
-            newUrl.searchParams.set("category", categoryId);
-            $dataTable.ajax.url(newUrl.href).ajax.reload();
-        })
-    }
-
-    if ($("#filter-domains").length) {
-        $("#filter-domains").on("change", function (e) {
-            let domainName = e.currentTarget.value;
-            let initialUrl = $dataTable.ajax.url();
-            let newUrl = new URL(initialUrl);
-            newUrl.searchParams.set("domain", domainName);
-            $dataTable.ajax.url(newUrl.href).ajax.reload();
-        })
-    }
 }
 
 if (typeof $ != undefined) {
     $(document).ready(function() {
-        SystemManagerInit();
+        UsersManagerInit();
     })
 }

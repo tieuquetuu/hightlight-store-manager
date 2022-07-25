@@ -1,5 +1,5 @@
-function SystemManagerInit() {
-    let $table = $("#system-report-table");
+function DomainManagerInit() {
+    let $table = $("#domain-report-table");
 
     if (!$table.length) {
         return false;
@@ -31,44 +31,10 @@ function SystemManagerInit() {
                 defaultContent: '',
             },
             {
-                className:      'details-control-id',
+                className:      'details-control-domain',
                 orderable:      false,
                 data:           null,
                 defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.id
-                }
-            },
-            {
-                className:      'details-control-title',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.title
-                }
-            },
-            {
-                className:      'details-control-category',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    let categoryName = data?.category.map(obj => obj.name);
-
-                    categoryName = categoryName.join(",");
-
-                    return categoryName
-                }
-            },
-            {
-                className:      'details-control-author',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.author?.display_name
-                }
             },
             {
                 className:      'text-center details-control-luot-xem',
@@ -163,15 +129,6 @@ function SystemManagerInit() {
                     return `${averageSessionDuration} giây`
                 }
             },
-            {
-                className:      'details-control-status',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.status
-                }
-            },
         ],
         dom: 'Bfrtip',
         buttons: [
@@ -244,7 +201,7 @@ function SystemManagerInit() {
 
                 let totalItems = dataAnalytics.filter(obj => obj.hostName === d.hostName).length;
 
-                 rows += `
+                rows += `
                     <tr>
                         <td>${d.hostName}</td>
                         <td class="text-center">${d.screenPageViews} lượt xem</td>
@@ -310,6 +267,6 @@ function SystemManagerInit() {
 
 if (typeof $ != undefined) {
     $(document).ready(function() {
-        SystemManagerInit();
+        DomainManagerInit();
     })
 }

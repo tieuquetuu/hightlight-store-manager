@@ -71,12 +71,15 @@ class StoreHLPageTemplater {
         $this->templates = array(
             'template/page-report.php' => 'Thống kê số liệu',
 //            'template/page-report-v2.php' => 'Thống kê số liệu version 2',
-            'template/page-management-data.php' => 'Quản lý dữ liệu sản phẩm',
-            'template/page-store-manager.php' => 'Quản lý dữ liệu hệ thống',
+//            'template/page-management-data.php' => 'Quản lý dữ liệu sản phẩm',
+//            'template/page-store-manager.php' => 'Quản lý dữ liệu hệ thống',
             'template/page-management.php' => 'Tổng Quan Số Liệu',
-            'template/page-management-role-user.php' => 'Quản lý dữ liệu sản phẩm (user)',
-            'template/page-management-role-domain.php' => 'Quản lý dữ liệu sản phẩm (domain)',
-            'template/page-management-role-admin.php' => 'Quản lý dữ liệu sản phẩm (admin)',
+            'template/page-management-system.php' => 'Tổng Quan Số Liệu - Hệ thống',
+            'template/page-management-domain.php' => 'Tổng Quan Số Liệu - Website',
+            'template/page-management-users.php' => 'Tổng Quan Số Liệu - Users',
+//            'template/page-management-role-user.php' => 'Quản lý dữ liệu sản phẩm (user)',
+//            'template/page-management-role-domain.php' => 'Quản lý dữ liệu sản phẩm (domain)',
+//            'template/page-management-role-admin.php' => 'Quản lý dữ liệu sản phẩm (admin)',
             'template/page-login.php' => 'Quản lý dữ liệu sản phẩm (login)',
         );
 

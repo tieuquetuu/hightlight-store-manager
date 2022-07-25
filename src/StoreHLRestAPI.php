@@ -104,6 +104,10 @@ class StoreHLRestAPI
         );
         $data = array();
 
+        $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
+        $category = isset($params["category"]) && (int) $params["category"] > 0 ? (int)$params["category"] : null;
+        $domain = isset($params["domain"]) && is_string($params["domain"]) && strlen($params["domain"]) > 0 ? $params["domain"] : null;
+
         $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
         $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
         $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
@@ -112,11 +116,25 @@ class StoreHLRestAPI
 
         $queryArgs = array(
             "posts_per_page" => $limit,
-            "paged" => $pageIndex,
-            "page" => $pageIndex,
+//            "paged" => $pageIndex,
+//            "page" => $pageIndex,
             "offset" => $offset,
             "s" => $search
         );
+        if ($author) {
+            $queryArgs["author"] = $author;
+        }
+        if ($category){
+            $queryArgs["tax_query"] = array(
+                "relation" => "AND",
+                array(
+                    'taxonomy' => 're_cat',
+                    'terms' => array( $category ),
+                    'operator' => 'IN'
+                )
+            );
+        }
+
         $queryProducts = StoreHL::instance()->queryStoreProducts($queryArgs);
 
         // Nếu không có bài viết return luôn
@@ -124,8 +142,17 @@ class StoreHLRestAPI
             return $result;
         }
 
-        $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData();
+
+        $args_request_report = array();
+
+        if ($domain) {
+            $args_request_report["hostNames"] = array($domain);
+        }
+
+        $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
+
         $report = StoreHLGA4::instance()->makeRunReport($request_report_domain);
+
         $pretty_report = StoreHLGA4::makeReportPretty($report);
 
         $report_str = $report->serializeToJsonString();
@@ -168,6 +195,32 @@ class StoreHLRestAPI
             );
             array_push($result['data'], $row);
         }
+
+        return wp_send_json($result, 200);
+    }
+
+    public static function handleDomainDataTableReport($request) {
+        $params = $request->get_params();
+
+        $result = array(
+            "data" => array(),
+//            "draw" => 1,
+            "recordsFiltered" => 0,
+            "recordsTotal" => 0
+        );
+
+        return wp_send_json($result, 200);
+    }
+
+    public static function handleUsersDataTableReport($request) {
+        $params = $request->get_params();
+
+        $result = array(
+            "data" => array(),
+//            "draw" => 1,
+            "recordsFiltered" => 0,
+            "recordsTotal" => 0
+        );
 
         return wp_send_json($result, 200);
     }
@@ -254,7 +307,6 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
-
     public static function init_actions() {
         register_rest_route('hightlight/v1', '/runReport', array(
             'methods' => \WP_REST_Server::READABLE,
@@ -264,6 +316,16 @@ class StoreHLRestAPI
         register_rest_route('hightlight/v1', '/reportSystemDataTable', array(
             'methods' => \WP_REST_Server::READABLE,
             'callback' => array(__CLASS__, 'handleSystemDataTableReport')
+        ));
+
+        register_rest_route('hightlight/v1', '/reportDomainDataTable', array(
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => array(__CLASS__, 'handleDomainDataTableReport')
+        ));
+
+        register_rest_route('hightlight/v1', '/reportUsersDataTable', array(
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => array(__CLASS__, 'handleUsersDataTableReport')
         ));
 
         register_rest_route('hightlight/v1', '/pageReportDataTable', array(
