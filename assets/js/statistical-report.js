@@ -1,5 +1,5 @@
-function SystemManagerInit() {
-    let $table = $("#system-report-table");
+function StatisticalTableInit() {
+    let $table = $("#products-table-analytics");
     let { ajaxSource } = $table.data();
     if (!ajaxSource) {
         return false;
@@ -9,14 +9,6 @@ function SystemManagerInit() {
         processing: true,
         serverSide: true,
         ajax: ajaxSource,
-        /*ajax: {
-            url: ajaxSource,
-            contentType: "application/json",
-            type: "POST",
-            data: function(data, settings){
-                return JSON.stringify( data );
-            }
-        },*/
         columns: [
             {
                 className:      'dt-control',
@@ -40,28 +32,6 @@ function SystemManagerInit() {
                 defaultContent: 'không có dữ liệu',
                 render: (row, type, data) => {
                     return data?.title
-                }
-            },
-            {
-                className:      'details-control-category',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    let categoryName = data?.category.map(obj => obj.name);
-
-                    categoryName = categoryName.join(",");
-
-                    return categoryName
-                }
-            },
-            {
-                className:      'details-control-author',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.author?.display_name
                 }
             },
             {
@@ -238,7 +208,7 @@ function SystemManagerInit() {
 
                 let totalItems = dataAnalytics.filter(obj => obj.hostName === d.hostName).length;
 
-                 rows += `
+                rows += `
                     <tr>
                         <td>${d.hostName}</td>
                         <td class="text-center">${d.screenPageViews} lượt xem</td>
@@ -267,18 +237,10 @@ function SystemManagerInit() {
             </table>`
         );
     }
-
-    if ($("#filter-user").length) {
-        $("#filter-user").on("change", function (e) {
-            let value = e.currentTarget.value;
-
-            console.log($dataTable.ajax().url())
-        })
-    }
 }
 
 if (typeof $ != undefined) {
     $(document).ready(function() {
-        SystemManagerInit();
+        StatisticalTableInit();
     })
 }

@@ -367,8 +367,8 @@ function setupMultiCheckBox() {
 // Setup Data Table
 $(document).ready(function() {
 	SetupDataTable();
-	setupManagementDataTable();
-	systemManagementTable();
+	// setupManagementDataTable();
+	// systemManagementTable();
 	setupModal();
 	setupMultiCheckBox();
 })

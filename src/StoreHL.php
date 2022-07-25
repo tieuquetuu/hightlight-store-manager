@@ -154,6 +154,7 @@ class StoreHL
             'user_ip'               =>  $user_ip,
             'user_cookie'           =>  $user_cookie,
             'referer'               =>  $referer,
+            'nonce'                 =>  wp_create_nonce('wp_rest')
         );
 
         if (isset($product)) {
@@ -176,6 +177,7 @@ class StoreHL
         // Store Hight Light Script Tracking
         wp_enqueue_style( 'hightlight-store-css',  STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . "assets/css/main.css");
         wp_enqueue_script( 'hightlight-store-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/main.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-store-statistical-report-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/statistical-report.js', array( 'jquery' ), '', true );
         wp_enqueue_script( 'hightlight-store-system-manager-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/system-manager.js', array( 'jquery' ), '', true );
         wp_enqueue_script( 'hightlight-store-tracking-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/tracking.js', array( 'jquery' ), '', true );
         // Localize the script with new data
