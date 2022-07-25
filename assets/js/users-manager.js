@@ -53,6 +53,15 @@ function UsersManagerInit() {
                 }
             },
             {
+                className:      'details-control-author',
+                orderable:      false,
+                data:           null,
+                defaultContent: 'không có dữ liệu',
+                render: (row, type, data) => {
+                    return data?.author?.display_name
+                }
+            },
+            {
                 className:      'text-center details-control-luot-xem',
                 orderable:      false,
                 data:           null,
@@ -253,6 +262,20 @@ function UsersManagerInit() {
                 </tbody>
             </table>`
         );
+    }
+
+
+    if ($("#user-filter-user").length) {
+        $("#user-filter-user").on("change", function (e) {
+            let value = e.currentTarget.value;
+            Object.assign({ author: value },$dataTable.ajax.params());
+            // $dataTable.ajax.params(newParams);
+
+            let initialUrl = $dataTable.ajax.url();
+            let newUrl = new URL(initialUrl);
+            newUrl.searchParams.set("author", value);
+            $dataTable.ajax.url(newUrl.href).ajax.reload();
+        })
     }
 
     if ($("#user-filter-category").length) {

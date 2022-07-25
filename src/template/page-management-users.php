@@ -29,7 +29,7 @@ $hostNames = \StoreHightLight\StoreHL::instance()->getHostNames();
 
 $is_admin = in_array("administrator", $current_user->roles);
 $ajaxArrayParams = array(
-    "author" => $current_user->ID,
+//    "author" => $current_user->ID,
 );
 $str_params = http_build_query($ajaxArrayParams);
 $ajax_source_url = get_rest_url() . "hightlight/v1/reportUsersDataTable?" . $str_params;
@@ -64,6 +64,18 @@ get_header() ?>
                 </select>
             </div>
 
+            <div class="col col-md-4">
+                <label for="user-filter-user">Lọc theo người dùng</label>
+                <select name="filter-by-user" id="user-filter-user">
+                    <option value="0">Tất cả</option>
+                    <?php foreach ($users as $user) { ?>
+                        <option value="<?php echo $user->ID ?>">
+                            <?php echo $user->display_name ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
+
             <div class="col col-md-12">
                 <table id="users-report-table"
                        class="table responsive table-striped display"
@@ -75,6 +87,7 @@ get_header() ?>
                             <th>ID</th>
                             <th>Tiêu đề</th>
                             <th>Loại sản phẩm</th>
+                            <th>Tác giả</th>
                             <th class="text-center">Tổng lượt xem</th>
                             <th class="text-center">Lượt click cửa hàng</th>
                             <th class="text-center">Lượt click mua hàng</th>
