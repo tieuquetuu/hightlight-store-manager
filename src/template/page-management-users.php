@@ -16,7 +16,9 @@ $current_link = get_the_permalink();
 $get_user_meta = get_user_meta($current_user->ID);
 $level_manager_user_meta = unserialize($get_user_meta["level_manager_data"][0]);
 
-if (!in_array("level_3",$level_manager_user_meta) || !in_array("level_1",$level_manager_user_meta)) {
+$has_role = is_array($level_manager_user_meta) && ( in_array("level_1",$level_manager_user_meta) || in_array("level_3",$level_manager_user_meta) );
+
+if (!$has_role) {
     wp_redirect( site_url() . "/tong-quan-so-lieu" );
     exit;
 }
