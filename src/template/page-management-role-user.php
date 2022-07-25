@@ -167,6 +167,7 @@ $product_analytics_by_slug = function(
 
     return (object) $data;
 };
+
 $get_user_meta = get_user_meta($current_user->ID);
 $roles = array(
 "du-lieu-user"=>"level_1",
@@ -178,6 +179,10 @@ $role ="";
 if(count($uris)> 1) $role = $roles[$uris[count($uris)-1]];
 $url = "/quan-ly-du-lieu-san-pham";
 $is_exist_role = (str_contains($get_user_meta["level_manager_data"][0], $role) && $role!="") ? true: false;
+
+var_dump($is_exist_role);
+die();
+
 if(!$is_exist_role){
     foreach($roles as $value){
         if(str_contains($get_user_meta["level_manager_data"][0], $value)) {

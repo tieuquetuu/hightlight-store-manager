@@ -147,7 +147,7 @@ class StoreHL
         $protocol = $_SERVER['SERVER_PROTOCOL'];
 
         $translation_array = array(
-            // 'site_url'              =>  $protocol . "://" . $host_name . $request_uri,
+            'site_url'              =>  get_site_url(),
             'hostname'              =>  $host_name,
             'is_main_site'          =>  $is_main_site,
             'is_hightlight_product' =>  $is_hl_product,

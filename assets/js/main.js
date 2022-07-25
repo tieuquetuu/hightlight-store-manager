@@ -354,7 +354,9 @@ function setupMultiCheckBox() {
 			if( data.status == true ) {
 				$form.append('<div class="alert alert-success">' + data.message + '</div>');
 				$form.find('.form-control').val('');
-					window.location.href = '/quan-ly-du-lieu-san-pham/du-lieu-he-thong';
+					// window.location.href = '/quan-ly-du-lieu-san-pham/du-lieu-he-thong';
+
+				window.location.href = hightlight_client_object.site_url + '/quan-ly-du-lieu-san-pham';
 			} else {
 				$form.append('<div class="alert alert-danger">' + data.message + '</div>');
 			}

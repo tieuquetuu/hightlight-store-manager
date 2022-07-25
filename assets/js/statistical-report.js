@@ -1,5 +1,10 @@
 function StatisticalTableInit() {
     let $table = $("#products-table-analytics");
+
+    if (!$table.length) {
+        return false;
+    }
+
     let { ajaxSource } = $table.data();
     if (!ajaxSource) {
         return false;

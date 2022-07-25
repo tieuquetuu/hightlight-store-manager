@@ -22,7 +22,9 @@ if (!$is_admin) {
     $ajaxArrayParams["author"] = $current_user->ID;
 }
 
-$ajax_source_url = get_rest_url() . "hightlight/v1/pageReportDataTable?" . $ajaxArrayParams;
+$str_params = http_build_query($ajaxArrayParams);
+
+$ajax_source_url = get_rest_url() . "hightlight/v1/pageReportDataTable?" . $str_params;
 
 get_header(); ?>
 

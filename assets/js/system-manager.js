@@ -1,5 +1,10 @@
 function SystemManagerInit() {
     let $table = $("#system-report-table");
+
+    if (!$table.length) {
+        return false;
+    }
+
     let { ajaxSource } = $table.data();
     if (!ajaxSource) {
         return false;
