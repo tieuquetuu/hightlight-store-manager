@@ -173,8 +173,7 @@ function UsersManagerInit() {
             $tr.removeClass('shown');
         } else {
             // Open this row
-            // row.child(analyticsFormat(analytics)).show();
-            // console.log(analyticsFormat(analytics))
+            row.child(analyticsFormat(analytics)).show();
             $tr.addClass('shown');
         }
     });
@@ -254,6 +253,26 @@ function UsersManagerInit() {
                 </tbody>
             </table>`
         );
+    }
+
+    if ($("#user-filter-category").length) {
+        $("#user-filter-category").on("change", function (e) {
+            let categoryId = e.currentTarget.value;
+            let initialUrl = $dataTable.ajax.url();
+            let newUrl = new URL(initialUrl);
+            newUrl.searchParams.set("category", categoryId);
+            $dataTable.ajax.url(newUrl.href).ajax.reload();
+        })
+    }
+
+    if ($("#user-filter-domains").length) {
+        $("#user-filter-domains").on("change", function (e) {
+            let domainName = e.currentTarget.value;
+            let initialUrl = $dataTable.ajax.url();
+            let newUrl = new URL(initialUrl);
+            newUrl.searchParams.set("domain", domainName);
+            $dataTable.ajax.url(newUrl.href).ajax.reload();
+        })
     }
 }
 

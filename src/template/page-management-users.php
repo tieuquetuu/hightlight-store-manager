@@ -26,7 +26,9 @@ $categories = get_terms("re_cat");
 $hostNames = \StoreHightLight\StoreHL::instance()->getHostNames();
 
 $is_admin = in_array("administrator", $current_user->roles);
-$ajaxArrayParams = array();
+$ajaxArrayParams = array(
+    "author" => $current_user->ID,
+);
 $str_params = http_build_query($ajaxArrayParams);
 $ajax_source_url = get_rest_url() . "hightlight/v1/reportUsersDataTable?" . $str_params;
 
@@ -35,6 +37,28 @@ get_header() ?>
 <main id="main" class="col-12 site-main" role="main">
     <div class="container-fluid">
         <div class="row">
+            <div class="col col-md-4">
+                <label for="user-filter-domains">Lọc theo tên miền</label>
+                <select name="filter-by-domain" id="user-filter-domains">
+                    <option value="0">Tất cả</option>
+                    <?php foreach ($hostNames as $hostName) { ?>
+                        <option value="<?php echo $hostName->hostName ?>"><?php echo $hostName->hostName ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <div class="col col-md-4">
+                <label for="user-filter-category">Lọc them danh mục</label>
+                <select name="filter-by-category" id="user-filter-category">
+                    <option value="0">Tất cả</option>
+                    <?php foreach ($categories as $category) { ?>
+                        <option value="<?php echo $category->term_id; ?>">
+                            <?php echo $category->name; ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
+
             <div class="col col-md-12">
                 <table id="users-report-table"
                        class="table responsive table-striped display"
