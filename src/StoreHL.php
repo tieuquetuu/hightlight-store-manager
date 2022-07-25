@@ -168,6 +168,12 @@ class StoreHL
             ));
         }
 
+        wp_enqueue_style( 'hightlight-slick-css',"//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css");
+        wp_enqueue_script( 'hightlight-slick-js','//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js', array( 'jquery' ), '', true );
+
+        wp_enqueue_style( 'hightlight-fancybox-css',"//cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css");
+        wp_enqueue_script( 'hightlight-fancybox-js','//cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js', array( 'jquery' ), '', true );
+
         // Store Hight Light Extension Library
         wp_enqueue_style( 'hightlight-data-table-css',"//cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css");
         wp_enqueue_script( 'hightlight-jquery-js','//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js', array( 'jquery' ), '', true );
@@ -185,6 +191,24 @@ class StoreHL
         wp_enqueue_script( 'hightlight-store-tracking-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'assets/js/tracking.js', array( 'jquery' ), '', true );
         // Localize the script with new data
         wp_localize_script( 'hightlight-store-js', 'hightlight_client_object', $translation_array );
+    }
+
+    public static function add_admin_column($column_title, $post_type, $cb){
+
+        // Column Header
+        add_filter( 'manage_' . $post_type . '_posts_columns', function($columns) use ($column_title) {
+            $columns[ sanitize_title($column_title) ] = $column_title;
+            return $columns;
+        } );
+
+        // Column Content
+        add_action( 'manage_' . $post_type . '_posts_custom_column' , function( $column, $post_id ) use ($column_title, $cb) {
+
+            if(sanitize_title($column_title) === $column){
+                $cb($post_id);
+            }
+
+        }, 10, 2 );
     }
 
     public static function ManagerDataNavigation() {
