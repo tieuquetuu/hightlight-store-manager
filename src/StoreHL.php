@@ -148,13 +148,14 @@ class StoreHL
 
         $translation_array = array(
             'site_url'              =>  get_site_url(),
+            'site_rest_url'         =>  get_rest_url(),
             'hostname'              =>  $host_name,
             'is_main_site'          =>  $is_main_site,
             'is_hightlight_product' =>  $is_hl_product,
             'user_ip'               =>  $user_ip,
             'user_cookie'           =>  $user_cookie,
             'referer'               =>  $referer,
-            'nonce'                 =>  wp_create_nonce('wp_rest')
+            'nonce'                 =>  wp_create_nonce('wp_rest'),
         );
 
         if (isset($product)) {

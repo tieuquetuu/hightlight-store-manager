@@ -984,8 +984,92 @@ class StoreHLGA4 {
         return $request;
     }
 
+
+    public static function RequestReportByHostName() {
+
+        $defaultFilterNotByHostNames = new FilterExpression([
+            "not_expression" => new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "hostName",
+                    "in_list_filter" => new InListFilter([
+                        "values" => ["localhost", "127.0.0.1"]
+                    ])
+                ])
+            ])
+        ]);
+        $defaultFilterByEventNames = new FilterExpression([
+            "filter" => new Filter([
+                "field_name" => "eventName",
+                "in_list_filter" => new InListFilter([
+                    "values" => ["page_view","click_buy_product", "click_view_shop"]
+                ])
+            ])
+        ]);
+
+        $dimension_filter_and_groups = array(
+            $defaultFilterNotByHostNames,
+            $defaultFilterByEventNames,
+        );
+
+        $dimension_filter_args = [
+            "and_group" => new FilterExpressionList([
+                "expressions" => $dimension_filter_and_groups,
+            ]),
+        ];
+
+        $dimension_filter = new FilterExpression($dimension_filter_args);
+
+        $request = new RunReportRequest([
+            "property" => 'properties/' . self::properties(),
+            "date_ranges" => array(
+                new DateRange([
+                    'start_date' => '2022-01-01', // Từ trước
+                    'end_date' => 'today', // Đến hôm nay
+                ])
+            ),
+            "dimensions" => array(
+                new Dimension([
+                    "name" => "hostName" // Tên miền
+                ]),
+                new Dimension([
+                    "name" => "pagePath" // Đường dẫn
+                ]),
+                new Dimension([
+                    "name" => "eventName" // Tên sự kiện
+                ])
+            ),
+            "metrics" => array(
+                new Metric([
+                    "name" => "activeUsers" // Đếm Số Người Dùng
+                ]),
+                new Metric([
+                    "name" => "eventCount" // Đếm Số Sự Kiện
+                ]),
+                new Metric([
+                    "name" => "sessions" // Đếm session
+                ]),
+                new Metric([
+                    "name" => "screenPageViewsPerSession" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "screenPageViews" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "averageSessionDuration" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "bounceRate" // Thời gian xem trung bình
+                ])
+            ),
+            "dimension_filter" => $dimension_filter,
+            "limit" => 100000,
+            "offset" => 0
+        ]);
+        return $request;
+    }
+
     /**
-     * @description Báo cáo số liệu theo tên miền
+     * @description Báo cáo số liệu tổng quát
      * @return RunReportRequest
      */
     public static function RequestReportSummaryData(Array $args = []) {

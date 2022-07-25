@@ -86,18 +86,33 @@ if ($_GET['debug'] == 'vip') {
         )
     );
 
-    $request_report_domain = $StoreHLGa4::instance()->RequestReportSummaryData(array(
-        "hostNames" => ["store.hightlight.net"]
-    ));
+    $request_report_by_domain = $StoreHLGa4::instance()->RequestReportByHostName();
 
-    $response_domain_report = $StoreHLGa4::instance()->makeRunReport($request_report_domain);
+    $response_domain_report = $StoreHLGa4::instance()->makeRunReport($request_report_by_domain);
 
     $json_report = json_decode($response_domain_report->serializeToJsonString());
 
     $data = $StoreHLGa4::instance()->makeReportPretty($response_domain_report);
 
+    $convert_domain_rows = array();
+
+    foreach ($data as $item) {
+        $keyName = $item->hostName;
+        if (!key_exists($keyName, $convert_domain_rows)) {
+            $convert_domain_rows[$keyName] = array(
+                "click_buy_product" => 0,
+                "click_view_shop" => 0,
+                "screenPageViews" => 0,
+                "averageSessionDuration" => 0,
+                "analytics" => array()
+            );
+        };
+
+        array_push($convert_domain_rows[$keyName]["analytics"], $item);
+    }
+
     echo "<pre>";
-    print_r($data);
+    print_r(array_keys($convert_domain_rows));
     echo "</pre>";
 
 //    echo "done";

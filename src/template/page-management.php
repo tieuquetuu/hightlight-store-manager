@@ -108,7 +108,7 @@ get_header(); ?>
                 </a>
             </div>
             <div class="col col-md-4">
-                <a class="button-manager" href="<?php echo $current_link . "quan-li-ten mien" ?>">
+                <a class="button-manager" href="<?php echo $current_link . "quan-li-website" ?>">
                     Tên miền
                 </a>
             </div>

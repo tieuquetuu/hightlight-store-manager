@@ -35,6 +35,9 @@ function DomainManagerInit() {
                 orderable:      false,
                 data:           null,
                 defaultContent: 'không có dữ liệu',
+                render: (row, type, data) => {
+                    return data.hostName
+                }
             },
             {
                 className:      'text-center details-control-luot-xem',
@@ -147,12 +150,174 @@ function DomainManagerInit() {
             row.child.hide();
             $tr.removeClass('shown');
         } else {
+
+            let ajaxSourceUrl = new URL(`${hightlight_client_object.site_rest_url}hightlight/v1/reportDetailDomainDataTable`);
+
+            let $childTable = $(detailDomainRowTable());
+            let $childDataTable = $childTable.DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: ajaxSourceUrl.href,
+                columns: [
+                    {
+                        className:      'details-control-id',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            return data?.id
+                        }
+                    },
+                    {
+                        className:      'details-control-title',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            return data?.title
+                        }
+                    },
+                    {
+                        className:      'details-control-category',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            let categoryName = data?.category.map(obj => obj.name);
+
+                            categoryName = categoryName.join(",");
+
+                            return categoryName
+                        }
+                    },
+                    {
+                        className:      'text-center details-control-luot-xem',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            let totalScreenPageViews = 0;
+
+                            let { analytics } = data;
+
+                            if (!analytics || analytics.length <= 0) {
+                                return totalScreenPageViews
+                            }
+
+                            for (let i = 0;i < analytics.length;i++) {
+                                let analyticsItem = analytics[i];
+                                totalScreenPageViews += parseInt(analyticsItem?.screenPageViews);
+                            }
+
+                            return `${totalScreenPageViews} lượt xem`;
+                        }
+                    },
+                    {
+                        className:      'text-center details-control-luot-click-cua-hang',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            let totalClick = 0;
+
+                            let { analytics } = data;
+
+                            let analytics_click_view_shop = analytics.filter(obj => obj.eventName === "click_view_shop");
+
+                            if (!analytics || analytics.length <= 0 || !analytics_click_view_shop) {
+                                return totalClick
+                            }
+
+                            for (let i = 0;i < analytics_click_view_shop.length;i++) {
+                                let analyticsItem = analytics_click_view_shop[i];
+                                totalClick += parseInt(analyticsItem?.eventCount);
+                            }
+
+                            return `${totalClick} lượt`
+                        }
+                    },
+                    {
+                        className:      'text-center details-control-luot-click-mua-hang',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            let totalClick = 0;
+
+                            let { analytics } = data;
+
+                            let analytics_click_buy_product = analytics.filter(obj => obj.eventName === "click_buy_product");
+
+                            if (!analytics || analytics.length <= 0 || !analytics_click_buy_product) {
+                                return totalClick
+                            }
+
+                            for (let i = 0;i < analytics_click_buy_product.length;i++) {
+                                let analyticsItem = analytics_click_buy_product[i];
+                                totalClick += parseInt(analyticsItem?.eventCount);
+                            }
+
+                            return `${totalClick} lượt`
+                        }
+                    },
+                    {
+                        className:      'text-right details-control-thoi-gian-xem-trung-binh',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            let averageSessionDuration = 0;
+
+                            let { analytics } = data;
+                            if (!analytics || analytics.length <= 0) {
+                                return averageSessionDuration
+                            }
+
+                            for (let i = 0;i < analytics.length;i++) {
+                                let analyticsItem = analytics[i];
+                                averageSessionDuration += parseFloat(analyticsItem?.averageSessionDuration);
+                            }
+
+                            averageSessionDuration = averageSessionDuration / analytics.length;
+
+                            return `${averageSessionDuration} giây`
+                        }
+                    },
+                    {
+                        className:      'details-control-status',
+                        orderable:      false,
+                        data:           null,
+                        defaultContent: 'không có dữ liệu',
+                        render: (row, type, data) => {
+                            return data?.status
+                        }
+                    },
+                ]
+            });
+
             // Open this row
-            row.child(analyticsFormat(analytics)).show();
-            // console.log(analyticsFormat(analytics))
+            row.child($childTable.get(0)).show();
             $tr.addClass('shown');
         }
     });
+
+    function detailDomainRowTable() {
+        return(`
+            <table class="table display" style="width: 100%;">
+                  <thead>
+                       <th>ID</th>
+                        <th>Tiêu đề</th>
+                        <th>Loại sản phẩm</th>
+                        <th class="text-center">Tổng lượt xem</th>
+                        <th class="text-center">Lượt click cửa hàng</th>
+                        <th class="text-center">Lượt click mua hàng</th>
+                        <th class="text-center">Thời gian xem trung bình</th>
+                        <th class="text-center">Tình trạng</th>
+                </thead>
+                <tbody></tbody>
+            </table>
+        `)
+    }
 
     function analyticsFormat(dataAnalytics) {
         // `d` is the original data object for the row
@@ -231,7 +396,7 @@ function DomainManagerInit() {
         );
     }
 
-    if ($("#filter-user").length) {
+    if ($("#domain-filter-user").length) {
         $("#filter-user").on("change", function (e) {
             let value = e.currentTarget.value;
             Object.assign({ author: value },$dataTable.ajax.params());
@@ -244,22 +409,12 @@ function DomainManagerInit() {
         })
     }
 
-    if ($("#filter-category").length) {
+    if ($("#domain-filter-category").length) {
         $("#filter-category").on("change", function (e) {
             let categoryId = e.currentTarget.value;
             let initialUrl = $dataTable.ajax.url();
             let newUrl = new URL(initialUrl);
             newUrl.searchParams.set("category", categoryId);
-            $dataTable.ajax.url(newUrl.href).ajax.reload();
-        })
-    }
-
-    if ($("#filter-domains").length) {
-        $("#filter-domains").on("change", function (e) {
-            let domainName = e.currentTarget.value;
-            let initialUrl = $dataTable.ajax.url();
-            let newUrl = new URL(initialUrl);
-            newUrl.searchParams.set("domain", domainName);
             $dataTable.ajax.url(newUrl.href).ajax.reload();
         })
     }
