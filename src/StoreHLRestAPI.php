@@ -188,11 +188,14 @@ class StoreHLRestAPI
         $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
         $search = isset($params['sSearch']) ? $params['sSearch'] : "";
 
+        $author = $params["author"];
+
         $queryArgs = array(
             "posts_per_page" => $limit,
             "paged" => $pageIndex,
             "page" => $pageIndex,
             "offset" => $offset,
+            "author" => $author,
             "s" => $search
         );
         $queryProducts = StoreHL::instance()->queryStoreProducts($queryArgs);

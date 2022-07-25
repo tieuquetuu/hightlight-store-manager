@@ -35,6 +35,19 @@ function StatisticalTableInit() {
                 }
             },
             {
+                className:      'details-control-category',
+                orderable:      false,
+                data:           null,
+                defaultContent: 'không có dữ liệu',
+                render: (row, type, data) => {
+                    let categoryName = data?.category.map(obj => obj.name);
+
+                    categoryName = categoryName.join(",");
+
+                    return categoryName
+                }
+            },
+            {
                 className:      'text-center details-control-luot-xem',
                 orderable:      false,
                 data:           null,
