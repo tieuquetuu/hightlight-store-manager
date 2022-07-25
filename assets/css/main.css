@@ -190,3 +190,14 @@
     border-radius: 0.3rem;
     padding: 15px 10px;
 }
+
+
+.button-manager {
+    width: 100%;
+    height: 50px;
+    background-color: #0B7FC7;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

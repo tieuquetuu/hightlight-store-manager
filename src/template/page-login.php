@@ -6,7 +6,7 @@
  */
 if(is_user_logged_in()) {
 //	wp_redirect( "/quan-ly-du-lieu-san-pham/du-lieu-he-thong");
-	wp_redirect( home_url(), 301 );
+	wp_redirect( site_url() . "/tong-quan-so-lieu", 301 );
     exit;
 }
 get_header();

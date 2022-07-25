@@ -7,7 +7,7 @@
 
 
 if( ! is_user_logged_in() ) {
-    wp_redirect( home_url() );
+    wp_redirect( site_url() . "/dang-nhap" );
     exit;
 }
 $current_user = wp_get_current_user();
@@ -34,6 +34,9 @@ $ajax_source_url = get_rest_url() . "hightlight/v1/reportSystemDataTable?" . $st
 get_header() ?>
 
 <main id="main" class="col-12 site-main" role="main">
+
+    <?php echo \StoreHightLight\StoreHL::instance()->ManagerDataNavigation() ?>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col col-md-4">

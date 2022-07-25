@@ -187,6 +187,32 @@ class StoreHL
         wp_localize_script( 'hightlight-store-js', 'hightlight_client_object', $translation_array );
     }
 
+    public static function ManagerDataNavigation() {
+
+        $current_user = wp_get_current_user();
+        $current_link = get_the_permalink();
+
+        return '<div class="container-fluid my-5">
+        <div class="row">
+            <div class="col col-md-4">
+                <a class="button-manager" href="'.  site_url() . "/tong-quan-so-lieu/quan-li-he-thong" .'">
+                    Hệ thống
+                </a>
+            </div>
+            <div class="col col-md-4">
+                <a class="button-manager" href="'.  site_url() . "/tong-quan-so-lieu/quan-li-website" .'">
+                    Tên miền
+                </a>
+            </div>
+            <div class="col col-md-4">
+                <a class="button-manager" href="'.  site_url() . "/tong-quan-so-lieu/quan-li-user" .'">
+                    User
+                </a>
+            </div>
+        </div>
+    </div>';
+    }
+
     public static function productIsExpireSoon($post) {
         $today = date_create("now");
         $post_id = $post->ID;

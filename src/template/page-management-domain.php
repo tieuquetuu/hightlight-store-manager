@@ -7,7 +7,7 @@
 
 
 if( ! is_user_logged_in() ) {
-    wp_redirect( home_url() );
+    wp_redirect( site_url() . "/dang-nhap" );
     exit;
 }
 $current_user = wp_get_current_user();
@@ -33,41 +33,45 @@ $ajax_source_url = get_rest_url() . "hightlight/v1/reportDomainDataTable?" . $st
 get_header() ?>
 
 <main id="main" class="col-12 site-main" role="main">
+
+    <?php echo \StoreHightLight\StoreHL::instance()->ManagerDataNavigation() ?>
+
     <div class="container-fluid">
         <div class="row">
-            <div class="col col-md-4">
+            <!--<div class="col col-md-4">
                 <label for="filter-domains">Lọc theo tên miền</label>
                 <select name="filter-by-domain" id="filter-domains">
                     <option value="0">Tất cả</option>
-                    <?php foreach ($hostNames as $hostName) { ?>
-                        <option value="<?php echo $hostName->hostName ?>"><?php echo $hostName->hostName ?></option>
-                    <?php } ?>
+                    <?php /*foreach ($hostNames as $hostName) { */?>
+                        <option value="<?php /*echo $hostName->hostName */?>"><?php /*echo $hostName->hostName */?></option>
+                    <?php /*} */?>
                 </select>
-            </div>
+            </div>-->
 
-            <div class="col col-md-4">
+            <!--<div class="col col-md-4">
                 <label for="filter-category">Lọc them danh mục</label>
                 <select name="filter-by-category" id="filter-category">
                     <option value="0">Tất cả</option>
-                    <?php foreach ($categories as $category) { ?>
-                        <option value="<?php echo $category->term_id; ?>">
-                            <?php echo $category->name; ?>
+                    <?php /*foreach ($categories as $category) { */?>
+                        <option value="<?php /*echo $category->term_id; */?>">
+                            <?php /*echo $category->name; */?>
                         </option>
-                    <?php } ?>
+                    <?php /*} */?>
                 </select>
-            </div>
+            </div>-->
 
-            <div class="col col-md-4">
+            <!--<div class="col col-md-4">
                 <label for="filter-category">Lọc theo người dùng</label>
                 <select name="filter-by-user" id="filter-user">
                     <option value="0">Tất cả</option>
-                    <?php foreach ($users as $user) { ?>
-                        <option value="<?php echo $user->ID ?>">
-                            <?php echo $user->display_name ?>
+                    <?php /*foreach ($users as $user) { */?>
+                        <option value="<?php /*echo $user->ID */?>">
+                            <?php /*echo $user->display_name */?>
                         </option>
-                    <?php } ?>
+                    <?php /*} */?>
                 </select>
-            </div>
+            </div>-->
+
             <div class="col col-md-12">
                 <table id="domain-report-table"
                        class="table responsive table-striped display"

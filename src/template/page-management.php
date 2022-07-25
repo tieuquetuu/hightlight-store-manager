@@ -15,18 +15,10 @@ $current_link = get_the_permalink();
 $users = get_users();
 $categories = get_terms("re_cat");
 
+$storeHL = new \StoreHightLight\StoreHL();
+
 get_header(); ?>
-<style>
-    .button-manager {
-        width: 100%;
-        height: 50px;
-        background-color: #0B7FC7;
-        color: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-</style>
+
 <main id="main" class="col-12 site-main" role="main">
 <!--    <h3 class="text-center">Report quyền hệ thống</h3>-->
 
@@ -100,25 +92,27 @@ get_header(); ?>
         </div>
     </div>-->
 
-    <div class="container-fluid">
+    <!--<div class="container-fluid">
         <div class="row">
             <div class="col col-md-4">
-                <a class="button-manager" href="<?php echo $current_link . "quan-li-he-thong" ?>">
+                <a class="button-manager" href="<?php /*echo $current_link . "quan-li-he-thong" */?>">
                     Hệ thống
                 </a>
             </div>
             <div class="col col-md-4">
-                <a class="button-manager" href="<?php echo $current_link . "quan-li-website" ?>">
+                <a class="button-manager" href="<?php /*echo $current_link . "quan-li-website" */?>">
                     Tên miền
                 </a>
             </div>
             <div class="col col-md-4">
-                <a class="button-manager" href="<?php echo $current_link . "quan-li-user" ?>">
+                <a class="button-manager" href="<?php /*echo $current_link . "quan-li-user" */?>">
                     User
                 </a>
             </div>
         </div>
-    </div>
+    </div>-->
+
+    <?php echo $storeHL::instance()->ManagerDataNavigation() ?>
 
 </main>
 
