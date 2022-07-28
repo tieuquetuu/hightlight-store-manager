@@ -13,6 +13,9 @@ function UsersManagerInit() {
     let $dataTable = $table.DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
+        scrollY: "50vh",
+        scrollX: false,
         ajax: ajaxSource,
         columns: [
             {
@@ -63,7 +66,7 @@ function UsersManagerInit() {
             },
             {
                 className:      'text-center details-control-luot-xem',
-                orderable:      false,
+                // orderable:      false,
                 data:           null,
                 defaultContent: 'không có dữ liệu',
                 render: (row, type, data) => {
@@ -85,7 +88,7 @@ function UsersManagerInit() {
             },
             {
                 className:      'text-center details-control-luot-click-cua-hang',
-                orderable:      false,
+                // orderable:      false,
                 data:           null,
                 defaultContent: 'không có dữ liệu',
                 render: (row, type, data) => {
@@ -109,7 +112,7 @@ function UsersManagerInit() {
             },
             {
                 className:      'text-center details-control-luot-click-mua-hang',
-                orderable:      false,
+                // orderable:      false,
                 data:           null,
                 defaultContent: 'không có dữ liệu',
                 render: (row, type, data) => {
@@ -133,7 +136,7 @@ function UsersManagerInit() {
             },
             {
                 className:      'text-right details-control-thoi-gian-xem-trung-binh',
-                orderable:      false,
+                // orderable:      false,
                 data:           null,
                 defaultContent: 'không có dữ liệu',
                 render: (row, type, data) => {
@@ -151,7 +154,7 @@ function UsersManagerInit() {
 
                     averageSessionDuration = averageSessionDuration / analytics.length;
 
-                    return `${averageSessionDuration} giây`
+                    return `${averageSessionDuration.toFixed(2)} giây`
                 }
             },
             {
@@ -162,6 +165,13 @@ function UsersManagerInit() {
                 render: (row, type, data) => {
                     return data?.status
                 }
+            },
+        ],
+        columnDefs: [
+            {
+                "targets": [5],
+                "visible": true,
+                "searchable": true
             },
         ],
         dom: 'Bfrtip',
@@ -240,7 +250,7 @@ function UsersManagerInit() {
                         <td class="text-center">${d.screenPageViews} lượt xem</td>
                         <td class="text-center">${d.click_view_shop} lượt</td>
                         <td class="text-center">${d.click_buy_product} lượt</td>
-                        <td class="text-right">${d.averageSessionDuration / totalItems} giây</td>
+                        <td class="text-right">${ (d.averageSessionDuration / totalItems).toFixed(2) } giây</td>
                     </tr>
                  `
             });

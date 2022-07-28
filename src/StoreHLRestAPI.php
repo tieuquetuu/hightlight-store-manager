@@ -378,6 +378,9 @@ class StoreHLRestAPI
         $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
         $search = isset($params['sSearch']) ? $params['sSearch'] : "";
 
+        $sortCol = isset($params['iSortCol_0']) ? $params['iSortCol_0'] : false;
+        $sortDir = isset($params['sSortDir_0']) ? $params['sSortDir_0'] : false;
+
         $queryArgs = array(
             "posts_per_page" => $limit,
 //            "paged" => $pageIndex,

@@ -8,14 +8,12 @@
     "require": {
         "google/cloud": "^0.185.0",
         "google/analytics-data": "^0.8.4",
-        "johnpbloch/wordpress": "^6.0",
         "composer/installers": "^2.1"
     },
     "config": {
         "optimize-autoloader": true,
         "allow-plugins": {
-            "composer/installers": true,
-            "johnpbloch/wordpress-core-installer": true
+            "composer/installers": true
         }
     },
     "autoload": {
