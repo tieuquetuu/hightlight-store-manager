@@ -132,7 +132,7 @@ function DomainManagerInit() {
 
                     averageSessionDuration = averageSessionDuration / analytics.length;
 
-                    return `${averageSessionDuration.toFixed(2)} giây`
+                    return `${averageSessionDuration.toFixed(1)} giây`
                 }
             },
         ],
@@ -283,7 +283,7 @@ function DomainManagerInit() {
 
                             averageSessionDuration = averageSessionDuration / analytics.length;
 
-                            return `${averageSessionDuration.toFixed(2)} giây`
+                            return `${averageSessionDuration.toFixed(1)} giây`
                         }
                     },
                     {
@@ -375,7 +375,7 @@ function DomainManagerInit() {
                         <td class="text-center">${d.screenPageViews} lượt xem</td>
                         <td class="text-center">${d.click_view_shop} lượt</td>
                         <td class="text-center">${d.click_buy_product} lượt</td>
-                        <td class="text-right">${(d.averageSessionDuration / totalItems).toFixed(2)} giây</td>
+                        <td class="text-right">${(d.averageSessionDuration / totalItems).toFixed(1)} giây</td>
                     </tr>
                  `
             });

@@ -178,6 +178,7 @@ class StoreHL
         $is_page_management_system = str_contains(get_page_template_slug(), "page-management-system.php");
         $is_page_management_domain = str_contains(get_page_template_slug(), "page-management-domain.php");
         $is_page_management_users = str_contains(get_page_template_slug(), "page-management-users.php");
+        $is_page_report = str_contains(get_page_template_slug(), "page-report.php");
 
         // Slick js
         wp_enqueue_style( 'hightlight-slick-css',"//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css");
@@ -196,7 +197,7 @@ class StoreHL
 
         // Store Hight Light Extension Library
         // Chỉ require các plugin nếu như đây là site chính
-        if ($is_page_management_users || $is_page_management_system || $is_page_management_domain) {
+        if ($is_page_management_users || $is_page_management_system || $is_page_management_domain || $is_page_report) {
             wp_enqueue_style( 'hightlight-data-table-css',"//cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css");
             wp_enqueue_script( 'hightlight-data-table-pdfmake-js','//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js', array( 'jquery' ), '', true );
             wp_enqueue_script( 'hightlight-data-table-pdfmake-vfs_fonts-js','//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js', array( 'jquery' ), '', true );
@@ -265,23 +266,34 @@ class StoreHL
         $current_user = wp_get_current_user();
         $current_link = get_the_permalink();
 
-        return '<div class="container-fluid my-5">
-        <div class="row">
-            <div class="col col-md-4">
+        $get_user_meta = get_user_meta($current_user->ID);
+        $level_manager_user_meta = unserialize($get_user_meta["level_manager_data"][0]);
+
+        $has_role = is_array($level_manager_user_meta) && count($level_manager_user_meta) > 0;
+
+        if (!$has_role) {
+            return null;
+        }
+
+        $role_system_navigation = in_array("level_3",$level_manager_user_meta) ? '<div class="col col-md-4">
                 <a class="button-manager" href="'.  site_url() . "/tong-quan-so-lieu/quan-li-he-thong" .'">
                     Hệ thống
                 </a>
-            </div>
-            <div class="col col-md-4">
+            </div>' : null;
+        $role_domain_navigation = in_array("level_2",$level_manager_user_meta) ? '<div class="col col-md-4">
                 <a class="button-manager" href="'.  site_url() . "/tong-quan-so-lieu/quan-li-website" .'">
                     Tên miền
                 </a>
-            </div>
-            <div class="col col-md-4">
+            </div>' : null;
+        $role_user_navigation = in_array("level_1",$level_manager_user_meta) ? '<div class="col col-md-4">
                 <a class="button-manager" href="'.  site_url() . "/tong-quan-so-lieu/quan-li-user" .'">
                     User
                 </a>
-            </div>
+            </div>' : null;
+
+        return '<div class="container-fluid my-5">
+        <div class="row">
+            '.$role_system_navigation . $role_domain_navigation . $role_user_navigation .'
         </div>
     </div>';
     }

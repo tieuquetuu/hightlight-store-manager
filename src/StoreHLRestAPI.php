@@ -411,6 +411,9 @@ class StoreHLRestAPI
             return wp_send_json($result, 200);
         }
 
+        /**
+         * Nếu $sortCol = 5 , sắp xếp bởi lượt nhiều nhất
+         */
 
         $args_request_report = array();
 
@@ -462,6 +465,89 @@ class StoreHLRestAPI
             );
             array_push($result['data'], $row);
         }
+
+        return wp_send_json($result, 200);
+    }
+
+    /**
+     * @description Lấy dữ liệu thống kê theo danh sách người dùng
+     * @columns
+     * @param $request
+     * @return void
+     */
+    public static function handleManagerUsersDataReport($request) {
+        $params = $request->get_params();
+
+        $result = array(
+            "data" => array(),
+//            "draw" => 1,
+            "recordsFiltered" => 0,
+            "recordsTotal" => 0
+        );
+
+        $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
+        $category = isset($params["category"]) && (int) $params["category"] > 0 ? (int)$params["category"] : null;
+        $domain = isset($params["domain"]) && is_string($params["domain"]) && strlen($params["domain"]) > 0 ? $params["domain"] : null;
+        $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
+        $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
+        $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
+        $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
+        $search = isset($params['sSearch']) ? $params['sSearch'] : "";
+        $sortCol = isset($params['iSortCol_0']) ? $params['iSortCol_0'] : false;
+        $sortDir = isset($params['sSortDir_0']) ? $params['sSortDir_0'] : false;
+
+        $queryArgs = array(
+            "posts_per_page" => $limit,
+            "offset" => $offset,
+            "post_status" => array("publish", "pending"),
+            "s" => $search
+        );
+        if ($author) {
+            $queryArgs["author"] = $author;
+        }
+        if ($category){
+            $queryArgs["tax_query"] = array(
+                "relation" => "AND",
+                array(
+                    'taxonomy' => 're_cat',
+                    'terms' => array( $category ),
+                    'operator' => 'IN'
+                )
+            );
+        }
+
+        $queryProducts = StoreHL::instance()->queryStoreProducts($queryArgs);
+
+        // Sắp xếp lại danh sách
+        $rowsData = array();
+
+        foreach ($queryProducts->posts as $key => $product) {
+            $author = get_user_by("id", $product->post_author);
+            $productTitle = $product->post_title;
+            $productSlug = $product->post_name;
+            $productId = $product->ID;
+            $productCategory = get_the_terms($productId, "re_cat");
+            $productStatus = $product->post_status;
+            $statusText = "Chờ duyệt";
+            if ($productStatus == "publish") : $statusText = "Đang hoạt động"; endif;
+
+            $row = array();
+            $row["numerical_order"] = $key + 1;
+            $row["id"] = $productId;
+            $row["category"] = $productCategory;
+            $row["title"] = $productTitle;
+            $row["author"] = array(
+                "id" => $author->ID,
+                "display_name" => $author->display_name
+            );
+            $row["status"] = $statusText;
+
+            array_push($rowsData, (object) $row);
+        }
+
+        $result["recordsFiltered"] = (int) $queryProducts->found_posts;
+        $result["recordsTotal"] = (int) $queryProducts->found_posts;
+        $result["data"] = $rowsData;
 
         return wp_send_json($result, 200);
     }
@@ -572,6 +658,7 @@ class StoreHLRestAPI
         register_rest_route('hightlight/v1', '/reportUsersDataTable', array(
             'methods' => \WP_REST_Server::READABLE,
             'callback' => array(__CLASS__, 'handleUsersDataTableReport')
+//            'callback' => array(__CLASS__, 'handleManagerUsersDataReport')
         ));
 
         register_rest_route('hightlight/v1', '/pageReportDataTable', array(
