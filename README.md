@@ -18,7 +18,7 @@ Trước khi bắt đầu cần cài đặt các plugin bắt buộc và kích h
 
 ### Đối với website tổng
 
-- Thiết lập hệ thống theo hướng dẫn trong file "hướng dẫn chi tiết"
+- Thiết lập hệ thống theo hướng dẫn trong file "document.docx"
 
 ## Deveploper
 
