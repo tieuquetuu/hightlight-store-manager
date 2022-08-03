@@ -30,11 +30,30 @@ get_header(); ?>
 
 <main id="main" class="col-12 site-main" role="main">
     <div class="container-fluid">
+        <div class="row">
+            <div class="col col-md-3">
+                <span>Tổng lượt xem</span>
+                <span></span>
+            </div>
+            <div class="col col-md-3">
+                <span>Lượt click cửa hàng</span>
+                <span></span>
+            </div>
+            <div class="col col-md-3">
+                <span>Lượt click mua hàng</span>
+                <span></span>
+            </div>
+            <div class="col col-md-3">
+                <span>Thời gian xem trung bình</span>
+                <span></span>
+            </div>
+        </div>
+
         <table
-            id="products-table-analytics"
-            class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
-            data-ajax-source="<?php echo $ajax_source_url ?>"
-            style="width: 100%">
+                id="products-table-analytics"
+                class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
+                data-ajax-source="<?php echo $ajax_source_url ?>"
+                style="width: 100%">
             <thead>
             <tr>
                 <th></th>

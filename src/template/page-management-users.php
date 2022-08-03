@@ -76,10 +76,10 @@ get_header() ?>
                 </select>
             </div>
 
-            <div class="col col-md-3">
+            <!--<div class="col col-md-3">
                 <label for="filter-category">Lọc theo thời gian</label>
                 <input type="text" id="user-filter-daterange" name="daterange" />
-            </div>
+            </div>-->
 
             <div class="col col-md-12">
                 <table id="users-report-table"
