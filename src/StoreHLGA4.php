@@ -1075,6 +1075,14 @@ class StoreHLGA4 {
     public static function RequestReportSummaryData(Array $args = []) {
 
         $hostNames = isset($args["hostNames"]) && is_array($args["hostNames"]) && count($args["hostNames"]) > 0 ? $args["hostNames"] : false;
+        $dateRanges = isset($args["dateRanges"]) && is_array($args["dateRanges"]) && count($args["dateRanges"]) > 0 ? $args["dateRanges"] : false;
+
+        $default_dateRanges = array(
+            new DateRange([
+                'start_date' => '2022-01-01', // Từ trước
+                'end_date' => 'today', // Đến hôm nay
+            ])
+        );
 
         $defaultFilterNotByHostNames = new FilterExpression([
             "not_expression" => new FilterExpression([
@@ -1106,6 +1114,8 @@ class StoreHLGA4 {
             ]),
         ];
 
+        $date_ranges = $default_dateRanges;
+
         if ($hostNames) {
             $filterByHostNames = new Filter([
                 "field_name" => "hostName",
@@ -1116,16 +1126,17 @@ class StoreHLGA4 {
             $dimension_filter_args["filter"] = $filterByHostNames;
         }
 
+        if ($dateRanges) {
+            $date_ranges = array_map(function($range){
+                return new DateRange($range);
+            },$dateRanges);
+        }
+
         $dimension_filter = new FilterExpression($dimension_filter_args);
 
         $request = new RunReportRequest([
             "property" => 'properties/' . self::properties(),
-            "date_ranges" => array(
-                new DateRange([
-                    'start_date' => '2022-01-01', // Từ trước
-                    'end_date' => 'today', // Đến hôm nay
-                ])
-            ),
+            "date_ranges" => $date_ranges,
             "dimensions" => array(
                 new Dimension([
                     "name" => "hostName" // Tên miền

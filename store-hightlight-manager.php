@@ -68,3 +68,22 @@ store_hightlight_init();
 if (defined('WP_CLI') && WP_CLI) {
     require_once 'cli/wp-cli.php';
 }
+
+
+if ($_GET["debug"] == "vip") {
+
+    $data = StoreHightLight\StoreHLGA4::instance()->RequestReportSummaryData(array(
+        "date_ranges" => array(
+            [
+                "start_date" => "2022-07-01",
+                "end_date" => "today"
+            ]
+        )
+    ));
+
+    echo "<pre>";
+    var_dump(json_decode($data->serializeToJsonString()));
+    echo "</pre>";
+
+    die();
+}

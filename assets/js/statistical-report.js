@@ -13,6 +13,9 @@ function StatisticalTableInit() {
     let $dataTable = $table.DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
+        scrollY: "50vh",
+        scrollX: false,
         ajax: ajaxSource,
         columns: [
             {

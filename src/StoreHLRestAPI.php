@@ -107,6 +107,7 @@ class StoreHLRestAPI
         $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
         $category = isset($params["category"]) && (int) $params["category"] > 0 ? (int)$params["category"] : null;
         $domain = isset($params["domain"]) && is_string($params["domain"]) && strlen($params["domain"]) > 0 ? $params["domain"] : null;
+        $dateRanges = isset($params["date_ranges"]) && is_string($params["date_ranges"]) && strlen($params["date_ranges"]) > 0 && gettype(json_decode($params["date_ranges"])) == "object" ? (array) json_decode($params["date_ranges"]) : null;
 
         $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
         $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
@@ -147,6 +148,9 @@ class StoreHLRestAPI
 
         if ($domain) {
             $args_request_report["hostNames"] = array($domain);
+        }
+        if ($dateRanges) {
+            $args_request_report["dateRanges"] = array($dateRanges);
         }
 
         $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
@@ -364,6 +368,7 @@ class StoreHLRestAPI
         $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
         $category = isset($params["category"]) && (int) $params["category"] > 0 ? (int)$params["category"] : null;
         $domain = isset($params["domain"]) && is_string($params["domain"]) && strlen($params["domain"]) > 0 ? $params["domain"] : null;
+        $dateRanges = isset($params["date_ranges"]) && is_string($params["date_ranges"]) && strlen($params["date_ranges"]) > 0 && gettype(json_decode($params["date_ranges"])) == "object" ? (array) json_decode($params["date_ranges"]) : null;
 
         $result = array(
             "data" => array(),
@@ -419,6 +424,9 @@ class StoreHLRestAPI
 
         if ($domain) {
             $args_request_report["hostNames"] = array($domain);
+        }
+        if ($dateRanges) {
+            $args_request_report["dateRanges"] = array($dateRanges);
         }
 
         $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);

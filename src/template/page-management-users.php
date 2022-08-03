@@ -42,7 +42,7 @@ get_header() ?>
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col col-md-4">
+            <div class="col col-md-3">
                 <label for="user-filter-domains">Lọc theo tên miền</label>
                 <select name="filter-by-domain" id="user-filter-domains">
                     <option value="0">Tất cả</option>
@@ -52,7 +52,7 @@ get_header() ?>
                 </select>
             </div>
 
-            <div class="col col-md-4">
+            <div class="col col-md-3">
                 <label for="user-filter-category">Lọc them danh mục</label>
                 <select name="filter-by-category" id="user-filter-category">
                     <option value="0">Tất cả</option>
@@ -64,7 +64,7 @@ get_header() ?>
                 </select>
             </div>
 
-            <div class="col col-md-4">
+            <div class="col col-md-3">
                 <label for="user-filter-user">Lọc theo người dùng</label>
                 <select name="filter-by-user" id="user-filter-user">
                     <option value="0">Tất cả</option>
@@ -74,6 +74,11 @@ get_header() ?>
                         </option>
                     <?php } ?>
                 </select>
+            </div>
+
+            <div class="col col-md-3">
+                <label for="filter-category">Lọc theo thời gian</label>
+                <input type="text" id="user-filter-daterange" name="daterange" />
             </div>
 
             <div class="col col-md-12">

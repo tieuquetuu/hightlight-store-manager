@@ -41,9 +41,9 @@ get_header(); ?>
                 <th>ID sản phẩm</th>
                 <th style="width: 15%;">Tiêu đề</th>
                 <th>Danh mục</th>
-                <th class="text-center">Lượt click mua hàng</th>
-                <th class="text-center">Lượt click cửa hàng</th>
                 <th class="text-center">Lượt hiển thị</th>
+                <th class="text-center">Lượt click cửa hàng</th>
+                <th class="text-center">Lượt click mua hàng</th>
                 <th class="text-center">Thời gian xem trung bình</th>
                 <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
             </tr>
