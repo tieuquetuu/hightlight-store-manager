@@ -888,7 +888,6 @@ class StoreHLGA4 {
         return $report;
     }
 
-
     /**
      * @description Chuyển đổi dữ liệu báo cáo về dạng mảng xem được
      * @param $report
@@ -947,7 +946,6 @@ class StoreHLGA4 {
         ]);
     }
 
-
     public static function RequestListHostName() {
         $request = new RunReportRequest([
             "property" => 'properties/' . self::properties(),
@@ -983,7 +981,6 @@ class StoreHLGA4 {
         ]);
         return $request;
     }
-
 
     public static function RequestReportByHostName() {
 
@@ -1068,6 +1065,15 @@ class StoreHLGA4 {
         return $request;
     }
 
+    public static function totalScreenPageViewsFromReport($report) {
+        $pretty = self::makeReportPretty($report);
+        $count = 0;
+        foreach ($pretty as $item) {
+            $count += (int) $item->screenPageViews;
+        }
+        return $count;
+    }
+
     /**
      * @description Báo cáo số liệu tổng quát
      * @return RunReportRequest
@@ -1076,6 +1082,7 @@ class StoreHLGA4 {
 
         $hostNames = isset($args["hostNames"]) && is_array($args["hostNames"]) && count($args["hostNames"]) > 0 ? $args["hostNames"] : false;
         $dateRanges = isset($args["dateRanges"]) && is_array($args["dateRanges"]) && count($args["dateRanges"]) > 0 ? $args["dateRanges"] : false;
+        $pagePaths = isset($args["pagePaths"]) && is_array($args["pagePaths"]) && count($args["pagePaths"]) > 0 ? $args["pagePaths"] : false;
 
         $default_dateRanges = array(
             new DateRange([
@@ -1103,9 +1110,40 @@ class StoreHLGA4 {
             ])
         ]);
 
+        // Chỉ lấy số liệu của những trang sản phẩm
+        $defaultFilterByPagePaths = new FilterExpression([
+            "or_group" => new FilterExpressionList([
+                "expressions" => array(
+                    new FilterExpression([
+                        "filter" => new Filter([
+                            "field_name" => "pagePath",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => '/product',
+                                    'match_type' => MatchType::BEGINS_WITH,
+                                ]
+                            )
+                        ])
+                    ]),
+                    new FilterExpression([
+                        "filter" => new Filter([
+                            "field_name" => "pagePath",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => '/nha-dat',
+                                    'match_type' => MatchType::BEGINS_WITH,
+                                ]
+                            )
+                        ])
+                    ])
+                )
+            ])
+        ]);
+
         $dimension_filter_and_groups = array(
             $defaultFilterNotByHostNames,
             $defaultFilterByEventNames,
+            $defaultFilterByPagePaths
         );
 
         $dimension_filter_args = [

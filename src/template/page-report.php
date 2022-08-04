@@ -8,6 +8,14 @@
 $storeHL = new StoreHightLight\StoreHL();
 $storeHLGA4 = new StoreHightLight\StoreHLGA4();
 
+$request = $storeHLGA4::instance()->RequestReportSummaryData();
+$report = $storeHLGA4::instance()->makeRunReport($request);
+$pretty_report = $storeHLGA4::instance()->makeReportPretty($report);
+
+
+$totalScreenPageViews = $storeHLGA4::instance()->totalScreenPageViewsFromReport($report);
+
+
 if( ! is_user_logged_in() ) {
     wp_redirect( home_url() );
     exit;
@@ -33,19 +41,19 @@ get_header(); ?>
         <div class="row">
             <div class="col col-md-3">
                 <span>Tổng lượt xem</span>
-                <span></span>
+                <span><?php echo $totalScreenPageViews ?></span>
             </div>
             <div class="col col-md-3">
                 <span>Lượt click cửa hàng</span>
-                <span></span>
+                <span>1000</span>
             </div>
             <div class="col col-md-3">
                 <span>Lượt click mua hàng</span>
-                <span></span>
+                <span>1000</span>
             </div>
             <div class="col col-md-3">
                 <span>Thời gian xem trung bình</span>
-                <span></span>
+                <span>1000</span>
             </div>
         </div>
 
@@ -71,32 +79,6 @@ get_header(); ?>
 
             </tbody>
         </table>
-    </div>
-
-    <!-- The Modal -->
-    <div id="detail-analytics-modal" class="detail-analytics-modal">
-
-        <!-- Modal content -->
-        <div class="detail-analytics-modal-content">
-            <span class="close">&times;</span>
-            <p>Some text in the Modal..</p>
-            <table class="detail-analyti cs-product-table display store-hightlight-dataTable" style="100%">
-                <thead>
-                    <tr>
-                        <th>Tên miền</th>
-                        <th>Đường dẫn</th>
-                        <th>Lượt click mua hàng</th>
-                        <th>Lượt click cửa hàng</th>
-                        <th>Thời gian xem trung bình</th>
-                        <th>Lượt hiển thị</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-            </table>
-        </div>
-
     </div>
 </main>
 
