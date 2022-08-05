@@ -12,8 +12,11 @@ $request = $storeHLGA4::instance()->RequestReportSummaryData();
 $report = $storeHLGA4::instance()->makeRunReport($request);
 $pretty_report = $storeHLGA4::instance()->makeReportPretty($report);
 
-
+// Đếm tổng lượt xem & sự kiện các thứ
 $totalScreenPageViews = $storeHLGA4::instance()->totalScreenPageViewsFromReport($report);
+$totalClickBuyProduct = $storeHLGA4::instance()->totalClickBuyProductFromReport($report);
+$totalClickViewShop = $storeHLGA4::instance()->totalClickViewShopFromReport($report);
+$totalAverageSessionDuration = $storeHLGA4::instance()->totalAverageSessionDurationFromReport($report);
 
 
 if( ! is_user_logged_in() ) {
@@ -35,25 +38,42 @@ $str_params = http_build_query($ajaxArrayParams);
 $ajax_source_url = get_rest_url() . "hightlight/v1/pageReportDataTable?" . $str_params;
 
 get_header(); ?>
+<style>
+    .total-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 
+    .total-card-count {
+        font-weight: bold;
+        font-size: 24px;
+    }
+
+    .total-card-text {
+        text-transform: capitalize;
+
+    }
+</style>
 <main id="main" class="col-12 site-main" role="main">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col col-md-3">
-                <span>Tổng lượt xem</span>
-                <span><?php echo $totalScreenPageViews ?></span>
+        <div class="row mb-4">
+            <div class="col col-md-3 alert alert-success total-card">
+                <span class="total-card-text">Tổng lượt xem</span>
+                <span class="total-card-count"><?php echo $totalScreenPageViews ?></span>
             </div>
-            <div class="col col-md-3">
-                <span>Lượt click cửa hàng</span>
-                <span>1000</span>
+            <div class="col col-md-3 alert alert-info total-card">
+                <span class="total-card-text">Lượt click cửa hàng</span>
+                <span class="total-card-count"><?php echo $totalClickViewShop ?></span>
             </div>
-            <div class="col col-md-3">
-                <span>Lượt click mua hàng</span>
-                <span>1000</span>
+            <div class="col col-md-3 alert alert-warning total-card">
+                <span class="total-card-text">Lượt click mua hàng</span>
+                <span class="total-card-count"><?php echo $totalClickBuyProduct ?></span>
             </div>
-            <div class="col col-md-3">
-                <span>Thời gian xem trung bình</span>
-                <span>1000</span>
+            <div class="col col-md-3 alert alert-danger total-card">
+                <span class="total-card-text">Thời gian xem trung bình</span>
+                <span class="total-card-count"><?php echo $totalAverageSessionDuration ?> Giây</span>
             </div>
         </div>
 

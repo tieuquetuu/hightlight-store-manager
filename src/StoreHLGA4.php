@@ -1065,6 +1065,70 @@ class StoreHLGA4 {
         return $request;
     }
 
+
+    /**
+     * @description Tính tổng thời gian xem trung bình trong 1 báo cáo
+     * @param $report
+     * @return int
+     */
+    public static function totalAverageSessionDurationFromReport($report) {
+        $pretty = self::makeReportPretty($report);
+        $length = count($pretty);
+        $total = 0;
+
+        foreach ($pretty as $item) {
+            $total += (int) $item->averageSessionDuration;
+        }
+
+        $total = $total / $length;
+
+        return number_format($total, 1, '.', '');
+    }
+
+    /**
+     * @description Tính tổng số lượt xem cửa hàng trong 1 báo cáo
+     * @param $report
+     * @return int
+     */
+    public static function totalClickViewShopFromReport($report) {
+        $pretty = self::makeReportPretty($report);
+        $count = 0;
+
+        foreach ($pretty as $item) {
+            if ($item->eventName != "click_view_shop") {
+                continue;
+            }
+
+            $count += (int) $item->eventCount;
+        }
+
+        return $count;
+    }
+
+    /**
+     * @description Tính tổng số lượt click mua hàng trong 1 báo cáo
+     * @param $report
+     * @return int
+     */
+    public static function totalClickBuyProductFromReport($report) {
+        $pretty = self::makeReportPretty($report);
+        $count = 0;
+
+        foreach ($pretty as $item) {
+            if ($item->eventName != "click_buy_product") {
+                continue;
+            }
+            $count += (int) $item->eventCount;
+        }
+
+        return $count;
+    }
+
+    /**
+     * @description Tính tổng số lượt xem trong 1 báo cáo
+     * @param $report
+     * @return int
+     */
     public static function totalScreenPageViewsFromReport($report) {
         $pretty = self::makeReportPretty($report);
         $count = 0;
