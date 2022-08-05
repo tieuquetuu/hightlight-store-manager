@@ -143,8 +143,18 @@ class StoreHLRestAPI
             return $result;
         }
 
+        $productSlugs = array();
 
-        $args_request_report = array();
+        foreach ($queryProducts->posts as $item) {
+            if (strlen($item->post_name) <= 0) {
+                continue;
+            }
+            array_push($productSlugs, $item->post_name);
+        }
+
+        $args_request_report = array(
+            "productSlugs" => $productSlugs
+        );
 
         if ($domain) {
             $args_request_report["hostNames"] = array($domain);
@@ -420,7 +430,18 @@ class StoreHLRestAPI
          * Nếu $sortCol = 5 , sắp xếp bởi lượt nhiều nhất
          */
 
-        $args_request_report = array();
+        $productSlugs = array();
+
+        foreach ($queryProducts->posts as $item) {
+            if (strlen($item->post_name) <= 0) {
+                continue;
+            }
+            array_push($productSlugs, $item->post_name);
+        }
+
+        $args_request_report = array(
+            "productSlugs" => $productSlugs
+        );
 
         if ($domain) {
             $args_request_report["hostNames"] = array($domain);
