@@ -95,7 +95,7 @@ get_header(); ?>
         </div>
 
         <div class="row">
-            <div class="col col-md-3">
+            <div class="col col-md-3 mb-4">
                 <label for="filter-category">Lọc theo thời gian</label>
                 <input type="text" id="report-filter-daterange" name="daterange" />
             </div>

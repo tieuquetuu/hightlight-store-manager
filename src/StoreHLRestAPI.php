@@ -595,7 +595,18 @@ class StoreHLRestAPI
             return $result;
         }
 
-        $args_request_report = array();
+        $productSlugs = array();
+
+        foreach ($queryProducts->posts as $item) {
+            if (strlen($item->post_name) <= 0) {
+                continue;
+            }
+            array_push($productSlugs, $item->post_name);
+        }
+
+        $args_request_report = array(
+            "productSlugs" => $productSlugs
+        );
 
         if ($dateRanges) {
             $args_request_report["dateRanges"] = array($dateRanges);

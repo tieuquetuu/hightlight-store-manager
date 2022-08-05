@@ -1175,7 +1175,7 @@ class StoreHLGA4 {
             ])
         ]);
 
-        $filterByProductSlugs = !$productSlugs ? array() : array_map(function($slug){
+        $filterByProductSlugs = !$productSlugs ? null : array_map(function($slug){
             return new FilterExpression([
                 "filter" => new Filter([
                     "field_name" => "pagePath",
@@ -1215,7 +1215,7 @@ class StoreHLGA4 {
 
         $filterByPagePaths = new FilterExpression([
             "or_group" => new FilterExpressionList([
-                "expressions" => array_merge($defaultFilterByPagePaths, $filterByProductSlugs)
+                "expressions" => !is_null($filterByProductSlugs) ?  $filterByProductSlugs : $defaultFilterByPagePaths
             ])
         ]);
 
