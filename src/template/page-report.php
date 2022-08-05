@@ -8,7 +8,24 @@
 $storeHL = new StoreHightLight\StoreHL();
 $storeHLGA4 = new StoreHightLight\StoreHLGA4();
 
-$request = $storeHLGA4::instance()->RequestReportSummaryData();
+$queryArgs = array(
+    "posts_per_page" => -1
+);
+
+$queryProducts = $storeHL::instance()->queryStoreProducts($queryArgs);
+
+$productSlugs = array();
+
+foreach ($queryProducts->posts as $item) {
+    if (strlen($item->post_name) <= 0) {
+        continue;
+    }
+    array_push($productSlugs, $item->post_name);
+}
+
+$request = $storeHLGA4::instance()->RequestReportSummaryData(array(
+    "productSlugs" => $productSlugs
+));
 $report = $storeHLGA4::instance()->makeRunReport($request);
 $pretty_report = $storeHLGA4::instance()->makeReportPretty($report);
 
@@ -77,28 +94,37 @@ get_header(); ?>
             </div>
         </div>
 
-        <table
-                id="products-table-analytics"
-                class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
-                data-ajax-source="<?php echo $ajax_source_url ?>"
-                style="width: 100%">
-            <thead>
-            <tr>
-                <th></th>
-                <th>ID sản phẩm</th>
-                <th style="width: 15%;">Tiêu đề</th>
-                <th>Danh mục</th>
-                <th class="text-center">Lượt hiển thị</th>
-                <th class="text-center">Lượt click cửa hàng</th>
-                <th class="text-center">Lượt click mua hàng</th>
-                <th class="text-center">Thời gian xem trung bình</th>
-                <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="row">
+            <div class="col col-md-3">
+                <label for="filter-category">Lọc theo thời gian</label>
+                <input type="text" id="report-filter-daterange" name="daterange" />
+            </div>
 
-            </tbody>
-        </table>
+            <div class="col col-md-12">
+                <table
+                        id="products-table-analytics"
+                        class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
+                        data-ajax-source="<?php echo $ajax_source_url ?>"
+                        style="width: 100%">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID sản phẩm</th>
+                        <th style="width: 15%;">Tiêu đề</th>
+                        <th>Danh mục</th>
+                        <th class="text-center">Lượt hiển thị</th>
+                        <th class="text-center">Lượt click cửa hàng</th>
+                        <th class="text-center">Lượt click mua hàng</th>
+                        <th class="text-center">Thời gian xem trung bình</th>
+                        <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </main>
 

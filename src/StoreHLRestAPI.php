@@ -570,6 +570,8 @@ class StoreHLRestAPI
             "recordsTotal" => 0
         );
 
+        $dateRanges = isset($params["date_ranges"]) && is_string($params["date_ranges"]) && strlen($params["date_ranges"]) > 0 && gettype(json_decode($params["date_ranges"])) == "object" ? (array) json_decode($params["date_ranges"]) : null;
+
         $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
         $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
         $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
@@ -580,8 +582,8 @@ class StoreHLRestAPI
 
         $queryArgs = array(
             "posts_per_page" => $limit,
-            "paged" => $pageIndex,
-            "page" => $pageIndex,
+//            "paged" => $pageIndex,
+//            "page" => $pageIndex,
             "offset" => $offset,
             "author" => $author,
             "s" => $search
@@ -593,7 +595,13 @@ class StoreHLRestAPI
             return $result;
         }
 
-        $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData();
+        $args_request_report = array();
+
+        if ($dateRanges) {
+            $args_request_report["dateRanges"] = array($dateRanges);
+        }
+
+        $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
         $report = StoreHLGA4::instance()->makeRunReport($request_report_domain);
         $pretty_report = StoreHLGA4::makeReportPretty($report);
 

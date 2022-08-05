@@ -1147,6 +1147,7 @@ class StoreHLGA4 {
         $hostNames = isset($args["hostNames"]) && is_array($args["hostNames"]) && count($args["hostNames"]) > 0 ? $args["hostNames"] : false;
         $dateRanges = isset($args["dateRanges"]) && is_array($args["dateRanges"]) && count($args["dateRanges"]) > 0 ? $args["dateRanges"] : false;
         $pagePaths = isset($args["pagePaths"]) && is_array($args["pagePaths"]) && count($args["pagePaths"]) > 0 ? $args["pagePaths"] : false;
+        $productSlugs = isset($args["productSlugs"]) && is_array($args["productSlugs"]) && count($args["productSlugs"]) > 0 ? $args["productSlugs"] : false;
 
         $default_dateRanges = array(
             new DateRange([
@@ -1174,40 +1175,54 @@ class StoreHLGA4 {
             ])
         ]);
 
-        // Chỉ lấy số liệu của những trang sản phẩm
-        $defaultFilterByPagePaths = new FilterExpression([
-            "or_group" => new FilterExpressionList([
-                "expressions" => array(
-                    new FilterExpression([
-                        "filter" => new Filter([
-                            "field_name" => "pagePath",
-                            'string_filter' => new StringFilter(
-                                [
-                                    'value' => '/product',
-                                    'match_type' => MatchType::BEGINS_WITH,
-                                ]
-                            )
-                        ])
-                    ]),
-                    new FilterExpression([
-                        "filter" => new Filter([
-                            "field_name" => "pagePath",
-                            'string_filter' => new StringFilter(
-                                [
-                                    'value' => '/nha-dat',
-                                    'match_type' => MatchType::BEGINS_WITH,
-                                ]
-                            )
-                        ])
+        $filterByProductSlugs = !$productSlugs ? array() : array_map(function($slug){
+            return new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    "string_filter" => new StringFilter([
+                        'value' => $slug,
+                        "match_type" => MatchType::CONTAINS
                     ])
-                )
+                ])
+            ]);
+        }, $productSlugs);
+
+        // Chỉ lấy số liệu của những trang sản phẩm
+        $defaultFilterByPagePaths = array(
+            new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    'string_filter' => new StringFilter(
+                        [
+                            'value' => '/product',
+                            'match_type' => MatchType::BEGINS_WITH,
+                        ]
+                    )
+                ])
+            ]),
+            new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    'string_filter' => new StringFilter(
+                        [
+                            'value' => '/nha-dat',
+                            'match_type' => MatchType::BEGINS_WITH,
+                        ]
+                    )
+                ])
+            ])
+        );
+
+        $filterByPagePaths = new FilterExpression([
+            "or_group" => new FilterExpressionList([
+                "expressions" => array_merge($defaultFilterByPagePaths, $filterByProductSlugs)
             ])
         ]);
 
         $dimension_filter_and_groups = array(
             $defaultFilterNotByHostNames,
             $defaultFilterByEventNames,
-            $defaultFilterByPagePaths
+            $filterByPagePaths
         );
 
         $dimension_filter_args = [
