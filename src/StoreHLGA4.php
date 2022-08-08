@@ -1061,6 +1061,9 @@ class StoreHLGA4 {
                     "name" => "pagePath" // Đường dẫn
                 ]),
                 new Dimension([
+                    "name" => "pageTitle" // Tiêu đề
+                ]),
+                new Dimension([
                     "name" => "eventName" // Tên sự kiện
                 ])
             ),
