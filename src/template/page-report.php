@@ -8,9 +8,23 @@
 $storeHL = new StoreHightLight\StoreHL();
 $storeHLGA4 = new StoreHightLight\StoreHLGA4();
 
+if( ! is_user_logged_in() ) {
+    wp_redirect( home_url() );
+    exit;
+}
+$current_user = wp_get_current_user();
+$current_link = get_the_permalink();
+$is_admin = in_array("administrator", $current_user->roles);
+
+$ajaxArrayParams = array();
 $queryArgs = array(
-    "posts_per_page" => -1
+    "posts_per_page" => -1,
 );
+
+if (!$is_admin) {
+    $ajaxArrayParams["author"] = $current_user->ID;
+    $queryArgs["author"] = $current_user->ID;
+}
 
 $queryProducts = $storeHL::instance()->queryStoreProducts($queryArgs);
 
@@ -35,23 +49,7 @@ $totalClickBuyProduct = $storeHLGA4::instance()->totalClickBuyProductFromReport(
 $totalClickViewShop = $storeHLGA4::instance()->totalClickViewShopFromReport($report);
 $totalAverageSessionDuration = $storeHLGA4::instance()->totalAverageSessionDurationFromReport($report);
 
-
-if( ! is_user_logged_in() ) {
-    wp_redirect( home_url() );
-    exit;
-}
-$current_user = wp_get_current_user();
-$current_link = get_the_permalink();
-$is_admin = in_array("administrator", $current_user->roles);
-
-$ajaxArrayParams = array();
-
-if (!$is_admin) {
-    $ajaxArrayParams["author"] = $current_user->ID;
-}
-
 $str_params = http_build_query($ajaxArrayParams);
-
 $ajax_source_url = get_rest_url() . "hightlight/v1/pageReportDataTable?" . $str_params;
 
 get_header(); ?>

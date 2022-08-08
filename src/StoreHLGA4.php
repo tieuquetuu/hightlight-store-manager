@@ -1002,10 +1002,39 @@ class StoreHLGA4 {
                 ])
             ])
         ]);
+        $defaltFilterJustProducts = new FilterExpression([
+            "or_group" => new FilterExpressionList([
+                "expressions" => array(
+                    new FilterExpression([
+                        "filter" => new Filter([
+                            "field_name" => "pagePath",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => '/product',
+                                    'match_type' => MatchType::BEGINS_WITH,
+                                ]
+                            )
+                        ])
+                    ]),
+                    new FilterExpression([
+                        "filter" => new Filter([
+                            "field_name" => "pagePath",
+                            'string_filter' => new StringFilter(
+                                [
+                                    'value' => '/nha-dat',
+                                    'match_type' => MatchType::BEGINS_WITH,
+                                ]
+                            )
+                        ])
+                    ])
+                )
+            ])
+        ]);
 
         $dimension_filter_and_groups = array(
             $defaultFilterNotByHostNames,
             $defaultFilterByEventNames,
+            $defaltFilterJustProducts
         );
 
         $dimension_filter_args = [

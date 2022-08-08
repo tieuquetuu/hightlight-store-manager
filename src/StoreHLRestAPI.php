@@ -233,16 +233,14 @@ class StoreHLRestAPI
 
         $response_domain_report = StoreHLGA4::instance()->makeRunReport($request_report_by_domain);
 
-        $json_report = json_decode($response_domain_report->serializeToJsonString());
-
         $data = StoreHLGA4::instance()->makeReportPretty($response_domain_report);
 
         $convert_domain_rows = array();
 
-        foreach ($data as $item) {
+        foreach ($data as $countIndex => $item) {
             $keyName = $item->hostName;
             if (!key_exists($keyName, $convert_domain_rows)) {
-                $convert_domain_rows[$keyName] = (object) array(
+                $convert_domain_rows[$keyName] = array(
                     "hostName" => $keyName,
                     "click_buy_product" => 0,
                     "click_view_shop" => 0,
@@ -252,7 +250,25 @@ class StoreHLRestAPI
                 );
             };
 
-            array_push($convert_domain_rows[$keyName]->analytics, $item);
+            $convert_domain_rows[$keyName]["averageSessionDuration"] += floatval($item->averageSessionDuration);
+            $convert_domain_rows[$keyName]["screenPageViews"] += (int) $item->screenPageViews;
+            if ($item->eventName == "click_buy_product") {
+                $convert_domain_rows[$keyName]["click_buy_product"] += (int)$item->eventCount;
+            }
+            if ($item->eventName == "click_view_shop") {
+                $convert_domain_rows[$keyName]["click_view_shop"] += (int)$item->eventCount;
+            }
+
+            array_push($convert_domain_rows[$keyName]["analytics"], $item);
+
+            // End The Loop
+            if ($countIndex + 1 == count($data)) {
+                // Tính thời gian xem trung bình
+                $totalAverageSessionDuration = $convert_domain_rows[$keyName]["averageSessionDuration"];
+                $totalAnalyticItems = count($convert_domain_rows[$keyName]["analytics"]);
+
+                $convert_domain_rows[$keyName]["averageSessionDuration"] = $totalAverageSessionDuration / $totalAnalyticItems;
+            }
         }
 
         $total_rows = count(array_keys($convert_domain_rows));
@@ -289,9 +305,10 @@ class StoreHLRestAPI
         $search = isset($params['sSearch']) ? $params['sSearch'] : "";
 
         $queryArgs = array(
-            "posts_per_page" => $limit,
-//            "paged" => $pageIndex,
-//            "page" => $pageIndex,
+            "posts_per_page" => -1,
+            "post_status" => array(
+                "publish", "pending", "draft", "future"
+            ),
             "offset" => $offset,
             "s" => $search
         );
@@ -322,6 +339,17 @@ class StoreHLRestAPI
             $args_request_report["hostNames"] = array($domain);
         }
 
+        $productSlugs = array_map(function($prod){
+            return $prod->post_name;
+        },$queryProducts->posts);
+        $productSlugs = array_filter($productSlugs, function($slug){
+            return strlen($slug) > 0;
+        });
+
+        if (count($productSlugs) > 0) {
+            $args_request_report["productSlugs"] = $productSlugs;
+        }
+
         $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
 
         $report = StoreHLGA4::instance()->makeRunReport($request_report_domain);
@@ -348,8 +376,18 @@ class StoreHLRestAPI
 
             $analytics = null;
 
-            $analytics_filter = array_filter($pretty_report, function($reportItem) use (&$productTitle){
-                return str_contains($reportItem->pageTitle, $productTitle);
+            $analytics_filter = array_filter($pretty_report, function($reportItem) use (&$productTitle, &$productSlug){
+
+                if(!$productSlug) {
+                    return str_contains($reportItem->pageTitle, $productTitle);
+                }
+
+                $pathName = $reportItem->pagePath;
+                $pathName = str_replace("/product/", "",$pathName);
+                $pathName = str_replace("/nha-dat/", "",$pathName);
+                $pathName = str_replace("/", "",$pathName);
+
+                return $pathName == $productSlug;
             });
 
             $analytics = array_values($analytics_filter);

@@ -146,15 +146,15 @@ function DomainManagerInit() {
         let $tr = $(this).closest('tr');
         let row = $dataTable.row($tr);
         let rowData = row.data()
-        let { analytics } = rowData;
+        let { analytics, hostName } = rowData;
 
         if (row.child.isShown()) {
             // This row is already open - close it
             row.child.hide();
             $tr.removeClass('shown');
         } else {
-
             let ajaxSourceUrl = new URL(`${hightlight_client_object.site_rest_url}hightlight/v1/reportDetailDomainDataTable`);
+            ajaxSourceUrl.searchParams.set("domain", hostName);
 
             let $childTable = $(detailDomainRowTable());
             let $childDataTable = $childTable.DataTable({
