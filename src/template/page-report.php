@@ -19,6 +19,9 @@ $is_admin = in_array("administrator", $current_user->roles);
 $ajaxArrayParams = array();
 $queryArgs = array(
     "posts_per_page" => -1,
+    "post_status" => array(
+        "publish", "pending", "trash"
+    )
 );
 
 if (!$is_admin) {
@@ -72,21 +75,22 @@ get_header(); ?>
     }
 </style>
 <main id="main" class="col-12 site-main" role="main">
+
     <div class="container-fluid">
         <div class="row mb-4">
-            <div class="col col-md-3 alert alert-success total-card">
+            <div id="total-screen-page-views" class="col col-md-3 alert alert-success total-card">
                 <span class="total-card-text">Tổng lượt xem</span>
                 <span class="total-card-count"><?php echo $totalScreenPageViews ?></span>
             </div>
-            <div class="col col-md-3 alert alert-info total-card">
+            <div id="total-click-view-shop" class="col col-md-3 alert alert-info total-card">
                 <span class="total-card-text">Lượt click cửa hàng</span>
                 <span class="total-card-count"><?php echo $totalClickViewShop ?></span>
             </div>
-            <div class="col col-md-3 alert alert-warning total-card">
+            <div id="total-click-buy-product" class="col col-md-3 alert alert-warning total-card">
                 <span class="total-card-text">Lượt click mua hàng</span>
                 <span class="total-card-count"><?php echo $totalClickBuyProduct ?></span>
             </div>
-            <div class="col col-md-3 alert alert-danger total-card">
+            <div id="total-average-session-duration" class="col col-md-3 alert alert-danger total-card">
                 <span class="total-card-text">Thời gian xem trung bình</span>
                 <span class="total-card-count"><?php echo $totalAverageSessionDuration ?> Giây</span>
             </div>
@@ -97,6 +101,48 @@ get_header(); ?>
                 <label for="filter-category">Lọc theo thời gian</label>
                 <input type="text" id="report-filter-daterange" name="daterange" />
             </div>
+
+            <?php /*
+            <div class="col col-md-12">
+                <table class="table table-striped store-hightlight-dataTable display">
+                    <thead>
+                        <th></th>
+                        <th>ID Tin</th>
+                        <th>Tiêu đề</th>
+                        <th>Đường dẫn</th>
+                        <th>Danh mục</th>
+                        <th>Lượt xem</th>
+                        <th>Lượt click cửa hàng</th>
+                        <th>Lượt click mua hàng</th>
+                        <th>Thời gian xem trung bình</th>
+                        <th>Tình trạng</th>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($queryProducts->posts as $prod) {
+                            $prodId = $prod->ID;
+                            $prodTitle = $prod->post_title;
+                            $prodSlug = $prod->post_name;
+                            $productCategory = array_map(function($cat) {
+                                return $cat->name;
+                            },get_the_terms($prodId, "re_cat"));
+                            $prodStatusText = $prod->post_status; ?>
+                            <tr>
+                                <td></td>
+                                <td><?php echo $prodId ?></td>
+                                <td><?php echo $prodTitle ?></td>
+                                <td><?php echo $prodSlug ?></td>
+                                <td><?php echo implode(",", $productCategory) ?></td>
+                                <td>1000</td>
+                                <td>500</td>
+                                <td>400</td>
+                                <td>60 giây</td>
+                                <td><?php echo $prodStatusText ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+            */ ?>
 
             <div class="col col-md-12">
                 <table
@@ -122,8 +168,10 @@ get_header(); ?>
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
+
 </main>
 
 

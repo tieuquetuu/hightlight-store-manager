@@ -174,7 +174,7 @@ function UsersManagerInit() {
                 "searchable": true
             },
         ],
-        dom: 'Bfrtip',
+        dom: 'lBfrtip',
         buttons: [
             'excel', 'pdf'
         ]

@@ -136,7 +136,7 @@ function DomainManagerInit() {
                 }
             },
         ],
-        dom: 'Bfrtip',
+        dom: 'lBfrtip',
         buttons: [
             'excel', 'pdf'
         ]

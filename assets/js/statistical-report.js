@@ -158,10 +158,11 @@ function StatisticalTableInit() {
                 }
             },
         ],
-        dom: 'Bfrtip',
+        dom: 'lBfrtip',
         buttons: [
             'excel', 'pdf'
-        ]
+        ],
+
     });
 
     $table.on('click', 'td.dt-control', function (e) {

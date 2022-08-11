@@ -6,7 +6,9 @@ use Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
 use Google\Analytics\Data\V1beta\DateRange;
 use Google\Analytics\Data\V1beta\Dimension;
 use Google\Analytics\Data\V1beta\Metric;
+use Google\Analytics\Data\V1beta\RunPivotReportRequest;
 use Google\Analytics\Data\V1beta\RunReportRequest;
+use Google\Analytics\Data\V1beta\RunRealtimeReportRequest;
 use Google\Analytics\Data\V1beta\Filter;
 use Google\Analytics\Data\V1beta\FilterExpression;
 use Google\Analytics\Data\V1beta\FilterExpressionList;
@@ -14,6 +16,7 @@ use Google\Analytics\Data\V1beta\Filter\StringFilter;
 use Google\Analytics\Data\V1beta\Filter\StringFilter\MatchType;
 use Google\Analytics\Data\V1beta\Filter\InListFilter;
 use Google\Analytics\Data\V1beta\RunReportResponse;
+use Google\Analytics\Data\V1beta\Pivot;
 use Google\Analytics\Data\V1beta\Row;
 use Google\Type\Date;
 use Illuminate\Support\Str;
@@ -903,26 +906,28 @@ class StoreHLGA4 {
 
         $data = array();
 
-        foreach ($rows as $row) {
-            $item = array();
-            $dimensionValues = $row->dimensionValues;
-            $metricValues = $row->metricValues;
+        if ($rows && count($rows) > 0) {
+            foreach ($rows as $row) {
+                $item = array();
+                $dimensionValues = $row->dimensionValues;
+                $metricValues = $row->metricValues;
 
-            if ($dimensionValues && count($dimensionValues) > 0) {
-                foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
-                    $dimensionItemName = $dimensionHeaders[$dimensionValueIndex]->name;
-                    $item[$dimensionItemName] = $dimensionValue->value;
+                if ($dimensionValues && count($dimensionValues) > 0) {
+                    foreach ($dimensionValues as $dimensionValueIndex => $dimensionValue) {
+                        $dimensionItemName = $dimensionHeaders[$dimensionValueIndex]->name;
+                        $item[$dimensionItemName] = $dimensionValue->value;
+                    }
                 }
-            }
 
-            if ($metricValues && count($metricValues) > 0) {
-                foreach ($metricValues as $metricValueIndex => $metricValue) {
-                    $metricItemName = $metricHeaders[$metricValueIndex]->name;
-                    $item[$metricItemName] = $metricValue->value;
+                if ($metricValues && count($metricValues) > 0) {
+                    foreach ($metricValues as $metricValueIndex => $metricValue) {
+                        $metricItemName = $metricHeaders[$metricValueIndex]->name;
+                        $item[$metricItemName] = $metricValue->value;
+                    }
                 }
-            }
 
-            array_push($data, (object) $item);
+                array_push($data, (object) $item);
+            }
         }
 
         return $data;
@@ -943,6 +948,44 @@ class StoreHLGA4 {
             'metricFilter' => $request->getMetricFilter(),
             'limit' => $request->getLimit(),
             'offset' => $request->getOffset()
+        ]);
+    }
+
+
+    /**
+     * @description Trả về báo cáo tổng hợp được tùy chỉnh về dữ liệu sự kiện Google Analytics của bạn.
+     * @param $request
+     * @return \Google\Analytics\Data\V1beta\RunPivotReportResponse
+     * @throws \Google\ApiCore\ApiException
+     */
+    public static function makeRunPivotReport($request) {
+        return self::client()->runPivotReport([
+            'property' => $request->getProperty(),
+            'dateRanges' => $request->getDateRanges(),
+            'dimensions' => $request->getDimensions(),
+            'metrics' => $request->getMetrics(),
+            'dimensionFilter' => $request->getDimensionFilter(),
+            'metricFilter' => $request->getMetricFilter(),
+            'pivots' => $request->getPivots(),
+        ]);
+    }
+
+    /**
+     * @description Lấy số liệu báo cáo realtime
+     * @param $request
+     * @return \Google\Analytics\Data\V1beta\RunRealtimeReportResponse
+     * @throws \Google\ApiCore\ApiException
+     */
+    public static function makeRunRealtimeReport($request) {
+        return self::client()->runRealtimeReport([
+            'property' => $request->getProperty(),
+//            'dateRanges' => $request->getDateRanges(),
+            'dimensions' => $request->getDimensions(),
+            'metrics' => $request->getMetrics(),
+            'dimensionFilter' => $request->getDimensionFilter(),
+            'metricFilter' => $request->getMetricFilter(),
+            'limit' => $request->getLimit(),
+//            'offset' => $request->getOffset()
         ]);
     }
 
@@ -1096,7 +1139,6 @@ class StoreHLGA4 {
         ]);
         return $request;
     }
-
 
     /**
      * @description Tính tổng thời gian xem trung bình trong 1 báo cáo
@@ -1311,6 +1353,166 @@ class StoreHLGA4 {
                     "name" => "sessions" // Đếm session
                 ]),
                 new Metric([
+                    "name" => "screenPageViewsPerSession" // Thời gian xem trung bình trong 1 session
+                ]),
+                new Metric([
+                    "name" => "screenPageViews" // Đếm lượt xem màn hình
+                ]),
+                new Metric([
+                    "name" => "averageSessionDuration" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "bounceRate" // Thời gian xem trung bình
+                ])
+            ),
+            "dimension_filter" => $dimension_filter,
+            "limit" => 100000,
+            "offset" => 0
+        ]);
+        return $request;
+    }
+
+    /**
+     * @description Báo cáo số liệu tổng quát realtime
+     * @param array $args
+     * @return RunRealtimeReportRequest
+     */
+    public static function RequestRealtimeReportSummaryData(Array $args = []) {
+        $hostNames = isset($args["hostNames"]) && is_array($args["hostNames"]) && count($args["hostNames"]) > 0 ? $args["hostNames"] : false;
+        $dateRanges = isset($args["dateRanges"]) && is_array($args["dateRanges"]) && count($args["dateRanges"]) > 0 ? $args["dateRanges"] : false;
+        $pagePaths = isset($args["pagePaths"]) && is_array($args["pagePaths"]) && count($args["pagePaths"]) > 0 ? $args["pagePaths"] : false;
+        $productSlugs = isset($args["productSlugs"]) && is_array($args["productSlugs"]) && count($args["productSlugs"]) > 0 ? $args["productSlugs"] : false;
+
+        $default_dateRanges = array(
+            new DateRange([
+                'start_date' => '2022-01-01', // Từ trước
+                'end_date' => 'today', // Đến hôm nay
+            ])
+        );
+
+        $defaultFilterNotByHostNames = new FilterExpression([
+            "not_expression" => new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "hostName",
+                    "in_list_filter" => new InListFilter([
+                        "values" => ["localhost", "127.0.0.1"]
+                    ])
+                ])
+            ])
+        ]);
+        $defaultFilterByEventNames = new FilterExpression([
+            "filter" => new Filter([
+                "field_name" => "eventName",
+                "in_list_filter" => new InListFilter([
+                    "values" => ["page_view","click_buy_product", "click_view_shop"]
+                ])
+            ])
+        ]);
+
+        $filterByProductSlugs = !$productSlugs ? null : array_map(function($slug){
+            return new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    "string_filter" => new StringFilter([
+                        'value' => $slug,
+                        "match_type" => MatchType::CONTAINS
+                    ])
+                ])
+            ]);
+        }, $productSlugs);
+
+        // Chỉ lấy số liệu của những trang sản phẩm
+        $defaultFilterByPagePaths = array(
+            new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    'string_filter' => new StringFilter(
+                        [
+                            'value' => '/product',
+                            'match_type' => MatchType::BEGINS_WITH,
+                        ]
+                    )
+                ])
+            ]),
+            new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    'string_filter' => new StringFilter(
+                        [
+                            'value' => '/nha-dat',
+                            'match_type' => MatchType::BEGINS_WITH,
+                        ]
+                    )
+                ])
+            ])
+        );
+
+        $filterByPagePaths = new FilterExpression([
+            "or_group" => new FilterExpressionList([
+                "expressions" => !is_null($filterByProductSlugs) ?  $filterByProductSlugs : $defaultFilterByPagePaths
+            ])
+        ]);
+
+        $dimension_filter_and_groups = array(
+            $defaultFilterNotByHostNames,
+            $defaultFilterByEventNames,
+            $filterByPagePaths
+        );
+
+        $dimension_filter_args = [
+            "and_group" => new FilterExpressionList([
+                "expressions" => $dimension_filter_and_groups,
+            ]),
+        ];
+
+        $date_ranges = $default_dateRanges;
+
+        if ($hostNames) {
+            $filterByHostNames = new Filter([
+                "field_name" => "hostName",
+                "in_list_filter" => new InListFilter([
+                    "values" => $hostNames
+                ])
+            ]);
+            $dimension_filter_args["filter"] = $filterByHostNames;
+        }
+
+        if ($dateRanges) {
+            $date_ranges = array_map(function($range){
+                return new DateRange($range);
+            },$dateRanges);
+        }
+
+        $dimension_filter = new FilterExpression($dimension_filter_args);
+
+        $request = new RunRealtimeReportRequest([
+            "property" => 'properties/' . self::properties(),
+//            "date_ranges" => $date_ranges,
+            "dimensions" => array(
+                new Dimension([
+                    "name" => "hostName" // Tên miền
+                ]),
+                new Dimension([
+                    "name" => "pagePath" // Đường dẫn
+                ]),
+                new Dimension([
+                    "name" => "pageTitle" // Tiêu đề trang
+                ]),
+                new Dimension([
+                    "name" => "eventName" // Tên sự kiện
+                ])
+            ),
+            "metrics" => array(
+                new Metric([
+                    "name" => "activeUsers" // Đếm Số Người Dùng
+                ]),
+                new Metric([
+                    "name" => "eventCount" // Đếm Số Sự Kiện
+                ]),
+                new Metric([
+                    "name" => "sessions" // Đếm session
+                ]),
+                new Metric([
                     "name" => "screenPageViewsPerSession" // Thời gian xem trung bình
                 ]),
                 new Metric([
@@ -1325,8 +1527,87 @@ class StoreHLGA4 {
             ),
             "dimension_filter" => $dimension_filter,
             "limit" => 100000,
-            "offset" => 0
+//            "offset" => 0
         ]);
+        return $request;
+    }
+
+
+    /**
+     * @description Request Trả về báo cáo tổng hợp được tùy chỉnh về dữ liệu sự kiện Google Analytics của bạn.
+     * @param array $args
+     * @return RunPivotReportRequest
+     */
+    public static function RequestRunPivotReportSummaryData(Array $args = []) {
+
+        $default_dateRanges = array(
+            new DateRange([
+                'start_date' => '2022-01-01', // Từ trước
+                'end_date' => 'today', // Đến hôm nay
+            ])
+        );
+        $date_ranges = $default_dateRanges;
+
+        $request = new RunPivotReportRequest([
+            "property" => 'properties/' . self::properties(),
+            "date_ranges" => $date_ranges,
+            "dimensions" => array(
+                new Dimension([
+                    "name" => "hostName" // Tên miền
+                ]),
+                new Dimension([
+                    "name" => "pagePath" // Đường dẫn
+                ]),
+                new Dimension([
+                    "name" => "pageTitle" // Tiêu đề trang
+                ]),
+                new Dimension([
+                    "name" => "eventName" // Tên sự kiện
+                ])
+            ),
+            "metrics" => array(
+                new Metric([
+                    "name" => "activeUsers" // Đếm Số Người Dùng
+                ]),
+                new Metric([
+                    "name" => "eventCount" // Đếm Số Sự Kiện
+                ]),
+                new Metric([
+                    "name" => "sessions" // Đếm session
+                ]),
+                new Metric([
+                    "name" => "screenPageViewsPerSession" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "screenPageViews" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "averageSessionDuration" // Thời gian xem trung bình
+                ]),
+                new Metric([
+                    "name" => "bounceRate" // Thời gian xem trung bình
+                ])
+            ),
+            "pivots" => array(
+                new Pivot([
+                    "field_names" => ["hostName"],
+                    "limit" => 10
+                ]),
+                new Pivot([
+                    "field_names" => ["pagePath"],
+                    "limit" => 10
+                ]),
+                new Pivot([
+                    "field_names" => ["pageTitle"],
+                    "limit" => 10
+                ]),
+                new Pivot([
+                    "field_names" => ["eventName"],
+                    "limit" => 10
+                ])
+            )
+        ]);
+
         return $request;
     }
 }

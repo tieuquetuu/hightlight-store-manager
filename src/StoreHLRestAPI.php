@@ -2,8 +2,6 @@
 
 namespace StoreHightLight;
 
-
-use PHPUnit\Exception;
 use WP_REST_Response;
 use StoreHightLight\StoreHLGA4;
 use StoreHightLight\StoreHL;
@@ -643,6 +641,11 @@ class StoreHLRestAPI
             "posts_per_page" => $limit,
 //            "paged" => $pageIndex,
 //            "page" => $pageIndex,
+            "post_status" => array(
+                "publish",
+                "pending",
+                "trash"
+            ),
             "offset" => $offset,
             "author" => $author,
             "s" => $search
@@ -693,10 +696,20 @@ class StoreHLRestAPI
 
             $status = "Chờ duyệt";
             if ($product->post_status == "publish") : $status = "Đang hoạt động"; endif;
+            if ($product->post_status == "trash") : $status = "Đã xóa"; endif;
 
             $analytics = null;
 
-            $analytics_filter = array_filter($pretty_report, function($reportItem) use (&$productTitle){
+            $analytics_filter = array_filter($pretty_report, function($reportItem) use (&$productTitle, &$productSlug){
+                $pagePath = $reportItem->pagePath;
+                $pagePath = str_replace("/product/","", $pagePath);
+                $pagePath = str_replace("/nha-dat/","", $pagePath);
+                $pagePath = str_replace("/","", $pagePath);
+
+                if (strlen($productSlug) > 0) {
+                    return $pagePath == $productSlug;
+                }
+
                 return str_contains($reportItem->pageTitle, $productTitle);
             });
 

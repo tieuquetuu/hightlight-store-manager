@@ -520,7 +520,6 @@ class StoreHL
             'post_status'	 => array(
                 "publish",
                 "pending",
-                "private"
             ),
         );
 
