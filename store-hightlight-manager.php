@@ -72,17 +72,41 @@ if (defined('WP_CLI') && WP_CLI) {
 
 if ($_GET["debug"] == "vip") {
 
-    $data = StoreHightLight\StoreHLGA4::instance()->RequestReportSummaryData(array(
-        "date_ranges" => array(
-            [
-                "start_date" => "2022-07-01",
-                "end_date" => "today"
-            ]
-        )
-    ));
+//    $data = StoreHightLight\StoreHLGA4::instance()->RequestReportSummaryData(array(
+//        "date_ranges" => array(
+//            [
+//                "start_date" => "2022-07-01",
+//                "end_date" => "today"
+//            ]
+//        )
+//    ));
 
     echo "<pre>";
-    var_dump(json_decode($data->serializeToJsonString()));
+//    var_dump(get_post(3601));
+
+//    var_dump(get_post_meta(3601, "post_views", true));
+
+    $post_views_meta = array(
+        "domain"        => "giagoc247.com",
+        "start_time"    => strtotime("now"),
+        "end_time"      => strtotime("+5 hours")
+    );
+
+    $post_click_buy_product_meta = array(
+        "domain"        => "giagoc247.com",
+        "date_created"    => strtotime("now"),
+    );
+
+    $post_click_view_shop_meta = array(
+        "domain"        => "giagoc247.com",
+        "date_created"    => strtotime("now"),
+    );
+
+    var_dump($post_views_meta);
+
+//    update_post_meta(3601, "event_post_view");
+
+//    var_dump(json_decode($data->serializeToJsonString()));
     echo "</pre>";
 
     die();

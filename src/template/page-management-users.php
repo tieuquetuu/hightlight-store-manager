@@ -82,6 +82,25 @@ get_header() ?>
             </div>-->
 
             <div class="col col-md-12">
+
+                <table id="users-report-table"
+                       data-ajax-source="<?php echo $ajax_source_url ?>"
+                       class="table responsive table-striped display"
+                       style="width: 100%">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Tác giả</th>
+                        <th class="text-center">Lượt xem</th>
+                        <th class="text-center">Lượt click mua hàng</th>
+                        <th class="text-center">Lượt click cửa hàng</th>
+                        <th class="text-center">Thời gian xem trung bình</th>
+                    </tr>
+                    </thead>
+                </table>
+
+                <?php /*
+
                 <table id="users-report-table"
                        class="table responsive table-striped display"
                        data-ajax-source="<?php echo $ajax_source_url ?>"
@@ -101,6 +120,8 @@ get_header() ?>
                         </tr>
                     </thead>
                 </table>
+
+                */ ?>
             </div>
         </div>
     </div>

@@ -534,6 +534,102 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
+
+    public static function handleUserManagerDataReport($request) {
+        $params = $request->get_params();
+
+        $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
+        $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
+        $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
+        $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
+        $search = isset($params['sSearch']) ? $params['sSearch'] : "";
+
+        $result = array(
+            "data" => array(),
+            "recordsFiltered" => 0,
+            "recordsTotal" => 0
+        );
+
+        // Lấy Danh sách tất cả user
+        $query_users = new \WP_User_Query(array(
+            "number" => $limit,
+            "offset" => $offset
+        ));
+
+        $total_users = $query_users->get_total();
+
+        $users = $query_users->get_results();
+
+        // Nếu không có user nào
+        if ($total_users <= 0) {
+            return wp_send_json($result, 200);
+        }
+
+        $data = array();
+
+        $author_ids = array_map(function($user){
+            return $user->ID;
+        },$users);
+        $author_ids_str = implode(",", $author_ids);
+
+        // Lấy danh sách bài viết theo ID tác giả
+        $query_products = StoreHL::queryStoreProducts(array(
+            "posts_per_page"    => -1,
+            "author"            => $author_ids_str
+        ));
+        $products = $query_products->get_posts();
+        $product_slugs = array_map(function($prod){
+            return $prod->post_name;
+        },$products);
+
+        // Lấy danh sách báo cáo analytics theo product slug
+        $analytics_request = StoreHLGA4::RequestReportSummaryData(array(
+            "productSlugs" => $product_slugs
+        ));
+        $analytics_report = StoreHLGA4::makeRunReport($analytics_request);
+        $analytics_report_pretty = StoreHLGA4::makeReportPretty($analytics_report);
+
+        // Chuyển đổi lại dữ liệu
+        foreach ($users as $aut_key => $aut) {
+
+            $aut_posts = array_values(array_filter($products, function($product_var) use (&$aut) {
+                return $product_var->post_author == $aut->ID;
+            }));
+
+            $aut_posts_analytics = array_map(function($aut_post) use (&$analytics_report_pretty) {
+                $args = array_values(array_filter($analytics_report_pretty, function ($analytics_item) use (&$aut_post) {
+                    $pagePath = $analytics_item->pagePath;
+                    $pagePath = str_replace("/product/", "", $pagePath);
+                    $pagePath = str_replace("/nha-dat/", "", $pagePath);
+                    $pagePath = str_replace("/", "", $pagePath);
+                    return $pagePath == $aut_post->post_name;
+                }));
+                $aut_post->analytics = $args;
+                return $aut_post;
+            },$aut_posts);
+
+            $author = (object) array(
+                "id"                => $aut->ID,
+                "user_email"        => $aut->user_email,
+                "display_name"      => $aut->display_name,
+                "roles"             => $aut->roles,
+                "user_status"       => $aut->user_status,
+                "user_registered"   => $aut->user_registered,
+                "posts"             => $aut_posts_analytics,
+            );
+
+            array_push($data, $author);
+        }
+
+        $result["data"] = $data;
+        $result["recordsFiltered"] = $total_users;
+        $result["recordsTotal"] = $total_users;
+        $result["analytics_report"] = $analytics_report_pretty;
+
+        return wp_send_json($result, 200);
+    }
+
+
     /**
      * @description Lấy dữ liệu thống kê theo danh sách người dùng
      * @columns
@@ -733,6 +829,48 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
+
+    public static function handleUpdateProductTracking($request) {
+        $params = $request->get_params();
+
+        $accept_events = array("page_view", "click_buy_product", "click_view_shop");
+
+        $product_id = is_numeric($params["product_id"]) && (int) $params["product_id"] ? (int) $params["product_id"] : false;
+        $event_name = is_string($params["event_name"]) && in_array($params["event_name"], $accept_events) ? $params["event_name"] : false;
+        $host_name = is_string($params["host_name"]) && strlen($params["host_name"]) > 0 ? $params["host_name"] : false;
+        $start_time = $params["start_time"];
+        $end_time = $params["end_time"];
+
+        $now = strtotime("now");
+
+        if (!$event_name) {
+            return wp_send_json(array(
+                "message" => "Sự kiện không xác định",
+                "status" => "Failed"
+            ), 401);
+        } elseif (!$product_id) {
+            return wp_send_json(array(
+                "message" => "Thiếu ID sản phẩm",
+                "status" => "Failed"
+            ), 401);
+        }
+
+        $product = get_post($product_id);
+
+        if (!$product) {
+            return wp_send_json(array(
+                "message" => "Không tìm thấy sản phẩm",
+                "status" => "Failed"
+            ), 401);
+        }
+
+//        var_dump(new \DateTime($start_time));
+
+        $result = "ok";
+
+        return wp_send_json($result, 200);
+    }
+
     public static function init_actions() {
         register_rest_route('hightlight/v1', '/runReport', array(
             'methods' => \WP_REST_Server::READABLE,
@@ -756,7 +894,8 @@ class StoreHLRestAPI
 
         register_rest_route('hightlight/v1', '/reportUsersDataTable', array(
             'methods' => \WP_REST_Server::READABLE,
-            'callback' => array(__CLASS__, 'handleUsersDataTableReport')
+            'callback' => array(__CLASS__, 'handleUserManagerDataReport'),
+//            'callback' => array(__CLASS__, 'handleUsersDataTableReport')
 //            'callback' => array(__CLASS__, 'handleManagerUsersDataReport')
         ));
 
@@ -768,6 +907,12 @@ class StoreHLRestAPI
         register_rest_route('hightlight/v1', '/reportDataTable', array(
             'methods' => \WP_REST_Server::READABLE,
             'callback' => array(__CLASS__, 'handleDataTableReportGA4')
+        ));
+
+
+        register_rest_route('hightlight/v1', '/tracking', array(
+            'methods' => \WP_REST_Server::CREATABLE,
+            'callback' => array(__CLASS__, 'handleUpdateProductTracking')
         ));
     }
 }

@@ -14,7 +14,7 @@ function UsersManagerInit() {
         processing: true,
         serverSide: true,
         responsive: true,
-        scrollY: "50vh",
+        // scrollY: "50vh",
         scrollX: false,
         ajax: ajaxSource,
         columns: [
@@ -25,145 +25,109 @@ function UsersManagerInit() {
                 defaultContent: '',
             },
             {
-                className:      'details-control-id',
+                className:      'details-control-author-name',
                 orderable:      false,
                 data:           null,
-                defaultContent: 'không có dữ liệu',
+                defaultContent: '',
                 render: (row, type, data) => {
-                    return data?.id
-                }
-            },
-            {
-                className:      'details-control-title',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.title
-                }
-            },
-            {
-                className:      'details-control-category',
-                orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    let categoryName = data?.category.map(obj => obj.name);
+                    const { display_name, user_email } = data;
 
-                    categoryName = categoryName.join(",");
+                    let name = display_name || user_email
 
-                    return categoryName
+                    return name
                 }
             },
             {
-                className:      'details-control-author',
+                className:      'details-control-luot-xem text-center',
                 orderable:      false,
                 data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    return data?.author?.display_name
-                }
-            },
-            {
-                className:      'text-center details-control-luot-xem',
-                // orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
+                defaultContent: '0 lượt',
                 render: (row, type, data) => {
                     let totalScreenPageViews = 0;
+                    let total_items = [];
 
-                    let { analytics } = data;
+                    data.posts.map(post => post.analytics).filter(arr => arr.length > 0).forEach((arr)=>{
+                        total_items = total_items.concat(arr)
+                    });
 
-                    if (!analytics || analytics.length <= 0) {
-                        return totalScreenPageViews
-                    }
+                    total_items.forEach((item) => {
+                        totalScreenPageViews += parseInt(item.screenPageViews);
+                    })
 
-                    for (let i = 0;i < analytics.length;i++) {
-                        let analyticsItem = analytics[i];
-                        totalScreenPageViews += parseInt(analyticsItem?.screenPageViews);
-                    }
-
-                    return `${totalScreenPageViews} lượt xem`;
+                    return `${totalScreenPageViews} lượt`
                 }
             },
             {
-                className:      'text-center details-control-luot-click-cua-hang',
-                // orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    let totalClick = 0;
-
-                    let { analytics } = data;
-
-                    let analytics_click_view_shop = analytics.filter(obj => obj.eventName === "click_view_shop");
-
-                    if (!analytics || analytics.length <= 0 || !analytics_click_view_shop) {
-                        return totalClick
-                    }
-
-                    for (let i = 0;i < analytics_click_view_shop.length;i++) {
-                        let analyticsItem = analytics_click_view_shop[i];
-                        totalClick += parseInt(analyticsItem?.eventCount);
-                    }
-
-                    return `${totalClick} lượt`
-                }
-            },
-            {
-                className:      'text-center details-control-luot-click-mua-hang',
-                // orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    let totalClick = 0;
-
-                    let { analytics } = data;
-
-                    let analytics_click_buy_product = analytics.filter(obj => obj.eventName === "click_buy_product");
-
-                    if (!analytics || analytics.length <= 0 || !analytics_click_buy_product) {
-                        return totalClick
-                    }
-
-                    for (let i = 0;i < analytics_click_buy_product.length;i++) {
-                        let analyticsItem = analytics_click_buy_product[i];
-                        totalClick += parseInt(analyticsItem?.eventCount);
-                    }
-
-                    return `${totalClick} lượt`
-                }
-            },
-            {
-                className:      'text-right details-control-thoi-gian-xem-trung-binh',
-                // orderable:      false,
-                data:           null,
-                defaultContent: 'không có dữ liệu',
-                render: (row, type, data) => {
-                    let averageSessionDuration = 0;
-
-                    let { analytics } = data;
-                    if (!analytics || analytics.length <= 0) {
-                        return averageSessionDuration
-                    }
-
-                    for (let i = 0;i < analytics.length;i++) {
-                        let analyticsItem = analytics[i];
-                        averageSessionDuration += parseFloat(analyticsItem?.averageSessionDuration);
-                    }
-
-                    averageSessionDuration = averageSessionDuration / analytics.length;
-
-                    return `${averageSessionDuration.toFixed(1)} giây`
-                }
-            },
-            {
-                className:      'details-control-status',
+                className:      'details-control-click-mua-hang text-center',
                 orderable:      false,
                 data:           null,
-                defaultContent: 'không có dữ liệu',
+                defaultContent: '0 lượt',
                 render: (row, type, data) => {
-                    return data?.status
+                    let total_click_buy_product = 0;
+
+                    let total_items = [];
+
+                    data.posts.map(post => post.analytics).filter(arr => arr.length > 0).forEach((arr)=>{
+                        total_items = total_items.concat(arr)
+                    });
+
+                    total_items.forEach((item) => {
+                        if (item.eventName === "click_buy_product") {
+                            total_click_buy_product += parseInt(item.eventCount);
+                        }
+                    })
+
+                    return `${total_click_buy_product} lượt`
+                }
+            },
+            {
+                className:      'details-control-click-cua-hang text-center',
+                orderable:      false,
+                data:           null,
+                defaultContent: '0 lượt',
+                render: (row, type, data) => {
+                    let total_click_view_shop = 0;
+
+                    let total_items = [];
+
+                    data.posts.map(post => post.analytics).filter(arr => arr.length > 0).forEach((arr)=>{
+                        total_items = total_items.concat(arr)
+                    });
+
+                    total_items.forEach((item) => {
+                        if (item.eventName === "click_view_shop") {
+                            total_click_view_shop += parseInt(item.eventCount);
+                        }
+                    })
+
+                    return `${total_click_view_shop} lượt`
+                }
+            },
+            {
+                className:      'details-control-thoi-gian-xem text-center',
+                orderable:      false,
+                data:           null,
+                defaultContent: '30 giây',
+                render: (row, type, data) => {
+                    let totalAverageSessionDuration = 0;
+
+                    let total_items = [];
+
+                    data.posts.map(post => post.analytics).filter(arr => arr.length > 0).forEach((arr)=>{
+                        total_items = total_items.concat(arr)
+                    });
+
+                    if (total_items.length > 0) {
+                        total_items.forEach((item) => {
+                            totalAverageSessionDuration += parseFloat(item.averageSessionDuration);
+                        })
+
+                        totalAverageSessionDuration = totalAverageSessionDuration / total_items.length;
+
+                        totalAverageSessionDuration = totalAverageSessionDuration.toFixed(1);
+                    }
+
+                    return `${totalAverageSessionDuration} giây`
                 }
             },
         ],
@@ -174,7 +138,7 @@ function UsersManagerInit() {
                 "searchable": true
             },
         ],
-        dom: 'lBfrtip',
+        dom: 'lBrtip',
         buttons: [
             'excel', 'pdf'
         ]
