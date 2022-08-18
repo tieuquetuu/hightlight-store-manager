@@ -434,8 +434,6 @@ class StoreHLRestAPI
 
         $queryArgs = array(
             "posts_per_page" => $limit,
-//            "paged" => $pageIndex,
-//            "page" => $pageIndex,
             "offset" => $offset,
             "s" => $search
         );
@@ -538,6 +536,11 @@ class StoreHLRestAPI
     public static function handleUserManagerDataReport($request) {
         $params = $request->get_params();
 
+        $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
+        $category = isset($params["category"]) && (int) $params["category"] > 0 ? (int)$params["category"] : null;
+        $domain = isset($params["domain"]) && is_string($params["domain"]) && strlen($params["domain"]) > 0 ? $params["domain"] : null;
+        $dateRanges = isset($params["date_ranges"]) && is_string($params["date_ranges"]) && strlen($params["date_ranges"]) > 0 && gettype(json_decode($params["date_ranges"])) == "object" ? (array) json_decode($params["date_ranges"]) : null;
+
         $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
         $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
         $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
@@ -573,19 +576,39 @@ class StoreHLRestAPI
         $author_ids_str = implode(",", $author_ids);
 
         // Lấy danh sách bài viết theo ID tác giả
-        $query_products = StoreHL::queryStoreProducts(array(
+        $args_query_product = array(
             "posts_per_page"    => -1,
             "author"            => $author_ids_str
-        ));
+        );
+
+        if ($category){
+            $queryArgs["tax_query"] = array(
+                "relation" => "AND",
+                array(
+                    'taxonomy' => 're_cat',
+                    'terms' => array( $category ),
+                    'operator' => 'IN'
+                )
+            );
+        }
+
+        $query_products = StoreHL::queryStoreProducts($args_query_product);
         $products = $query_products->get_posts();
         $product_slugs = array_map(function($prod){
             return $prod->post_name;
         },$products);
 
         // Lấy danh sách báo cáo analytics theo product slug
-        $analytics_request = StoreHLGA4::RequestReportSummaryData(array(
+        $args_request_report = array(
             "productSlugs" => $product_slugs
-        ));
+        );
+        if ($domain) {
+            $args_request_report["hostNames"] = array($domain);
+        }
+        if ($dateRanges) {
+            $args_request_report["dateRanges"] = array($dateRanges);
+        }
+        $analytics_request = StoreHLGA4::RequestReportSummaryData($args_request_report);
         $analytics_report = StoreHLGA4::makeRunReport($analytics_request);
         $analytics_report_pretty = StoreHLGA4::makeReportPretty($analytics_report);
 
@@ -597,15 +620,29 @@ class StoreHLRestAPI
             }));
 
             $aut_posts_analytics = array_map(function($aut_post) use (&$analytics_report_pretty) {
-                $args = array_values(array_filter($analytics_report_pretty, function ($analytics_item) use (&$aut_post) {
+                $analytics = array_values(array_filter($analytics_report_pretty, function ($analytics_item) use (&$aut_post) {
                     $pagePath = $analytics_item->pagePath;
                     $pagePath = str_replace("/product/", "", $pagePath);
                     $pagePath = str_replace("/nha-dat/", "", $pagePath);
                     $pagePath = str_replace("/", "", $pagePath);
                     return $pagePath == $aut_post->post_name;
                 }));
-                $aut_post->analytics = $args;
-                return $aut_post;
+                $productId = $aut_post->ID;
+                $productTitle = $aut_post->post_title;
+                $productCategory = get_the_terms($productId, "re_cat");
+                $status = "Chờ duyệt";
+                if ($aut_post->post_status == "publish") : $status = "Đang hoạt động"; endif;
+
+                $post_item = array(
+                    "id" => $productId,
+                    "title" => $productTitle,
+                    "category" => $productCategory,
+                    "status" => $status,
+                    "product" => $aut_post,
+                    "analytics" => $analytics,
+                );
+
+                return $post_item;
             },$aut_posts);
 
             $author = (object) array(

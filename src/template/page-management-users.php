@@ -64,22 +64,22 @@ get_header() ?>
                 </select>
             </div>
 
-            <div class="col col-md-3">
+            <!--<div class="col col-md-3">
                 <label for="user-filter-user">Lọc theo người dùng</label>
                 <select name="filter-by-user" id="user-filter-user">
                     <option value="0">Tất cả</option>
-                    <?php foreach ($users as $user) { ?>
-                        <option value="<?php echo $user->ID ?>">
-                            <?php echo $user->display_name ?>
+                    <?php /*foreach ($users as $user) { */?>
+                        <option value="<?php /*echo $user->ID */?>">
+                            <?php /*echo $user->display_name */?>
                         </option>
-                    <?php } ?>
+                    <?php /*} */?>
                 </select>
-            </div>
+            </div>-->
 
-            <!--<div class="col col-md-3">
+            <div class="col col-md-3">
                 <label for="filter-category">Lọc theo thời gian</label>
                 <input type="text" id="user-filter-daterange" name="daterange" />
-            </div>-->
+            </div>
 
             <div class="col col-md-12">
 
