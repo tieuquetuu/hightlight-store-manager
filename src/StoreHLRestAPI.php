@@ -743,7 +743,6 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
-
     /**
      * @description Lấy dữ liệu thống kê theo danh sách người dùng
      * @columns
@@ -942,7 +941,6 @@ class StoreHLRestAPI
 
         return wp_send_json($result, 200);
     }
-
 
     public static function handleUpdateProductTracking($request) {
         $params = $request->get_params();
