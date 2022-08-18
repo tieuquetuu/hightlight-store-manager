@@ -1025,7 +1025,17 @@ class StoreHLGA4 {
         return $request;
     }
 
-    public static function RequestReportByHostName() {
+    public static function RequestReportByHostName(Array $args = []) {
+
+        $dateRanges = isset($args["dateRanges"]) && is_array($args["dateRanges"]) && count($args["dateRanges"]) > 0 ? $args["dateRanges"] : false;
+        $productSlugs = isset($args["productSlugs"]) && is_array($args["productSlugs"]) && count($args["productSlugs"]) > 0 ? $args["productSlugs"] : false;
+
+        $default_dateRanges = array(
+            new DateRange([
+                'start_date' => '2022-01-01', // Từ trước
+                'end_date' => 'today', // Đến hôm nay
+            ])
+        );
 
         $defaultFilterNotByHostNames = new FilterExpression([
             "not_expression" => new FilterExpression([
@@ -1074,6 +1084,31 @@ class StoreHLGA4 {
             ])
         ]);
 
+        /*$filterByProductSlugs = !$productSlugs ? null : array_map(function($slug){
+            return new FilterExpression([
+                "filter" => new Filter([
+                    "field_name" => "pagePath",
+                    "string_filter" => new StringFilter([
+                        'value' => $slug,
+                        "match_type" => MatchType::CONTAINS
+                    ])
+                ])
+            ]);
+        }, $productSlugs);
+        $filterByPagePaths = new FilterExpression([
+            "or_group" => new FilterExpressionList([
+                "expressions" => !is_null($filterByProductSlugs) ?  $filterByProductSlugs : $defaltFilterJustProducts
+            ])
+        ]);*/
+
+        /*if ($dateRanges) {
+            $date_ranges = array_map(function($range){
+                return new DateRange($range);
+            },$dateRanges);
+        } else {
+            $date_ranges = $default_dateRanges;
+        }*/
+
         $dimension_filter_and_groups = array(
             $defaultFilterNotByHostNames,
             $defaultFilterByEventNames,
@@ -1090,12 +1125,7 @@ class StoreHLGA4 {
 
         $request = new RunReportRequest([
             "property" => 'properties/' . self::properties(),
-            "date_ranges" => array(
-                new DateRange([
-                    'start_date' => '2022-01-01', // Từ trước
-                    'end_date' => 'today', // Đến hôm nay
-                ])
-            ),
+            "date_ranges" => $default_dateRanges,
             "dimensions" => array(
                 new Dimension([
                     "name" => "hostName" // Tên miền

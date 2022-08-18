@@ -171,43 +171,42 @@ function UsersManagerInit() {
                     <td class="text-center" colspan="8">Không có dữ liệu</td>
                 </tr>
             `;
-        }
+        } else {
+            posts.forEach((post) => {
 
-        posts.forEach((post) => {
+                let { id, title, status, category, analytics } = post;
+                let prod_screenPageViews = 0;
+                let prod_click_view_shop = 0;
+                let prod_click_buy_product = 0;
+                let prod_averageSessionDuration = 0;
+                let category_str = category && category.map(cat => cat.name).join()
 
-            let { id, title, status, category, analytics } = post;
-            let prod_screenPageViews = 0;
-            let prod_click_view_shop = 0;
-            let prod_click_buy_product = 0;
-            let prod_averageSessionDuration = 0;
-            let category_str = category && category.map(cat => cat.name).join()
+                if (analytics.length > 0) {
+                    analytics.forEach((item, itemX) => {
+                        // Tính lượt xem
+                        prod_screenPageViews += parseInt(item.screenPageViews);
 
-            if (analytics.length > 0) {
-                analytics.forEach((item, itemX) => {
-                    // Tính lượt xem
-                    prod_screenPageViews += parseInt(item.screenPageViews);
+                        // Tính lượt click cửa hàng
+                        if (item.eventName === "click_view_shop") {
+                            prod_click_view_shop += parseInt(item.eventCount)
+                        }
 
-                    // Tính lượt click cửa hàng
-                    if (item.eventName === "click_view_shop") {
-                        prod_click_view_shop += parseInt(item.eventCount)
-                    }
+                        // Tính lượt click mua hàng
+                        if (item.eventName === "click_buy_product") {
+                            prod_click_buy_product += parseInt(item.eventCount)
+                        }
 
-                    // Tính lượt click mua hàng
-                    if (item.eventName === "click_buy_product") {
-                        prod_click_buy_product += parseInt(item.eventCount)
-                    }
+                        // Tính lượt thời gian xem trung bình
+                        prod_averageSessionDuration += parseFloat(item.averageSessionDuration)
 
-                    // Tính lượt thời gian xem trung bình
-                    prod_averageSessionDuration += parseFloat(item.averageSessionDuration)
+                        // Khi kết thúc vòng lặp
+                        if (analytics.length === itemX + 1) {
+                            prod_averageSessionDuration = (prod_averageSessionDuration / analytics.length).toFixed(1)
+                        }
+                    })
+                }
 
-                    // Khi kết thúc vòng lặp
-                    if (analytics.length === itemX + 1) {
-                        prod_averageSessionDuration = (prod_averageSessionDuration / analytics.length).toFixed(1)
-                    }
-                })
-            }
-
-            rows += `
+                rows += `
                 <tr>
                     <td>${id}</td>
                     <td>${title}</td>
@@ -219,10 +218,11 @@ function UsersManagerInit() {
                     <td class="text-right">${prod_averageSessionDuration} giây</td>
                 </tr>
              `
-        })
+            })
+        }
 
         return (
-            `<table class="system-report-table-child-row-details display" style="width: 100%">
+            `<table class="users-report-table-child-row-details display" style="width: 100%">
                 <thead>
                     <tr>
                         <th>ID</th>

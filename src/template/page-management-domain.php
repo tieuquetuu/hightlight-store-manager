@@ -50,29 +50,34 @@ get_header() ?>
                 </select>
             </div>-->
 
-            <!--<div class="col col-md-4">
+            <div class="col col-md-4">
                 <label for="filter-category">Lọc them danh mục</label>
-                <select name="filter-by-category" id="filter-category">
+                <select name="filter-by-category" id="domain-filter-category">
                     <option value="0">Tất cả</option>
-                    <?php /*foreach ($categories as $category) { */?>
-                        <option value="<?php /*echo $category->term_id; */?>">
-                            <?php /*echo $category->name; */?>
+                    <?php foreach ($categories as $category) { ?>
+                        <option value="<?php echo $category->term_id; ?>">
+                            <?php echo $category->name; ?>
                         </option>
-                    <?php /*} */?>
+                    <?php } ?>
                 </select>
-            </div>-->
+            </div>
 
-            <!--<div class="col col-md-4">
+            <div class="col col-md-4">
                 <label for="filter-category">Lọc theo người dùng</label>
-                <select name="filter-by-user" id="filter-user">
+                <select name="filter-by-user" id="domain-filter-user">
                     <option value="0">Tất cả</option>
-                    <?php /*foreach ($users as $user) { */?>
-                        <option value="<?php /*echo $user->ID */?>">
-                            <?php /*echo $user->display_name */?>
+                    <?php foreach ($users as $user) { ?>
+                        <option value="<?php echo $user->ID ?>">
+                            <?php echo $user->display_name ?>
                         </option>
-                    <?php /*} */?>
+                    <?php } ?>
                 </select>
-            </div>-->
+            </div>
+
+            <div class="col col-md-4">
+                <label for="filter-category">Lọc theo thời gian</label>
+                <input type="text" id="domain-filter-daterange" name="daterange" />
+            </div>
 
             <div class="col col-md-12">
                 <table id="domain-report-table"

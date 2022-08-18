@@ -91,6 +91,12 @@ class StoreHLRestAPI
 //        return new \WP_REST_Response($result, 200);
     }
 
+    /**
+     * @description Lấy dữ liệu thống kê trang quản lý hệ thống
+     * @param $request
+     * @return array|void
+     * @throws \Google\ApiCore\ApiException
+     */
     public static function handleSystemDataTableReport($request) {
         $params = $request->get_params();
 
@@ -211,6 +217,12 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
+    /**
+     * @description Lấy dữ liệu thống kê trang quản lí website
+     * @param $request
+     * @return void
+     * @throws \Google\ApiCore\ApiException
+     */
     public static function handleDomainDataTableReport($request) {
         $params = $request->get_params();
 
@@ -220,6 +232,10 @@ class StoreHLRestAPI
         $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
         $search = isset($params['sSearch']) ? $params['sSearch'] : "";
 
+        $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
+        $category = isset($params["category"]) && (int) $params["category"] > 0 ? (int)$params["category"] : null;
+        $dateRanges = isset($params["date_ranges"]) && is_string($params["date_ranges"]) && strlen($params["date_ranges"]) > 0 && gettype(json_decode($params["date_ranges"])) == "object" ? (array) json_decode($params["date_ranges"]) : null;
+
         $result = array(
             "data" => array(),
 //            "draw" => 1,
@@ -227,13 +243,67 @@ class StoreHLRestAPI
             "recordsTotal" => 0
         );
 
-        $request_report_by_domain = StoreHLGA4::instance()->RequestReportByHostName();
+        $query_product_args = array(
+            "posts_per_page" => -1,
+            "post_status" => array("publish", "pending")
+        );
+        if ($author) {
+            $query_product_args["author"] = $author;
+        }
+        if ($category){
+            $query_product_args["tax_query"] = array(
+                "relation" => "AND",
+                array(
+                    'taxonomy' => 're_cat',
+                    'terms' => array( $category ),
+                    'operator' => 'IN'
+                )
+            );
+        }
 
+        $query_products = StoreHL::queryStoreProducts($query_product_args);
+        $products = $query_products->get_posts();
+        $productSlugs = array_map(function($product){
+            return $product->post_name;
+        },$products);
+        $productSlugs = array_values(array_filter($productSlugs, function($slug){
+            return strlen($slug) > 0;
+        }));
+        $args_request_report = array();
+        if ($dateRanges) {
+            $args_request_report["dateRanges"] = array($dateRanges);
+        }
+        if (count($productSlugs) > 0) {
+            $args_request_report["productSlugs"] = $productSlugs;
+        } else {
+            return wp_send_json($result, 200);
+        }
+
+        $request_report_by_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
         $response_domain_report = StoreHLGA4::instance()->makeRunReport($request_report_by_domain);
-
         $data = StoreHLGA4::instance()->makeReportPretty($response_domain_report);
-
         $convert_domain_rows = array();
+
+        $productItems = array_map(function($product){
+
+            $author = get_user_by("id", $product->post_author);
+            $productTitle = $product->post_title;
+            $productSlug = $product->post_name;
+            $productId = $product->ID;
+            $productCategory = get_the_terms($productId, "re_cat");
+            $productStatus = $product->post_status;
+            $statusText = "Chờ duyệt";
+            if ($productStatus == "publish") : $statusText = "Đang hoạt động"; endif;
+
+            return (object) array(
+                "id" => $productId,
+                "title" => $productTitle,
+                "author" => $author,
+                "slug" => $productSlug,
+                "category" => $productCategory,
+                "status" => $statusText,
+            );
+        },$products);
 
         foreach ($data as $countIndex => $item) {
             $keyName = $item->hostName;
@@ -244,7 +314,8 @@ class StoreHLRestAPI
                     "click_view_shop" => 0,
                     "screenPageViews" => 0,
                     "averageSessionDuration" => 0,
-                    "analytics" => array()
+                    "analytics" => array(),
+                    "products" => $productItems
                 );
             };
 
@@ -532,7 +603,12 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
-
+    /**
+     * @description Lấy dữ liệu thống kê trang quản lí user
+     * @param $request
+     * @return void
+     * @throws \Google\ApiCore\ApiException
+     */
     public static function handleUserManagerDataReport($request) {
         $params = $request->get_params();
 
@@ -582,7 +658,7 @@ class StoreHLRestAPI
         );
 
         if ($category){
-            $queryArgs["tax_query"] = array(
+            $args_query_product["tax_query"] = array(
                 "relation" => "AND",
                 array(
                     'taxonomy' => 're_cat',
@@ -602,6 +678,7 @@ class StoreHLRestAPI
         $args_request_report = array(
             "productSlugs" => $product_slugs
         );
+
         if ($domain) {
             $args_request_report["hostNames"] = array($domain);
         }
