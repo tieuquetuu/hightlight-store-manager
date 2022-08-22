@@ -983,6 +983,242 @@ class StoreHLRestAPI
         return wp_send_json($result, 200);
     }
 
+    public static function handleDataTableManageProducts($request) {
+        $params = $request->get_params();
+
+        $result = array(
+            "data" => array(),
+//            "draw" => 1,
+            "recordsFiltered" => 0,
+            "recordsTotal" => 0
+        );
+
+        $dateRanges = isset($params["date_ranges"]) && is_string($params["date_ranges"]) && strlen($params["date_ranges"]) > 0 && gettype(json_decode($params["date_ranges"])) == "object" ? (array) json_decode($params["date_ranges"]) : null;
+
+        $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
+        $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
+        $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
+        $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
+        $search = isset($params['sSearch']) ? $params['sSearch'] : "";
+
+        $author = $params["author"];
+
+        $queryArgs = array(
+            "posts_per_page" => $limit,
+//            "paged" => $pageIndex,
+//            "page" => $pageIndex,
+            "post_status" => array(
+                "publish",
+                "pending",
+                "trash"
+            ),
+            "offset" => $offset,
+            "author" => $author,
+            "s" => $search
+        );
+        $queryProducts = StoreHL::instance()->queryStoreProducts($queryArgs);
+
+        // Nếu không có bài viết return luôn
+        if (!$queryProducts->have_posts()) {
+            return $result;
+        }
+
+        $productSlugs = array();
+
+        foreach ($queryProducts->posts as $item) {
+            if (strlen($item->post_name) <= 0) {
+                continue;
+            }
+            array_push($productSlugs, $item->post_name);
+        }
+
+        $args_request_report = array(
+            "productSlugs" => $productSlugs
+        );
+
+        if ($dateRanges) {
+            $args_request_report["dateRanges"] = array($dateRanges);
+        }
+
+        $request_report_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
+        $report = StoreHLGA4::instance()->makeRunReport($request_report_domain);
+        $pretty_report = StoreHLGA4::makeReportPretty($report);
+
+        $report_str = $report->serializeToJsonString();
+        $report_json = json_decode($report_str);
+
+        $rowsCount = $report_json->rowCount;
+        $rowsData = $report_json->rows;
+
+        $result["recordsFiltered"] = (int) $queryProducts->found_posts;
+        $result["recordsTotal"] = (int) $queryProducts->found_posts;
+
+        foreach ($queryProducts->get_posts() as $product) {
+            $author = get_user_by("id", $product->post_author);
+            $productTitle = $product->post_title;
+            $productSlug = $product->post_name;
+            $productId = $product->ID;
+            $productCategory = get_the_terms($productId, "re_cat");
+            $productEndDay = get_post_meta($productId, 'end_day', true);
+
+            $status = "Chờ duyệt";
+            if ($product->post_status == "publish") : $status = "Đang hoạt động"; endif;
+            if ($product->post_status == "trash") : $status = "Đã xóa"; endif;
+
+            $analytics = null;
+
+            $analytics_filter = array_filter($pretty_report, function($reportItem) use (&$productTitle, &$productSlug){
+                $pagePath = $reportItem->pagePath;
+                $pagePath = str_replace("/product/","", $pagePath);
+                $pagePath = str_replace("/nha-dat/","", $pagePath);
+                $pagePath = str_replace("/","", $pagePath);
+
+                if (strlen($productSlug) > 0) {
+                    return $pagePath == $productSlug;
+                }
+
+                return str_contains($reportItem->pageTitle, $productTitle);
+            });
+
+            $analytics = array_values($analytics_filter);
+
+            $row = array(
+                "id" => $productId,
+                "title" => $productTitle,
+                "category" => $productCategory,
+                "author" => array(
+                    "id" => $author->ID,
+                    "display_name" => $author->display_name
+                ),
+                "end_day" => $productEndDay,
+                "status" => $status,
+                "product" => $product,
+                "analytics" => $analytics,
+            );
+            array_push($result['data'], $row);
+        }
+
+        return wp_send_json($result, 200);
+    }
+
+    public static function handleReportDetailProductByDomainDataTable($request) {
+        $params = $request->get_params();
+
+        $result = array(
+            "data" => array(),
+//            "draw" => 1,
+            "recordsFiltered" => 0,
+            "recordsTotal" => 0
+        );
+
+        $pageIndex = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] + 1 : 1;
+        $offset = isset($params["iDisplayStart"]) ? (int)$params["iDisplayStart"] : 0;
+        $columns = isset($params["iColumns"]) ? (int)$params["iColumns"] : null;
+        $limit = isset($params['iDisplayLength']) ? (int)$params['iDisplayLength'] : 10;
+        $search = isset($params['sSearch']) ? $params['sSearch'] : "";
+
+        $author = isset($params["author"]) && (int) $params["author"] > 0 ? (int)$params["author"] : null;
+        $product_id = isset($params["product_id"]) && (int) $params["product_id"] > 0 ? (int)$params["product_id"] : null;
+
+        $query_product_args = array(
+            "posts_per_page" => -1,
+            "post_status" => array("publish", "pending")
+        );
+        if ($author) {
+            $query_product_args["author"] = $author;
+        }
+        if ($product_id) {
+            $query_product_args["p"] = $product_id;
+        }
+        $query_products = StoreHL::queryStoreProducts($query_product_args);
+        $products = $query_products->get_posts();
+        $productSlugs = array_map(function($product){
+            return $product->post_name;
+        },$products);
+        $productSlugs = array_values(array_filter($productSlugs, function($slug){
+            return strlen($slug) > 0;
+        }));
+        $args_request_report = array();
+
+        if (count($productSlugs) > 0) {
+            $args_request_report["productSlugs"] = $productSlugs;
+        } else {
+            return wp_send_json($result, 200);
+        }
+
+        $request_report_by_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
+        $response_domain_report = StoreHLGA4::instance()->makeRunReport($request_report_by_domain);
+        $data = StoreHLGA4::instance()->makeReportPretty($response_domain_report);
+        $convert_domain_rows = array();
+
+        $productItems = array_map(function($product){
+
+            $author = get_user_by("id", $product->post_author);
+            $productTitle = $product->post_title;
+            $productSlug = $product->post_name;
+            $productId = $product->ID;
+            $productCategory = get_the_terms($productId, "re_cat");
+            $productStatus = $product->post_status;
+            $statusText = "Chờ duyệt";
+            if ($productStatus == "publish") : $statusText = "Đang hoạt động"; endif;
+
+            return (object) array(
+                "id" => $productId,
+                "title" => $productTitle,
+                "author" => $author,
+                "slug" => $productSlug,
+                "category" => $productCategory,
+                "status" => $statusText,
+            );
+        },$products);
+
+        foreach ($data as $countIndex => $item) {
+            $keyName = $item->hostName;
+            if (!key_exists($keyName, $convert_domain_rows)) {
+                $convert_domain_rows[$keyName] = array(
+                    "hostName" => $keyName,
+                    "click_buy_product" => 0,
+                    "click_view_shop" => 0,
+                    "screenPageViews" => 0,
+                    "averageSessionDuration" => 0,
+                    "analytics" => array(),
+                    "products" => $productItems
+                );
+            };
+
+            $convert_domain_rows[$keyName]["averageSessionDuration"] += floatval($item->averageSessionDuration);
+            $convert_domain_rows[$keyName]["screenPageViews"] += (int) $item->screenPageViews;
+            if ($item->eventName == "click_buy_product") {
+                $convert_domain_rows[$keyName]["click_buy_product"] += (int)$item->eventCount;
+            }
+            if ($item->eventName == "click_view_shop") {
+                $convert_domain_rows[$keyName]["click_view_shop"] += (int)$item->eventCount;
+            }
+
+            array_push($convert_domain_rows[$keyName]["analytics"], $item);
+
+            // End The Loop
+            if ($countIndex + 1 == count($data)) {
+                // Tính thời gian xem trung bình
+                $totalAverageSessionDuration = $convert_domain_rows[$keyName]["averageSessionDuration"];
+                $totalAnalyticItems = count($convert_domain_rows[$keyName]["analytics"]);
+
+                $convert_domain_rows[$keyName]["averageSessionDuration"] = $totalAverageSessionDuration / $totalAnalyticItems;
+            }
+        }
+
+        $total_rows = count(array_keys($convert_domain_rows));
+
+        if ($total_rows > 0) {
+            $result["data"] = array_values($convert_domain_rows);
+        }
+
+        $result["recordsFiltered"] = $total_rows;
+        $result["recordsTotal"] = $total_rows;
+
+        return wp_send_json($result, 200);
+    }
+
     public static function init_actions() {
         register_rest_route('hightlight/v1', '/runReport', array(
             'methods' => \WP_REST_Server::READABLE,
@@ -1021,6 +1257,15 @@ class StoreHLRestAPI
             'callback' => array(__CLASS__, 'handleDataTableReportGA4')
         ));
 
+        register_rest_route('hightlight/v1', '/reportManageProductDataTable', array(
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => array(__CLASS__, 'handleDataTableManageProducts')
+        ));
+
+        register_rest_route('hightlight/v1', '/reportDetailProductByDomainDataTable', array(
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => array(__CLASS__, 'handleReportDetailProductByDomainDataTable')
+        ));
 
         register_rest_route('hightlight/v1', '/tracking', array(
             'methods' => \WP_REST_Server::CREATABLE,

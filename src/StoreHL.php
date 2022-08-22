@@ -410,7 +410,7 @@ class StoreHL
                 } else {
                     $my_post = array(
                         'ID'           => $post_id,
-                        'post_status'   => 'pending'
+                        'post_status'   => 'expired'
                     );
                     wp_update_post( $my_post );
                 }

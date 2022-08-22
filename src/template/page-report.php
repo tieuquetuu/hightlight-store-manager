@@ -29,31 +29,40 @@ if (!$is_admin) {
     $queryArgs["author"] = $current_user->ID;
 }
 
-$queryProducts = $storeHL::instance()->queryStoreProducts($queryArgs);
+/*$queryProducts = $storeHL::instance()->queryStoreProducts($queryArgs);*/
 
+$report_by_product_slugs = array();
 $productSlugs = array();
 
-foreach ($queryProducts->posts as $item) {
+/*foreach ($queryProducts->get_posts() as $item) {
     if (strlen($item->post_name) <= 0) {
         continue;
     }
     array_push($productSlugs, $item->post_name);
-}
+}*/
 
-$request = $storeHLGA4::instance()->RequestReportSummaryData(array(
-    "productSlugs" => $productSlugs
-));
-$report = $storeHLGA4::instance()->makeRunReport($request);
-$pretty_report = $storeHLGA4::instance()->makeReportPretty($report);
+$totalScreenPageViews = 0;
+$totalClickBuyProduct = 0;
+$totalClickViewShop = 0;
+$totalAverageSessionDuration = 0;
+
+if (count($productSlugs) > 0) {
+    $request = $storeHLGA4::instance()->RequestReportSummaryData(array(
+        "productSlugs" => $productSlugs
+    ));
+    $report = $storeHLGA4::instance()->makeRunReport($request);
+    $pretty_report = $storeHLGA4::instance()->makeReportPretty($report);
 
 // Đếm tổng lượt xem & sự kiện các thứ
-$totalScreenPageViews = $storeHLGA4::instance()->totalScreenPageViewsFromReport($report);
-$totalClickBuyProduct = $storeHLGA4::instance()->totalClickBuyProductFromReport($report);
-$totalClickViewShop = $storeHLGA4::instance()->totalClickViewShopFromReport($report);
-$totalAverageSessionDuration = $storeHLGA4::instance()->totalAverageSessionDurationFromReport($report);
+    $totalScreenPageViews = $storeHLGA4::instance()->totalScreenPageViewsFromReport($report);
+    $totalClickBuyProduct = $storeHLGA4::instance()->totalClickBuyProductFromReport($report);
+    $totalClickViewShop = $storeHLGA4::instance()->totalClickViewShopFromReport($report);
+    $totalAverageSessionDuration = $storeHLGA4::instance()->totalAverageSessionDurationFromReport($report);
+}
 
 $str_params = http_build_query($ajaxArrayParams);
-$ajax_source_url = get_rest_url() . "hightlight/v1/pageReportDataTable?" . $str_params;
+$detail_product_by_domain_report_ajax_source_url = get_rest_url() . "hightlight/v1/reportDetailProductByDomainDataTable?" . $str_params;
+$product_table_manager_ajax_source_url = get_rest_url() . "hightlight/v1/reportManageProductDataTable?" . $str_params;
 
 get_header(); ?>
 <style>
@@ -62,6 +71,11 @@ get_header(); ?>
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding: 0;
+    }
+
+    .total-card-detail {
+        padding: 10px;
     }
 
     .total-card-count {
@@ -73,34 +87,69 @@ get_header(); ?>
         text-transform: capitalize;
 
     }
+
+    .total-card-link {
+        text-align: center;
+        width: 100%;
+        margin-top: auto;
+        text-transform: capitalize;
+        background: rgba(11, 11, 11, 0.20);
+        color: white;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
 </style>
 <main id="main" class="col-12 site-main" role="main">
 
     <div class="container-fluid">
-        <div class="row mb-4">
+        <div class="row my-4">
+            <div id="total-products" class="col col-md-3 alert alert-danger total-card">
+                <div class="total-card-detail row w-100">
+                    <div class="col-md-6">
+                        <div class="total-card-count"><?php echo 0 ?></div>
+                        <div class="total-card-text">Tổng số sản phẩm</div>
+                    </div>
+                </div>
+                <a class="total-card-link" href="#">Xem chi tiết</a>
+            </div>
             <div id="total-screen-page-views" class="col col-md-3 alert alert-success total-card">
-                <span class="total-card-text">Tổng lượt xem</span>
-                <span class="total-card-count"><?php echo $totalScreenPageViews ?></span>
+                <div class="total-card-detail row w-100">
+                    <div class="col-md-6">
+                        <div class="total-card-count"><?php echo 0 ?> Lượt</div>
+                        <div class="total-card-text">Lượng người xem</div>
+                    </div>
+                </div>
+                <a class="total-card-link" href="#">Xem chi tiết</a>
             </div>
             <div id="total-click-view-shop" class="col col-md-3 alert alert-info total-card">
-                <span class="total-card-text">Lượt click cửa hàng</span>
-                <span class="total-card-count"><?php echo $totalClickViewShop ?></span>
+                <div class="total-card-detail row w-100">
+                    <div class="col-md-6">
+                        <div class="total-card-count"><?php echo 0 ?> Lượt</div>
+                        <div class="total-card-text">Lượng liên hệ</div>
+                    </div>
+                </div>
+                <a class="total-card-link" href="#">Xem chi tiết</a>
             </div>
             <div id="total-click-buy-product" class="col col-md-3 alert alert-warning total-card">
-                <span class="total-card-text">Lượt click mua hàng</span>
-                <span class="total-card-count"><?php echo $totalClickBuyProduct ?></span>
+                <div class="total-card-detail row w-100">
+                    <div class="col-md-6">
+                        <div class="total-card-count"><?php echo 0 ?> Lượt</div>
+                        <div class="total-card-text">Lượng xem cửa hàng</div>
+                    </div>
+                </div>
+                <a class="total-card-link" href="#">Xem chi tiết</a>
             </div>
-            <div id="total-average-session-duration" class="col col-md-3 alert alert-danger total-card">
+            <!--<div id="total-average-session-duration" class="col col-md-3 alert alert-danger total-card">
                 <span class="total-card-text">Thời gian xem trung bình</span>
-                <span class="total-card-count"><?php echo $totalAverageSessionDuration ?> Giây</span>
-            </div>
+                <span class="total-card-count"><?php /*echo $totalAverageSessionDuration */?> Giây</span>
+            </div>-->
         </div>
 
         <div class="row">
-            <div class="col col-md-3 mb-4">
+            <!--<div class="col col-md-3 mb-4">
                 <label for="filter-category">Lọc theo thời gian</label>
                 <input type="text" id="report-filter-daterange" name="daterange" />
-            </div>
+            </div>-->
 
             <?php /*
             <div class="col col-md-12">
@@ -144,31 +193,63 @@ get_header(); ?>
             </div>
             */ ?>
 
-            <div class="col col-md-12">
-                <table
-                        id="products-table-analytics"
-                        class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
-                        data-ajax-source="<?php echo $ajax_source_url ?>"
-                        style="width: 100%">
+        </div>
+
+        <div class="row">
+            <div class="col col-md-7">
+                <h4>Quản lý sản phẩm</h4>
+                <table id="product-table-manager"
+                       data-ajax-source="<?php echo $product_table_manager_ajax_source_url ?>"
+                       class="table table-striped display"
+                       style="width: 100%">
                     <thead>
-                    <tr>
-                        <th></th>
-                        <th>ID sản phẩm</th>
-                        <th style="width: 15%;">Tiêu đề</th>
-                        <th>Danh mục</th>
-                        <th class="text-center">Lượt hiển thị</th>
-                        <th class="text-center">Lượt click cửa hàng</th>
-                        <th class="text-center">Lượt click mua hàng</th>
-                        <th class="text-center">Thời gian xem trung bình</th>
-                        <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
-                    </tr>
+                        <tr>
+                            <th>Mã sản phẩm</th>
+                            <th>Tiêu đề</th>
+                            <th>Ngày hết hạn</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Lượt xem</th>
+                            <th class="text-center">Xem liên hệ</th>
+                            <th class="text-center">Xem cửa hàng</th>
+                            <th class="text-center">Thời gian</th>
+                        </tr>
                     </thead>
                     <tbody>
-
                     </tbody>
                 </table>
             </div>
 
+            <div class="col col-md-5">
+                <h4>Số liệu chi tiết</h4>
+                <table
+                        id="detail-product-analytics"
+                        class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
+                        data-ajax-source="<?php echo $detail_product_by_domain_report_ajax_source_url ?>"
+                        style="width: 100%">
+                    <thead>
+                        <!--<tr>
+                            <th></th>
+                            <th>ID sản phẩm</th>
+                            <th style="width: 15%;">Tiêu đề</th>
+                            <th>Danh mục</th>
+                            <th class="text-center">Lượt hiển thị</th>
+                            <th class="text-center">Lượt click cửa hàng</th>
+                            <th class="text-center">Lượt click mua hàng</th>
+                            <th class="text-center">Thời gian xem trung bình</th>
+                            <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
+                        </tr>-->
+                        <tr>
+                            <th>Website</th>
+                            <th>Lượt xem</th>
+                            <th>Liên hệ</th>
+                            <th>Cửa hàng</th>
+                            <th>Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
