@@ -479,6 +479,8 @@ function ManagerProductTableInit() {
         let newUrl = new URL(initialUrl);
         newUrl.searchParams.set("product_id", value);
 
+        $("#detail-product-analytics-table .table-heading .product-analytics-id").text(`Mã sản phẩm: ${value}`)
+
         $detailDataTable.ajax.url(newUrl.href).ajax.reload();
     })
 }
@@ -608,7 +610,16 @@ function DetailReportTableInit() {
             'excel', 'pdf'
         ],
         initComplete: function(settings, json) {
-            console.log(json)
+            let { extra_data } = json;
+            if (!extra_data) {
+                return false
+            }
+
+            let { clickByProduct, clickViewShop, screenPageViews } = extra_data;
+
+            $("#total-screen-page-views .total-card-count").text(`${screenPageViews} Lượt`);
+            $("#total-click-view-shop .total-card-count").text(`${clickViewShop} Lượt`);
+            $("#total-click-buy-product .total-card-count").text(`${clickByProduct} Lượt`);
         }
     })
 }

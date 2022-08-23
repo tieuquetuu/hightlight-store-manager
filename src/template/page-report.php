@@ -66,11 +66,18 @@ $product_table_manager_ajax_source_url = get_rest_url() . "hightlight/v1/reportM
 
 get_header(); ?>
 <style>
+    .table-heading {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     .total-card {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: space-around;
         padding: 0;
     }
 
@@ -197,12 +204,13 @@ get_header(); ?>
 
         <div class="row">
             <div class="col col-md-7">
-                <h4>Quản lý sản phẩm</h4>
-                <table id="product-table-manager"
-                       data-ajax-source="<?php echo $product_table_manager_ajax_source_url ?>"
-                       class="table table-striped display"
-                       style="width: 100%">
-                    <thead>
+                <div>
+                    <h4>Quản lý sản phẩm</h4>
+                    <table id="product-table-manager"
+                           data-ajax-source="<?php echo $product_table_manager_ajax_source_url ?>"
+                           class="table table-striped display"
+                           style="width: 100%">
+                        <thead>
                         <tr>
                             <th>Mã sản phẩm</th>
                             <th>Tiêu đề</th>
@@ -213,20 +221,25 @@ get_header(); ?>
                             <th class="text-center">Xem cửa hàng</th>
                             <th class="text-center">Thời gian</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="col col-md-5">
-                <h4>Số liệu chi tiết</h4>
-                <table
-                        id="detail-product-analytics"
-                        class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
-                        data-ajax-source="<?php echo $detail_product_by_domain_report_ajax_source_url ?>"
-                        style="width: 100%">
-                    <thead>
+                <div id="detail-product-analytics-table">
+                    <div class="table-heading">
+                        <h4 class="heading">Số liệu chi tiết</h4>
+                        <span class="product-analytics-id">Tổng quan</span>
+                    </div>
+                    <table
+                            id="detail-product-analytics"
+                            class="<?php if($is_admin) : echo 'admin-view'; endif; ?> table table-striped display"
+                            data-ajax-source="<?php echo $detail_product_by_domain_report_ajax_source_url ?>"
+                            style="width: 100%">
+                        <thead>
                         <!--<tr>
                             <th></th>
                             <th>ID sản phẩm</th>
@@ -245,10 +258,11 @@ get_header(); ?>
                             <th>Cửa hàng</th>
                             <th>Thời gian</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

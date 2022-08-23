@@ -1148,6 +1148,12 @@ class StoreHLRestAPI
 
         $request_report_by_domain = StoreHLGA4::instance()->RequestReportSummaryData($args_request_report);
         $response_domain_report = StoreHLGA4::instance()->makeRunReport($request_report_by_domain);
+
+        $totalScreenPageViews = StoreHLGA4::totalScreenPageViewsFromReport($response_domain_report);
+        $totalClickBuyProduct = StoreHLGA4::totalClickBuyProductFromReport($response_domain_report);
+        $totalClickViewShop = StoreHLGA4::totalClickViewShopFromReport($response_domain_report);
+        $totalAverageSessionDuration = StoreHLGA4::totalAverageSessionDurationFromReport($response_domain_report);
+
         $data = StoreHLGA4::instance()->makeReportPretty($response_domain_report);
         $convert_domain_rows = array();
 
@@ -1211,6 +1217,13 @@ class StoreHLRestAPI
 
         if ($total_rows > 0) {
             $result["data"] = array_values($convert_domain_rows);
+
+            $result["extra_data"] = array(
+                "screenPageViews" => $totalScreenPageViews,
+                "clickByProduct" => $totalClickBuyProduct,
+                "clickViewShop" => $totalClickViewShop,
+                "averageSessionDuration" => $totalAverageSessionDuration
+            );
         }
 
         $result["recordsFiltered"] = $total_rows;
