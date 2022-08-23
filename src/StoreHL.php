@@ -571,6 +571,12 @@ class StoreHL
         );
     }
 
+    public static function currency_format_vnd($number, $suffix = 'đ') {
+        if (!empty($number)) {
+            return number_format($number, 0, ',', '.') . "{$suffix}";
+        }
+    }
+
     public static function handle_rest_api_init() {
         // Google Analytics API
         register_rest_route('hightlight/v1', '/analytics', array(

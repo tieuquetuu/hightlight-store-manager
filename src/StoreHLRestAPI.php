@@ -1025,7 +1025,7 @@ class StoreHLRestAPI
 
         $productSlugs = array();
 
-        foreach ($queryProducts->posts as $item) {
+        foreach ($queryProducts->get_posts() as $item) {
             if (strlen($item->post_name) <= 0) {
                 continue;
             }
@@ -1060,6 +1060,22 @@ class StoreHLRestAPI
             $productId = $product->ID;
             $productCategory = get_the_terms($productId, "re_cat");
             $productEndDay = get_post_meta($productId, 'end_day', true);
+            $productGallery = get_post_meta( $productId,'re_gallery', true);
+            if (!is_null($productGallery) && count($productGallery) > 0) {
+                $productGallery = array_map(function($var){
+                    $arr = wp_get_attachment_image_src($var);
+                    $src = $arr[0];
+                    $width = $arr[1];
+                    $height = $arr[2];
+
+                    return (object) array(
+                        "src" => $src,
+                        "width" => $width,
+                        "height" => $height
+                    );
+                }, $productGallery);
+            }
+            $productPrice = get_post_meta( $productId,'re_price', true);
 
             $status = "Chờ duyệt";
             if ($product->post_status == "publish") : $status = "Đang hoạt động"; endif;
@@ -1086,6 +1102,8 @@ class StoreHLRestAPI
                 "id" => $productId,
                 "title" => $productTitle,
                 "category" => $productCategory,
+                "gallery" => $productGallery,
+                "price" => $productPrice,
                 "author" => array(
                     "id" => $author->ID,
                     "display_name" => $author->display_name

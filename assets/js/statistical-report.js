@@ -467,21 +467,62 @@ function ManagerProductTableInit() {
     let $detailDataTable = $detailTable.dataTable().api();
     let initialUrl = $detailDataTable.ajax.url();
 
-    /*$dataTable.on("draw.dt", function (event,settings){
-        let totalProducts = settings.json.recordsTotal;
-
-        $("#total-products .total-card-count").text(totalProducts)
-    })*/
+    // Tab preview sản phẩm
+    let $productPreviewWrap = $("#product-preview-wrap");
+    let $productPreviewId = $productPreviewWrap.find(".product-preview-id span");
+    let $productPreviewTitle = $productPreviewWrap.find(".product-preview__title");
+    let $productPreviewPrice = $productPreviewWrap.find(".product-preview__price span");
+    let $productPreviewUpdated = $productPreviewWrap.find(".product-preview__updated span");
+    let $productPreviewGallery = $productPreviewWrap.find(".product-preview__gallery");
+    let $productPreviewContent = $productPreviewWrap.find(".product-preview__content-inner");
+    let $productPreviewEditBtn = $productPreviewWrap.find(".product-preview__edit-btn");
+    let $productPreviewDeleteBtn = $productPreviewWrap.find(".product-preview__delete-btn");
 
     $dataTable.on("select", function(e, dt, type, indexes) {
         let rowData = $dataTable.row(indexes).data();
-        let { id: value } = rowData;
+        let { id: value, product, gallery, price } = rowData;
+
+        // Load lại bảng số liệu chi tiết
         let newUrl = new URL(initialUrl);
         newUrl.searchParams.set("product_id", value);
-
         $("#detail-product-analytics-table .table-heading .product-analytics-id").text(`Mã sản phẩm: ${value}`)
-
         $detailDataTable.ajax.url(newUrl.href).ajax.reload();
+
+        // Load lại phần preview sản phẩm
+        if (!$productPreviewWrap.hasClass("shown")) {
+            $productPreviewWrap.addClass("shown");
+        }
+
+        let { site_url } = hightlight_client_object || {};
+        let { ID, post_title, post_content, post_modified } = product;
+
+        // Cập nhật vào phần preview
+        $productPreviewTitle.text(post_title)
+        $productPreviewId.text(ID)
+        $productPreviewContent.html(post_content)
+        $productPreviewUpdated.text(post_modified)
+        $productPreviewPrice.text(parseInt(price).toLocaleString('it-IT', {style : 'currency', currency : 'VND'}))
+        $productPreviewEditBtn.attr("href", `${site_url}/nguoi-dung/dang-tin?action=edit&id=${ID}`)
+        $productPreviewDeleteBtn.attr("href", `${site_url}/nguoi-dung/danh-sach-tin-dang?action=delete&id=${ID}`)
+
+        let galleryItems = ``;
+        gallery.forEach((item) => {
+            galleryItems += (`
+                <div class="product-preview__gallery-item">
+                    <div class="product-preview__gallery-item__image">
+                        <img src="${item.src}" alt="">
+                    </div>
+                </div>
+            `)
+        })
+        $productPreviewGallery.html(galleryItems)
+
+    })
+
+    $dataTable.on("deselect", function(e, dt, type, indexes) {
+        let countSelected = $dataTable.rows({ selected: true }).count();
+
+        $productPreviewWrap.removeClass("shown");
     })
 }
 

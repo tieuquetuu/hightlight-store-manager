@@ -105,6 +105,69 @@ get_header(); ?>
         padding-top: 5px;
         padding-bottom: 5px;
     }
+
+    #product-preview-wrap {
+        padding: 10px;
+        display: none;
+    }
+
+    #product-preview-wrap.shown {
+        display: block;
+    }
+
+    .product-preview__gallery {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .product-preview__gallery-item {
+        margin-right: 8px;
+    }
+
+    .product-preview__gallery-item:last-child {
+        margin-right: 0;
+    }
+
+    .product-preview__gallery-item__image {
+        max-width: 140px;
+        min-width: 140px;
+        max-height: 100px;
+        min-height: 100px;
+    }
+
+    .product-preview__gallery-item__image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .product-preview__gallery-item__text {
+        align-items: center;
+        text-align: center;
+    }
+
+    .product-preview__gallery-item__file-name {
+        font-weight: bold;
+        font-style: italic;
+    }
+
+    .product-preview__meta {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .product-preview__price {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .product-preview__footer {
+
+    }
 </style>
 <main id="main" class="col-12 site-main" role="main">
 
@@ -153,58 +216,8 @@ get_header(); ?>
         </div>
 
         <div class="row">
-            <!--<div class="col col-md-3 mb-4">
-                <label for="filter-category">Lọc theo thời gian</label>
-                <input type="text" id="report-filter-daterange" name="daterange" />
-            </div>-->
-
-            <?php /*
-            <div class="col col-md-12">
-                <table class="table table-striped store-hightlight-dataTable display">
-                    <thead>
-                        <th></th>
-                        <th>ID Tin</th>
-                        <th>Tiêu đề</th>
-                        <th>Đường dẫn</th>
-                        <th>Danh mục</th>
-                        <th>Lượt xem</th>
-                        <th>Lượt click cửa hàng</th>
-                        <th>Lượt click mua hàng</th>
-                        <th>Thời gian xem trung bình</th>
-                        <th>Tình trạng</th>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($queryProducts->posts as $prod) {
-                            $prodId = $prod->ID;
-                            $prodTitle = $prod->post_title;
-                            $prodSlug = $prod->post_name;
-                            $productCategory = array_map(function($cat) {
-                                return $cat->name;
-                            },get_the_terms($prodId, "re_cat"));
-                            $prodStatusText = $prod->post_status; ?>
-                            <tr>
-                                <td></td>
-                                <td><?php echo $prodId ?></td>
-                                <td><?php echo $prodTitle ?></td>
-                                <td><?php echo $prodSlug ?></td>
-                                <td><?php echo implode(",", $productCategory) ?></td>
-                                <td>1000</td>
-                                <td>500</td>
-                                <td>400</td>
-                                <td>60 giây</td>
-                                <td><?php echo $prodStatusText ?></td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-            */ ?>
-
-        </div>
-
-        <div class="row">
             <div class="col col-md-7">
-                <div>
+                <div id="product-table-manager-wrap" class="card p-3">
                     <h4>Quản lý sản phẩm</h4>
                     <table id="product-table-manager"
                            data-ajax-source="<?php echo $product_table_manager_ajax_source_url ?>"
@@ -226,10 +239,78 @@ get_header(); ?>
                         </tbody>
                     </table>
                 </div>
+
+                <div id="product-preview-wrap" class="card p-3 my-4">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col col-md-12">
+                                <h4 class="product-preview-id">Mã sản phẩm : <span class="" style="font-weight: bold">OR9842</span></h4>
+                                <hr class="divider">
+                            </div>
+
+                            <div class="col col-md-12">
+                                <h4 class="product-preview__title">Thuốc bổ mắt Anphalina</h4>
+                                <div class="product-preview__meta my-2">
+                                    <div class="product-preview__price">Giá <span>1.380.000 vnd</span></div>
+                                    <div class="product-preview__updated">Cập nhật gần nhất: <span>15 tháng 2, 2022 11:30 sáng</span></div>
+                                </div>
+                                <hr class="divider">
+                                <div class="product-preview__gallery">
+
+                                    <!--<div class="product-preview__gallery-item">
+                                        <div class="product-preview__gallery-item__image">
+                                            <img src="https://via.placeholder.com/140x100" alt="">
+                                        </div>
+                                        <div class="product-preview__gallery-item__text">
+                                            <span class="product-preview__gallery-item__file-name">Tên file.png</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-preview__gallery-item">
+                                        <div class="product-preview__gallery-item__image">
+                                            <img src="https://via.placeholder.com/140x100" alt="">
+                                        </div>
+                                        <div class="product-preview__gallery-item__text">
+                                            <span class="product-preview__gallery-item__file-name">Tên file.png</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-preview__gallery-item">
+                                        <div class="product-preview__gallery-item__image">
+                                            <img src="https://via.placeholder.com/140x100" alt="">
+                                        </div>
+                                        <div class="product-preview__gallery-item__text">
+                                            <span class="product-preview__gallery-item__file-name">Tên file.png</span>
+                                        </div>
+                                    </div>-->
+
+                                </div>
+                                <hr class="divider">
+                                <div class="product-preview__content">
+                                    <span class="mb-4">Mô tả sản phẩm :</span>
+                                    <div class="product-preview__content-inner">
+                                        <p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">Đây là loại yến được làm từ các tổ yến bị gãy, vỡ trong quá trình thu hoạch, phần sơ dừa còn lại khi làm loại rút lông xuất khẩu và các phần yến rút lông khác bị gãy trong quá trình vận chuyển. Để tiện cho khách hàng sử dụng, chúng tôi đã gom và ép lại thành từng tổ.</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">Bạch yến tinh chế loại 2 cũng có công dụng như tổ yến. Tuy nhiên do bị vỡ nên không được đẹp mắt như tổ yến. Nếu bạn là người ăn yến thường xuyên thì đây thực sự là lựa chọn tốt cho kinh tế. Tuy nhiên không phù hợp cho biếu tặng.</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;"><span style="font-size: 20px; color: #ff0000;" data-mce-style="font-size: 20px; color: #ff0000;"><span style="font-weight: bolder;" data-mce-style="font-weight: bolder;">Bộ Sản Phẩm bao gồm</span>:</span></p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;1 hộp tổ yến tinh chế;</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;1 Sách hướng dẫn sử dụng;</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;1 hộp đường phèn;</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧ 1 túi xách Yến Sào</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;"><span style="font-size: 20px; color: #ff0000;" data-mce-style="font-size: 20px; color: #ff0000;"><span style="font-weight: bolder;" data-mce-style="font-weight: bolder;">Cách chế biến yến sào Khánh Hòa</span></span></p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">Có thể chế biến theo nhiều phương pháp khác nhau nhưng để đảm bảo dưỡng chất và hương vị thì yến chưng được đánh giá cao nhất. Đối với các món ăn khác có sử dụng yến sào, người tiêu dùng cũng nên chưng yến trước rồi thêm vào sau khi món ăn đã hoàn thành. Dưới đây là phương pháp chưng yến khoa học và đảm bảo:</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;"><span style="color: #0000ff; font-size: 16px;" data-mce-style="color: #0000ff; font-size: 16px;"><span style="font-weight: bolder;" data-mce-style="font-weight: bolder;">➢&nbsp;Dùng nồi chưng yến chuyên dụng:</span></span></p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;Bước 1: Cân tổ yến và ngâm tổ yến trong nước tinh khiết sao cho ngập hết tổ trong 1 giờ.</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;Bước 2: Khi tổ yến mềm và tách ra vớt ra rá dầy để ráo nước.</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;Bước 3: Sử dụng nồi chưng yến cho nước ngập mức tiêu chuẩn và đặt bát đựng yến vào.</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧&nbsp;Bước 4: Dùng nước tinh khiết đổ vào bát đựng yến sao cho ngập hết tổ yến.</p><p style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;" data-mce-style="margin-bottom: 1.3em; margin-top: 0px; color: #777777; font-family: Roboto, sans-serif; font-size: 17px;">✧ Bước 5: Chọn thời gian chưng từ 45 phút – 1 giờ. Chưng khoảng 40 phút nước bắt đầu sôi, đợi thêm 25 phút là yến chín. Trước khi lấy yến ra kh oảng 5 phút thì cho đường phèn vào nồi trộn đều</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col col-md-12">
+                                <div class="product-preview__footer">
+                                    <a href="#" class="btn btn-primary product-preview__edit-btn">
+                                        <span><i class="fa fa-edit"></i></span>
+                                        <span>Chỉnh sửa</span>
+                                    </a>
+                                    <a href="#" class="btn btn-danger product-preview__delete-btn">
+                                        <span><i class="fa fa-trash"></i></span>
+                                        <span>Xóa</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col col-md-5">
-                <div id="detail-product-analytics-table">
+                <div id="detail-product-analytics-table" class="card p-3">
                     <div class="table-heading">
                         <h4 class="heading">Số liệu chi tiết</h4>
                         <span class="product-analytics-id">Tổng quan</span>
@@ -240,17 +321,6 @@ get_header(); ?>
                             data-ajax-source="<?php echo $detail_product_by_domain_report_ajax_source_url ?>"
                             style="width: 100%">
                         <thead>
-                        <!--<tr>
-                            <th></th>
-                            <th>ID sản phẩm</th>
-                            <th style="width: 15%;">Tiêu đề</th>
-                            <th>Danh mục</th>
-                            <th class="text-center">Lượt hiển thị</th>
-                            <th class="text-center">Lượt click cửa hàng</th>
-                            <th class="text-center">Lượt click mua hàng</th>
-                            <th class="text-center">Thời gian xem trung bình</th>
-                            <th style="width: 5%;" class="text-center" style="width: 10%;">Trạng thái</th>
-                        </tr>-->
                         <tr>
                             <th>Website</th>
                             <th>Lượt xem</th>

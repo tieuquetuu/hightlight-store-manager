@@ -12,11 +12,11 @@ Trước khi bắt đầu cần cài đặt các plugin bắt buộc và kích h
 ## Bắt đầu
 - Cài đặt và kích hoạt plugin Store HightLight Manager
 
-### Đối với website vệ tinh
+#### Đối với website vệ tinh
 
 - Cài đặt và kích hoạt plugin Monster Insight , trong trang quản trị chọn Lauch Setup Wizard và làm theo hướng dẫn để tích hợp mã google analytics
 
-### Đối với website tổng
+#### Đối với website tổng
 
 - Thiết lập hệ thống theo hướng dẫn trong file "document.docx"
 
