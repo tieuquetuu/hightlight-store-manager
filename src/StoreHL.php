@@ -193,12 +193,19 @@ class StoreHL
         wp_enqueue_script( 'hightlight-momment-locale-js','//cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js', array( 'jquery' ), '', true );
 
         // Jquery js
-        wp_enqueue_script( 'hightlight-jquery-js','//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js', array( 'jquery' ), '', true );
+//        wp_enqueue_script( 'hightlight-jquery-js','//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js', array( 'jquery' ), '', true );
+
+        // Giao diện admin
+        wp_enqueue_style( 'hightlight-fontawesome-css',STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . "theme/vendor/fontawesome-free/css/all.min.css");
+        wp_enqueue_style( 'hightlight-sb-admin-2-css',STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . "theme/css/sb-admin-2.min.css");
+        wp_enqueue_script( 'hightlight-jquery-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'theme/vendor/jquery/jquery.min.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-bootstrap-admin-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'theme/vendor/bootstrap/js/bootstrap.bundle.min.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-jquery-easing-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'theme/vendor/jquery-easing/jquery.easing.min.js', array( 'jquery' ), '', true );
+        wp_enqueue_script( 'hightlight-sb-admin-2-js', STORE_HIGHT_LIGHT_PLUGIN_DIR_URL . 'theme/js/sb-admin-2.min.js', array( 'jquery' ), '', true );
 
         // Store Hight Light Extension Library
         // Chỉ require các plugin nếu như đây là site chính
         if ($is_page_management_users || $is_page_management_system || $is_page_management_domain || $is_page_report) {
-
             wp_enqueue_style( 'hightlight-daterangepicker-css',"//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css");
             wp_enqueue_script( 'hightlight-daterangepicker-js','//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js', array( 'jquery' ), '', true );
 
