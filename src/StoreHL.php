@@ -311,6 +311,122 @@ class StoreHL
     </div>';
     }
 
+    public static function AdminSideBar() {
+
+        $image = get_field('logo', 'customizer');
+
+        return '<!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" rel="home" href="'.esc_url( home_url( "/" ) ).'">
+                <img class="lazy" src="' . $image['url'] .'"/>
+                <noscript><img src="'.$image['url'].'" alt="Chợ bất động sản"/></noscript>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" href="'.site_url("/nguoi-dung/thong-ke-hoat-dong").'">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Thống kê hoạt động</span></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="'.site_url("/nguoi-dung/danh-sach-tin-dang").'">
+                    <i class="fas fa-fw fa-list-alt"></i>
+                    <span>Danh sách tin đăng</span></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="'.site_url("/nguoi-dung/dang-tin").'">
+                    <i class="fas fa-fw fa-pen-alt"></i>
+                    <span>Đăng tin</span></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="'.site_url("/nguoi-dung/tai-khoan").'">
+                    <i class="fas fa-fw fa-user-alt"></i>
+                    <span>Tài khoản</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->';
+    }
+
+    public static function AdminTopBar() {
+        $current_user = wp_get_current_user();
+        $current_link = get_the_permalink();
+
+        return '<!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">'.$current_user->display_name.'</span>
+                                <!--<img class="img-profile rounded-circle"
+                                     src="img/undraw_profile.svg">-->
+
+                                <span class="img-profile rounded-circle">
+                                    <i class="fa fa-user" style="font-size: 1.3rem"></i>
+                                </span>
+
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="'.site_url("/nguoi-dung/tai-khoan").'">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Tài khoản
+                                </a>
+                                <a class="dropdown-item" href="'.site_url("/nguoi-dung/danh-sach-tin-dang").'">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Danh sách tin đăng
+                                </a>
+                                <a class="dropdown-item" href="'.site_url("/nguoi-dung/dang-tin").'">
+                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng tin
+                                </a>
+                                <a class="dropdown-item" href="'.site_url("/nguoi-dung/thong-ke-hoat-dong").'">
+                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Thống kê hoạt động
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="'.wp_logout_url( home_url() ).'">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng xuất
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->';
+    }
+
     public static function productIsExpireSoon($post) {
         $today = date_create("now");
         $post_id = $post->ID;

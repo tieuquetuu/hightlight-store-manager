@@ -81,6 +81,9 @@ class StoreHLPageTemplater {
 //            'template/page-management-role-domain.php' => 'Quản lý dữ liệu sản phẩm (domain)',
 //            'template/page-management-role-admin.php' => 'Quản lý dữ liệu sản phẩm (admin)',
             'template/page-login.php' => 'Quản lý dữ liệu sản phẩm (login)',
+            'template/page-edit-post.php' => 'User Đăng Tin',
+            'template/page-user-account.php' => 'User Tài khoản',
+            'template/page-list-post.php' => 'User Danh sách tin đăng',
         );
 
     }
