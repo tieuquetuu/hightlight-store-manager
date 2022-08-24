@@ -1373,33 +1373,91 @@ class StoreHLGA4 {
                 ])
             ),
             "metrics" => array(
-                new Metric([
+                /*new Metric([
                     "name" => "activeUsers" // Đếm Số Người Dùng
-                ]),
+                ]),*/
                 new Metric([
                     "name" => "eventCount" // Đếm Số Sự Kiện
                 ]),
-                new Metric([
+                /*new Metric([
                     "name" => "sessions" // Đếm session
                 ]),
                 new Metric([
                     "name" => "screenPageViewsPerSession" // Thời gian xem trung bình trong 1 session
-                ]),
+                ]),*/
                 new Metric([
                     "name" => "screenPageViews" // Đếm lượt xem màn hình
                 ]),
                 new Metric([
                     "name" => "averageSessionDuration" // Thời gian xem trung bình
                 ]),
-                new Metric([
+                /*new Metric([
                     "name" => "bounceRate" // Thời gian xem trung bình
-                ])
+                ])*/
             ),
             "dimension_filter" => $dimension_filter,
             "limit" => 100000,
             "offset" => 0
         ]);
         return $request;
+    }
+
+    public static function RequestReportSummary(Array $args = []) {
+
+        $default_dateRanges = array(
+            new DateRange([
+                'start_date' => '2022-01-01', // Từ trước
+                'end_date' => 'today', // Đến hôm nay
+            ])
+        );
+        $default_dimensions = array(
+            new Dimension([
+                "name" => "hostName" // Tên miền
+            ]),
+            new Dimension([
+                "name" => "pagePath" // Đường dẫn
+            ]),
+            new Dimension([
+                "name" => "pageTitle" // Tiêu đề trang
+            ]),
+            new Dimension([
+                "name" => "eventName" // Tên sự kiện
+            ])
+        );
+        $default_metrics = array(
+            /*new Metric([
+                "name" => "activeUsers" // Đếm Số Người Dùng
+            ]),*/
+            new Metric([
+                "name" => "eventCount" // Đếm Số Sự Kiện
+            ]),
+            /*new Metric([
+                "name" => "sessions" // Đếm session
+            ]),
+            new Metric([
+                "name" => "screenPageViewsPerSession" // Thời gian xem trung bình trong 1 session
+            ]),*/
+            new Metric([
+                "name" => "screenPageViews" // Đếm lượt xem màn hình
+            ]),
+            new Metric([
+                "name" => "averageSessionDuration" // Thời gian xem trung bình
+            ]),
+            /*new Metric([
+                "name" => "bounceRate" // Thời gian xem trung bình
+            ])*/
+        );
+
+        $req = new RunReportRequest([
+            "property" => 'properties/' . self::properties(),
+            "date_ranges" => $default_dateRanges,
+            "dimensions" => $default_dimensions,
+            "metrics" => $default_metrics,
+//            "dimension_filter" => $dimension_filter,
+            "limit" => 100000,
+            "offset" => 1
+        ]);
+        return $req;
     }
 
     /**

@@ -81,25 +81,25 @@ wp_head(); ?>
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="<?php site_url("/nguoi-dung/thong-ke-hoat-dong") ?>">
+                <a class="nav-link" href="<?php echo site_url("/nguoi-dung/thong-ke-hoat-dong") ?>">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Thống kê hoạt động</span></a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="<?php site_url("/nguoi-dung/dang-sach-tin-dang") ?>">
+                <a class="nav-link" href="<?php echo site_url("/nguoi-dung/dang-sach-tin-dang") ?>">
                     <i class="fas fa-fw fa-list-alt"></i>
                     <span>Danh sách tin đăng</span></a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="<?php site_url("/nguoi-dung/dang-tin") ?>">
+                <a class="nav-link" href="<?php echo site_url("/nguoi-dung/dang-tin") ?>">
                     <i class="fas fa-fw fa-pen-alt"></i>
                     <span>Đăng tin</span></a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="<?php site_url("/nguoi-dung/thong-ke-hoat-dong") ?>">
+                <a class="nav-link" href="<?php echo site_url("/nguoi-dung/thong-ke-hoat-dong") ?>">
                     <i class="fas fa-fw fa-user-alt"></i>
                     <span>Tài khoản</span></a>
             </li>

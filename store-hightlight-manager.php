@@ -81,32 +81,18 @@ if ($_GET["debug"] == "vip") {
 //        )
 //    ));
 
+    $storeHLGA4 = new \StoreHightLight\StoreHLGA4();
+
+//    $request = $storeHLGA4->RequestReportSummary();
+//    $report = $storeHLGA4->makeRunReport($request);
+//    $json_report = json_decode($report->serializeToJsonString());
+//    $pretty_report = $storeHLGA4->makeReportPretty($report);
+
     echo "<pre>";
-//    var_dump(get_post(3601));
 
-//    var_dump(get_post_meta(3601, "post_views", true));
+//    print_r($report->serializeToJsonString());
+//    var_dump($json_report);
 
-    $post_views_meta = array(
-        "domain"        => "giagoc247.com",
-        "start_time"    => strtotime("now"),
-        "end_time"      => strtotime("+5 hours")
-    );
-
-    $post_click_buy_product_meta = array(
-        "domain"        => "giagoc247.com",
-        "date_created"    => strtotime("now"),
-    );
-
-    $post_click_view_shop_meta = array(
-        "domain"        => "giagoc247.com",
-        "date_created"    => strtotime("now"),
-    );
-
-    var_dump($post_views_meta);
-
-//    update_post_meta(3601, "event_post_view");
-
-//    var_dump(json_decode($data->serializeToJsonString()));
     echo "</pre>";
 
     die();
