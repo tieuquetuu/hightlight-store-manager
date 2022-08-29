@@ -14,6 +14,12 @@ if( ! is_user_logged_in() ) {
 $current_user = wp_get_current_user();
 $re_unit_price = 0;
 
+$query_all_post_by_user = $storeHL::queryStoreProducts(array(
+    "author" => $current_user->ID,
+    "post_status" => "any",
+    "posts_per_page" => -1
+));
+
 $form_action = isset( $_GET['action'] ) && $_GET['action'] == "edit" ? "edit" : "post";
 $post_id = $_GET['id'];
 $is_edit = $_GET['action'] == 'edit' && isset( $post_id ) && (int)$post_id > 0 ? true : false;
@@ -213,11 +219,11 @@ wp_head();?>
                     <div class="row">
                         <div class="col-12 content-area">
                             <h1 class="h3 mb-0 text-gray-800">Đăng sản phẩm</h1>
-                            <p><small>7 sản phẩm đã đăng</small></p>
+                            <p><small><?php echo $query_all_post_by_user->found_posts ?> sản phẩm đã đăng</small></p>
                         </div>
                         <div class="col col-md-3 col-xs-12">
                             <div class="w-100">
-                                <a href="<?php echo site_url("/danh-sach-tin-dang") ?>" class="btn btn-info w-100">Quản lý sản phẩm</a>
+                                <a href="<?php echo site_url("/nguoi-dung/danh-sach-tin-dang") ?>" class="btn btn-info w-100">Quản lý sản phẩm</a>
                             </div>
                         </div>
                     </div>
